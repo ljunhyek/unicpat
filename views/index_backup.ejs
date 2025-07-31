@@ -1,0 +1,115 @@
+<%- include('partials/header') %>
+
+<style>
+    /* .hero 선택자 앞에 점(.)을 추가하여 CSS가 정상 작동하도록 수정했습니다. */
+    .hero {
+        position: relative;
+        height: 600px;
+        background-image: url('/images/hero-background-tech.jpg');
+        background-size: cover;
+        /* 손가락이 잘리지 않도록 상단 기준으로 정렬합니다. */
+        background-position: center; 
+       background-position: center 13%;
+        margin-top: -80px; /* 헤더의 pt-80px를 상쇄하여 이미지가 위로 붙게 함 */
+        overflow: hidden;
+    }
+    .hero-content {
+        position: relative;
+        z-index: 2; 
+        text-align: center;
+        padding-top: 80px; /* 헤더 높이만큼 안쪽 패딩으로 조절 */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%; /* 부모(hero) 높이 전체 사용 */
+    }
+    /* 히어로 섹션 내 텍스트 색상을 원래대로(어둡게) 설정합니다. */
+    .hero-content h1 { 
+        color: #0F172A;
+    }
+    .hero-content p { 
+        color: #2F3B40;
+    }
+    .section-title {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+        color: #0F172A;
+    }
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        width: 60px;
+        height: 3px;
+        background: #54B435;
+        transform: translateX(-50%);
+    }
+    .btn-primary { background: #54B435; color: white; padding: 0.75rem 1.5rem; border-radius: 5px; font-weight: 500; transition: background 0.3s; }
+    .btn-primary:hover { background: #469b2d; }
+    .btn-outline { border: 2px solid #54B435; color: #54B435; padding: 0.75rem 1.5rem; border-radius: 5px; font-weight: 500; transition: background 0.3s, color 0.3s; }
+    .btn-outline:hover { background: #54B435; color: white; }
+    .contact-info-card { background-color: #ffffff; padding: 2.5rem; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; height: 100%; }
+    .info-block { display: flex; align-items: flex-start; margin-bottom: 1.75rem; }
+    .info-block .icon { flex-shrink: 0; width: 50px; height: 50px; background-color: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1.5rem; }
+    .info-block .icon i { color: #54B435; font-size: 1.5rem; }
+    .info-block .info-text h4 { color: #0F172A; font-weight: 700; font-size: 1.125rem; margin-bottom: 0.5rem; }
+    .info-block .info-text p, .info-block .info-text a { color: #2F3B40; font-size: 1rem; line-height: 1.6; }
+    @media (max-width: 768px) {
+        .hero {
+            background-image: url('/images/hero-background-mobile.jpg');
+        }
+    }
+</style>
+
+<!-- 히어로 섹션 -->
+<section class="hero flex items-center justify-center">
+    <div class="container mx-auto z-10">
+        <div class="hero-content">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4" style="line-height: 1.5;">특허, 그 이상의 가치를 만드는 곳!<br>유니크 특허사무소가 함께 합니다</h1>
+            <p class="text-lg my-8 max-w-3xl mx-auto">단순한 출원을 넘어 아이디어의 사업화까지 20년 경력의 전문 변리사가<br>꼼꼼하게 상담하고 지원해드리겠습니다</p>
+            <a href="/contact" class="bg-white text-green-800 hover:bg-gray-100 text-lg font-bold py-3 px-6 rounded-lg transition-all mt-8 inline-block">상담 신청하기</a>
+        </div>
+    </div>
+</section>
+
+<!-- (이하 나머지 모든 섹션은 이전과 동일합니다) -->
+<!-- 왜 유니크 특허인가요? 섹션 -->
+<section id="about" class="py-16 bg-white">
+    <div class="container mx-auto">
+        <h2 class="section-title text-3xl font-bold text-center">왜 유니크 특허인가요?</h2>
+        <p class="text-center text-[#2F3B40] text-lg max-w-2xl mx-auto mb-16">
+            특허 출원, 그 자체가 목적이 아닙니다.<br> 
+            진짜 중요한건, 그 특허가 사업화에 어떻게 도움이 되는지, 시장에서 어떻게 지켜낼 수 있는지입니다.
+        </p>
+        <div class="space-y-20">
+            <div class="flex flex-col md:flex-row items-center gap-10 md:gap-16">
+                <div class="md:w-1/2"><img src="/images/image-idea-expert.jpg" alt="아이디어 현실화 전문가" class="rounded-lg shadow-xl w-full h-auto object-cover"></div>
+                <div class="md:w-1/2">
+                    <h3 class="text-3xl font-bold mb-4 text-[#0F172A]">아이디어 현실화 전문가</h3>
+                    <p class="text-[#2F3B40] text-lg leading-relaxed">초기 컨셉부터 특허등록, 상표등록, 기술이전, 상업화까지 전 과정을 컨설팅해드립니다. 단순히 출원만 하는 곳이 아닙니다.</p>
+                </div>
+            </div>
+            <div class="flex flex-col md:flex-row-reverse items-center gap-10 md:gap-16">
+                <div class="md:w-1/2"><img src="/images/image-top-professional.jpg" alt="최고 수준의 전문성" class="rounded-lg shadow-xl w-full h-auto object-cover"></div>
+                <div class="md:w-1/2">
+                    <h3 class="text-3xl font-bold mb-4 text-[#0F172A]">최고 수준의 전문성</h3>
+                    <p class="text-[#2F3B40] text-lg leading-relaxed">삼성전자, 카이스트, 서강대, 기업 연구소부터 중소기업까지 수많은 기술을 검토하고 지식재산권 출원·분쟁을 수행한 실전경험을 보유하고 있습니다.</p>
+                </div>
+            </div>
+            <div class="flex flex-col md:flex-row items-center gap-10 md:gap-16">
+                <div class="md:w-1/2"><img src="/images/image-startup-experience.jpg" alt="스타트업 창업 경험 보유" class="rounded-lg shadow-xl w-full h-auto object-cover"></div>
+                <div class="md:w-1/2">
+                    <h3 class="text-3xl font-bold mb-4 text-[#0F172A]">스타트업 창업 경험 보유</h3>
+                    <p class="text-[#2F3B40] text-lg leading-relaxed">대표 변리사는 스타트업을 창업하고 정부 연구과제와 투자유치까지 경험한 전문가로서 창업자의 고민을 누구보다 잘 이해합니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- (나머지 모든 섹션의 코드도 여기에 포함됩니다...) -->
+<%- include('partials/footer') %>

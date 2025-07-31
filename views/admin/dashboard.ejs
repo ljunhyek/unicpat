@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        /* 활성화된 탭 버튼 스타일 */
+        .tab-button.active {
+            border-color: #3b82f6; /* blue-500 */
+            color: #3b82f6;
+            background-color: white;
+        }
+    </style>
+    <script>
+        // 탭 전환을 위한 JavaScript 함수
+        function showTab(tabId) {
+            // 모든 탭 컨텐츠를 숨김
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            // 모든 탭 버튼의 활성 스타일을 제거
+            document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+            
+            // 선택된 탭 컨텐츠를 표시
+            document.getElementById(tabId).classList.remove('hidden');
+            // 선택된 탭 버튼에 활성 스타일을 추가
+            document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
+        }
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-8 pb-4 border-b">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4 sm:mb-0">관리자 대시보드</h1>
+            <a href="/admin/logout" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
+            </a>
+        </div>
+
+        <!-- 탭 버튼 컨테이너 -->
+        <div class="bg-white rounded-t-lg shadow">
+            <div class="flex border-b -mb-px">
+                <button class="tab-button py-3 px-6 font-semibold text-gray-600 border-b-2 border-transparent hover:text-blue-600 focus:outline-none" onclick="showTab('tab-column')">
+                    <i class="fas fa-newspaper mr-2"></i>유니크 칼럼
+                </button>
+                <button class="tab-button py-3 px-6 font-semibold text-gray-600 border-b-2 border-transparent hover:text-blue-600 focus:outline-none" onclick="showTab('tab-newsletter')">
+                    <i class="fas fa-envelope-open-text mr-2"></i>뉴스레터
+                </button>
+                <button class="tab-button py-3 px-6 font-semibold text-gray-600 border-b-2 border-transparent hover:text-blue-600 focus:outline-none" onclick="showTab('tab-gov-support')">
+                    <i class="fas fa-building mr-2"></i>정부지원사업
+                </button>
+            </div>
+        </div>
+
+        <!-- 탭 컨텐츠 영역 -->
+        <div class="bg-white p-6 rounded-b-lg shadow">
+            <!-- 유니크 칼럼 탭 -->
+            <div id="tab-column" class="tab-content hidden">
+                <%- include('partials/admin-column', { posts: posts }) %>
+            </div>
+            
+            <!-- 뉴스레터 탭 -->
+            <div id="tab-newsletter" class="tab-content hidden">
+                <%- include('partials/admin-newsletter', { newsletters: newsletters }) %>
+            </div>
+            
+            <!-- 정부지원사업 탭 -->
+            <div id="tab-gov-support" class="tab-content hidden">
+                <%- include('partials/admin-gov-support', { programTypes: programTypes, govProjects: govProjects }) %>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 페이지 로드 시 URL 해시를 확인하여 해당 탭을 열거나, 없으면 첫 번째 탭을 기본으로 표시
+        document.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash.substring(1); // 예: '#tab-newsletter' -> 'tab-newsletter'
+            const validTabs = ['tab-column', 'tab-newsletter', 'tab-gov-support'];
+            
+            if (hash && validTabs.includes(hash)) {
+                showTab(hash);
+            } else {
+                showTab('tab-column');
+            }
+        });
+    </script>
+</body>
+</html>

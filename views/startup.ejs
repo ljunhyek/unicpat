@@ -1,0 +1,253 @@
+<%- include('partials/header') %>
+
+<style>
+    .hero {
+        position: relative;
+        padding: 8rem 0 4rem 0;
+        background-color: #93C572;
+        color: white;
+        margin-top: -80px; /* 헤더의 pt-[80px] 상쇄 */
+        overflow: hidden;
+    }
+    .hero-content {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+    }
+    .section-title {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+        color: #0F172A;
+    }
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        width: 60px;
+        height: 3px;
+        background: #54B435;
+        transform: translateX(-50%);
+    }
+    .service-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s, box-shadow 0.3s;
+        border: 1px solid #e5e7eb;
+    }
+    .service-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(84, 180, 53, 0.1);
+    }
+    .service-icon {
+        width: 60px;
+        height: 60px;
+        background: #f0fdf4;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+    }
+    .service-icon i {
+        font-size: 24px;
+        color: #54B435;
+    }
+    .feature-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s;
+        border: 1px solid #e5e7eb;
+        border-left: 4px solid #54B435;
+    }
+    .feature-card:hover { transform: translateY(-3px); }
+    .btn-primary {
+        background: #54B435;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: background 0.3s;
+        display: inline-block;
+        text-decoration: none;
+    }
+    .btn-primary:hover { background: #469b2d; color: white; }
+    .step-number {
+        width: 40px;
+        height: 40px;
+        background: #54B435;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin: 0 auto 1rem;
+    }
+    .process-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        border: 1px solid #e5e7eb;
+        position: relative;
+    }
+    .testimonial-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        border: 1px solid #e5e7eb;
+    }
+</style>
+
+<!-- 히어로 섹션 -->
+<section class="hero flex items-center justify-center">
+    <div class="container mx-auto z-10">
+        <div class="hero-content">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4" style="line-height: 1.5;">창업자와 스타트업을 위한<br>특별한 지식재산권 서비스</h1>
+            <p class="text-lg my-8 text-gray-100 max-w-3xl mx-auto">스타트업 창업 경험이 있는 전문 변리사가 여러분의 아이디어를<br>든든한 지식재산권으로 보호하고 사업 성공을 함께 이뤄나갑니다</p>
+            <a href="/contact" class="bg-white text-green-800 hover:bg-gray-100 text-lg font-bold py-3 px-8 rounded-lg transition-all mt-8 inline-block">무료 상담 신청하기</a>
+        </div>
+    </div>
+</section>
+
+<!-- 창업자를 위한 특별한 이유 섹션 -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto">
+        <h2 class="section-title text-3xl font-bold text-center">왜 창업자들이 유니크를 선택할까요?</h2>
+        <p class="text-center text-[#2F3B40] text-lg max-w-3xl mx-auto mb-16">
+            단순한 출원 대행이 아닌, 창업자의 관점에서 실질적으로 도움이 되는<br>
+            지식재산권 전략과 비즈니스 컨설팅을 함께 제공합니다
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="feature-card p-8">
+                <div class="service-icon"><i class="fas fa-user-tie"></i></div>
+                <h3 class="text-xl font-bold text-center mb-4 text-[#0F172A]">스타트업 창업 경험 보유</h3>
+                <p class="text-[#2F3B40] text-center">대표 변리사가 직접 스타트업을 창업하고 정부 연구과제, 투자유치까지 경험한 실전 전문가로서 창업자의 고민을 누구보다 잘 이해합니다.</p>
+            </div>
+            
+            <div class="feature-card p-8">
+                <div class="service-icon"><i class="fas fa-lightbulb"></i></div>
+                <h3 class="text-xl font-bold text-center mb-4 text-[#0F172A]">아이디어 현실화 전문가</h3>
+                <p class="text-[#2F3B40] text-center">초기 컨셉부터 특허등록, 상표등록, 기술이전, 상업화까지 전 과정을 컨설팅해드립니다. 단순히 출원만 하는 곳이 아닙니다.</p>
+            </div>
+            
+            <div class="feature-card p-8">
+                <div class="service-icon"><i class="fas fa-handshake"></i></div>
+                <h3 class="text-xl font-bold text-center mb-4 text-[#0F172A]">창업자 친화적 서비스</h3>
+                <p class="text-[#2F3B40] text-center">스타트업의 자금 상황을 고려한 유연한 비용 구조와 정부지원사업 연계를 통해 창업자의 부담을 최소화합니다.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 핵심 서비스 섹션 -->
+<section class="py-16" style="background-color: #EDFBE2;">
+    <div class="container mx-auto">
+        <h2 class="section-title text-3xl font-bold text-center">창업 & 스타트업 특화 서비스</h2>
+        <p class="text-center text-[#2F3B40] mb-12">창업 단계별로 필요한 지식재산권 서비스를 체계적으로 제공합니다</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="service-card p-8">
+                <div class="service-icon"><i class="fas fa-chess"></i></div>
+                <h3 class="text-2xl font-bold mb-4 text-[#0F172A]">IP 포트폴리오 전략 수립</h3>
+                <ul class="text-[#2F3B40] space-y-3">
+                    <li class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3"></i><span>사업 모델 분석을 통한 맞춤형 IP 전략 설계</span></li>
+                    <li class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3"></i><span>경쟁사 특허 분석 및 회피 설계 방안 제시</span></li>
+                </ul>
+            </div>
+            <div class="service-card p-8">
+                <div class="service-icon"><i class="fas fa-building"></i></div>
+                <h3 class="text-2xl font-bold mb-4 text-[#0F172A]">정부지원사업 연계 컨설팅</h3>
+                <ul class="text-[#2F3B40] space-y-3">
+                    <li class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3"></i><span>IP-R&D 연계 지원사업 신청 컨설팅</span></li>
+                    <li class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3"></i><span>IP 바우처, IP 나래 프로그램 등 정부지원 활용</span></li>
+                </ul>
+            </div>
+            <div class="service-card p-8">
+                <div class="service-icon"><i class="fas fa-chart-line"></i></div>
+                <h3 class="text-2xl font-bold mb-4 text-[#0F172A]">투자유치용 IP 실사 및 자문</h3>
+                <ul class="text-[#2F3B40] space-y-3">
+                    <li class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3"></i><span>기술 가치평가 및 IP 가치평가 지원</span></li>
+                    <li class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3"></i><span>투자자 대상 IP 포트폴리오 설명 자료 작성</span></li>
+                </ul>
+            </div>
+            <div class="service-card p-8">
+                <div class="service-icon"><i class="fas fa-piggy-bank"></i></div>
+                <h3 class="text-2xl font-bold mb-4 text-[#0F172A]">스타트업 맞춤형 비용 플랜</h3>
+                <ul class="text-[#2F3B40] space-y-3">
+                    <li class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3"></i><span>창업 초기 자금상황을 고려한 유연한 결제 방식</span></li>
+                    <li class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3"></i><span>정부지원금 활용한 할인 혜택 제공</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 서비스 프로세스 섹션 -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto">
+        <h2 class="section-title text-3xl font-bold text-center">서비스 프로세스</h2>
+        <p class="text-center text-[#2F3B40] mb-12">체계적이고 단계적인 접근으로 최적의 결과를 보장합니다</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="process-card p-6 text-center">
+                <div class="step-number">1</div>
+                <h3 class="text-lg font-bold mb-3 text-[#0F172A]">무료 상담 및 분석</h3>
+                <p class="text-[#2F3B40] text-sm">사업 모델과 기술 분석을 통한 IP 전략 방향 설정</p>
+            </div>
+            <div class="process-card p-6 text-center">
+                <div class="step-number">2</div>
+                <h3 class="text-lg font-bold mb-3 text-[#0F172A]">맞춤형 전략 수립</h3>
+                <p class="text-[#2F3B40] text-sm">창업 단계와 목표에 맞는 IP 포트폴리오 전략 설계</p>
+            </div>
+            <div class="process-card p-6 text-center">
+                <div class="step-number">3</div>
+                <h3 class="text-lg font-bold mb-3 text-[#0F172A]">출원 및 등록</h3>
+                <p class="text-[#2F3B40] text-sm">우선순위에 따른 단계적 출원 진행 및 권리 확보</p>
+            </div>
+            <div class="process-card p-6 text-center">
+                <div class="step-number">4</div>
+                <h3 class="text-lg font-bold mb-3 text-[#0F172A]">사후 관리 및 활용</h3>
+                <p class="text-[#2F3B40] text-sm">지속적인 모니터링과 사업화 연계 지원</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 성공 사례 섹션 -->
+<section class="py-16" style="background-color: #EDFBE2;">
+    <div class="container mx-auto">
+        <h2 class="section-title text-3xl font-bold text-center">창업자 성공 사례</h2>
+        <p class="text-center text-[#2F3B40] mb-12">유니크와 함께 성공한 창업자들의 생생한 후기를 확인하세요</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="testimonial-card p-8">
+                <div class="flex items-center mb-4">
+                    <div class="service-icon mr-4"><i class="fas fa-quote-left"></i></div>
+                    <div>
+                        <h3 class="text-lg font-bold text-[#0F172A]">테크 스타트업 A사 대표</h3>
+                        <p class="text-sm text-gray-500">AI 기반 솔루션 개발</p>
+                    </div>
+                </div>
+                <p class="text-[#2F3B40]">"다른 곳에서 두 번이나 특허로는 불가능한 발명품이라는 말을 들었던 저에게 이준혁 변리사님은 가능성이 있어보인다며 함께 만들어보자 해주셨어요. 덕분에 특허도 등록하고 시리즈 A 투자도 성공적으로 유치했습니다."</p>
+            </div>
+            <div class="testimonial-card p-8">
+                <div class="flex items-center mb-4">
+                    <div class="service-icon mr-4"><i class="fas fa-quote-left"></i></div>
+                    <div>
+                        <h3 class="text-lg font-bold text-[#0F172A]">바이오 헬스케어 B사 대표</h3>
+                        <p class="text-sm text-gray-500">의료기기 개발</p>
+                    </div>
+                </div>
+                <p class="text-[#2F3B40]">"창업 초기부터 IP 전략을 체계적으로 세워주셔서 FDA 승인과 해외 진출에서 큰 도움이 되었습니다. 정부지원사업도 연계해주셔서 자금 부담도 크게 줄일 수 있었어요."</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<%- include('partials/footer') %>

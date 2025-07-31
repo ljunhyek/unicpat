@@ -1,0 +1,180 @@
+<%- include('partials/header') %>
+
+<style>
+    .page-banner {
+        background-color: #EDFBE2;
+        padding: 120px 0 60px 0;
+        margin-top: -80px;
+    }
+    .section-title {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+        color: #0F172A;
+    }
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        width: 60px;
+        height: 3px;
+        background: #54B435;
+        transform: translateX(-50%);
+    }
+    .btn-primary {
+        background: #54B435;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: background 0.3s;
+    }
+    .btn-primary:hover { background: #469b2d; }
+    .btn-outline {
+        border: 2px solid #54B435;
+        color: #54B435;
+        padding: 0.75rem 1.5rem;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: background 0.3s, color 0.3s;
+    }
+    .btn-outline:hover { background: #54B435; color: white; }
+</style>
+
+<!-- 페이지 배너 -->
+<section class="page-banner">
+    <div class="container mx-auto text-center">
+        <h1 class="text-4xl font-bold text-[#0F172A] mb-4">정부지원사업</h1>
+        <p class="text-lg text-[#2F3B40] max-w-3xl mx-auto">
+            국가 R&D 지원사업 신청에 필요한 특허 관련 자료를 제공하며, 과제 준비부터 제안서 작성, 선정 및 결과보고서까지 함께 고민하고 작성합니다.
+        </p>
+    </div>
+</section>
+
+<!-- 정부 지원 사업 종류 -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto">
+        <h2 class="section-title text-3xl text-center">정부 지원 사업 종류</h2>
+        <div class="mt-12">
+            <!-- 데스크탑용 테이블 (md 이상 화면에서 보임) -->
+            <div class="hidden md:block overflow-x-auto">
+                <div class="bg-white shadow-lg rounded-lg border border-gray-200">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="py-4 px-6 text-left text-sm font-bold text-[#0F172A] uppercase tracking-wider">주관기관</th>
+                                <th class="py-4 px-6 text-left text-sm font-bold text-[#0F172A] uppercase tracking-wider">사업명</th>
+                                <th class="py-4 px-6 text-left text-sm font-bold text-[#0F172A] uppercase tracking-wider">사이트 바로가기</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <% programTypes.forEach(item => { %>
+                                <tr>
+                                    <td class="py-4 px-6 whitespace-nowrap font-medium"><%= item.agency %></td>
+                                    <td class="py-4 px-6"><%= item.programs %></td>
+                                    <td class="py-4 px-6">
+                                        <a href="<%= item.url %>" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline"><%= item.url.replace('https://', '').replace('www.', '') %></a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 모바일용 카드 리스트 (md 미만 화면에서 보임) -->
+            <div class="md:hidden space-y-6">
+                <% programTypes.forEach(item => { %>
+                    <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-[#54B435]">
+                        <h3 class="text-xl font-bold text-[#0F172A] mb-2"><%= item.agency %></h3>
+                        <p class="text-[#2F3B40] leading-relaxed mb-3"><%= item.programs %></p>
+                        <a href="<%= item.url %>" target="_blank" class="inline-block text-blue-600 hover:underline text-sm font-semibold">
+                            사이트 바로가기 <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                        </a>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 진행중이거나 예정인 사업 공고 -->
+<section class="py-16" style="background-color: #EDFBE2;">
+    <div class="container mx-auto">
+        <h2 class="section-title text-3xl text-center">진행중이거나 예정인 사업 공고</h2>
+        <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <% govProjects.forEach(project => { %>
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border-l-4 border-[#54B435]">
+                    <h3 class="text-xl font-bold text-[#0F172A] mb-4"><%= project.title %></h3>
+                    <div class="text-[#2F3B40] space-y-3">
+                        <p><i class="far fa-calendar-alt w-5 text-gray-500 mr-1"></i><span class="font-semibold">신청기간:</span> <%= project.period %></p>
+                        <div class="flex items-center">
+                            <i class="fas fa-globe w-5 text-gray-500 mr-1"></i><span class="font-semibold">홈페이지:</span> 
+                            <a href="<%= project.url %>" target="_blank" class="btn-outline text-sm py-1 px-3 ml-2 inline-block">바로 가기</a>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+</section>
+
+<!-- IP 지원사업 준비 섹션 -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto">
+        <h2 class="section-title text-3xl text-center">IP 지원사업 준비</h2>
+        <div class="max-w-3xl mx-auto text-center mb-8">
+            <p class="text-[#2F3B40] leading-relaxed">
+                관심 IP 지원사업이나 R&D 사업을 적어주시면, 공고시 메일 드리겠습니다.<br>
+                신청서나 사업계획서에 IP 관련 내용이 필요하시면 문의주시기 바랍니다.
+            </p>
+        </div>
+        
+        <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg border border-gray-200">
+            <form action="https://api.web3forms.com/submit" method="POST">
+                <input type="hidden" name="access_key" value="dd3c9ad5-1802-4bd1-b7e6-397002308afa">
+                <input type="hidden" name="redirect" value="/thanks">
+                <input type="hidden" name="subject" value="정부지원사업 준비 신청">
+
+                <div class="mb-4">
+                    <label for="name" class="block text-lg font-medium text-[#2F3B40] mb-2">이름 *</label>
+                    <input type="text" id="name" name="name" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#54B435]" required>
+                </div>
+                <div class="mb-4">
+                    <label for="email" class="block text-lg font-medium text-[#2F3B40] mb-2">이메일 *</label>
+                    <input type="email" id="email" name="email" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#54B435]" required>
+                </div>
+                <div class="mb-4">
+                    <label for="phone" class="block text-lg font-medium text-[#2F3B40] mb-2">연락처</label>
+                    <input type="tel" id="phone" name="phone" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#54B435]">
+                </div>
+                <div class="mb-4">
+                    <label for="project-name" class="block text-lg font-medium text-[#2F3B40] mb-2">관심 사업명</label>
+                    <input type="text" id="project-name" name="관심_사업명" placeholder="관심 사업명을 입력하세요." class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#54B435]">
+                </div>
+                <div class="mb-6">
+                    <label for="project-details" class="block text-lg font-medium text-[#2F3B40] mb-2">필요한 선행조사 및 특허동향</label>
+                    <textarea id="project-details" name="필요조사_및_특허동향" rows="6" placeholder="신청서나 사업계획서에 필요한 내용을 입력하세요." class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#54B435]"></textarea>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-[#2F3B40] mb-2 font-medium">개인정보 수집/이용 및 동의 및 비밀엄수 안내 <span class="text-red-500">*</span></label>
+                    <div class="border rounded-md bg-gray-50 text-sm text-gray-700">
+                        <textarea rows="3" class="w-full p-3 bg-transparent border-0 resize-none focus:outline-none leading-relaxed" readonly>보내주신 개인정보 및 아이디어 내용, 상표 등에 대해 비밀을 엄수합니다. 본 동의는 거부할 수 있으며 거부 시 상담서비스가 제한됩니다. 수집·이용 목적 - 상담신청 답변 처리 등 수집 항목 - 이름, 연락처, 이메일, 아이디어 내용 등 보유 및 이용 기간 - 상담완료 시</textarea>
+                    </div>
+                    <div class="mt-3 flex items-center">
+                        <input type="checkbox" id="privacy-consent-gov" name="privacy_consent" class="h-4 w-4 text-[#54B435] focus:ring-[#54B435] border-gray-300 rounded" required>
+                        <label for="privacy-consent-gov" class="ml-2 block text-sm text-[#2F3B40]">개인정보 수집/이용에 동의합니다.</label>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary w-full text-lg py-3">IP 지원사업 준비 신청하기</button>
+            </form>
+            <p class="text-center mt-6 text-sm text-gray-500">
+                * 전화로 문의주셔도 됩니다: <strong class="text-[#54B435]">032-288-7960, 010-3131-7960</strong>
+            </p>
+        </div>
+    </div>
+</section>
+
+<%- include('partials/footer') %>

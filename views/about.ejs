@@ -1,0 +1,340 @@
+<%- include('partials/header') %>
+
+<style>
+    .page-hero {
+        background: linear-gradient(135deg, #54B435 0%, #16a34a 100%);
+        color: white;
+        margin-top: -80px; /* 헤더의 pt-80px를 상쇄 */
+        padding: 8rem 0 4rem 0; /* 헤더 높이만큼 안쪽 패딩 추가 */
+    }
+    
+    .section-title {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+        color: #0F172A;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        width: 60px;
+        height: 3px;
+        background: #54B435;
+        transform: translateX(-50%);
+    }
+    
+    .strength-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s, box-shadow 0.3s;
+        border: 1px solid #e5e7eb;
+        height: 100%;
+    }
+    
+    .strength-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(84, 180, 53, 0.1);
+    }
+    
+    .strength-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #54B435 0%, #16a34a 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+    
+    .strength-icon i {
+        font-size: 32px;
+        color: white;
+    }
+    
+    .ceo-card {
+        background: white;
+        border-radius: 16px;
+        padding: 3rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid #e5e7eb;
+    }
+    
+    .member-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s;
+        text-align: center;
+        height: 100%;
+    }
+    
+    .member-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .member-avatar {
+        width: 80px;
+        height: 80px;
+        background: #f0fdf4;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 3px solid #54B435;
+    }
+    
+    .member-avatar i {
+        font-size: 32px;
+        color: #54B435;
+    }
+    
+    .btn-primary {
+        background: #54B435;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: background 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-primary:hover {
+        background: #469b2d;
+        color: white;
+    }
+    
+    .ceo-image {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #54B435;
+        margin: 0 auto 2rem;
+    }
+    
+    .comparison-section {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin: 2rem 0;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .vs-badge {
+        background: #54B435;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+</style>
+
+<!-- 페이지 히어로 -->
+<section class="page-hero">
+    <div class="container mx-auto text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">유니크 소개</h1>
+        <p class="text-xl text-gray-100 max-w-3xl mx-auto">
+            20년 경력의 전문 변리사가 특허 그 이상의 가치를 현실화합니다
+        </p>
+    </div>
+</section>
+
+<!-- 유니크 vs 일반 특허사무소 비교 -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto">
+        <h2 class="section-title text-3xl font-bold text-center">왜 유니크 특허여야 할까요?</h2>
+        <p class="text-center text-[#2F3B40] text-lg max-w-3xl mx-auto mb-12">
+            일반 특허사무소와는 다른 유니크만의 차별화된 접근방식으로<br>
+            특허 출원부터 사업화까지 토탈 솔루션을 제공합니다
+        </p>
+        
+        <div class="comparison-section">
+            <div class="text-center mb-8">
+                <span class="vs-badge">일반 특허사무소 VS 유니크 특허</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-6">
+                    <h3 class="text-2xl font-bold text-red-600 text-center">일반 특허사무소</h3>
+                    <div class="space-y-4 text-[#2F3B40]">
+                        <div class="flex items-start"><i class="fas fa-times text-red-500 mt-1 mr-3"></i><span>단순 출원 대행 서비스에 그침</span></div>
+                        <div class="flex items-start"><i class="fas fa-times text-red-500 mt-1 mr-3"></i><span>사업화 전략 부재</span></div>
+                        <div class="flex items-start"><i class="fas fa-times text-red-500 mt-1 mr-3"></i><span>정해진 매뉴얼대로만 진행</span></div>
+                        <div class="flex items-start"><i class="fas fa-times text-red-500 mt-1 mr-3"></i><span>비즈니스 관점의 조언 부족</span></div>
+                        <div class="flex items-start"><i class="fas fa-times text-red-500 mt-1 mr-3"></i><span>정부지원사업 연계 미비</span></div>
+                    </div>
+                </div>
+                
+                <div class="space-y-6">
+                    <h3 class="text-2xl font-bold text-[#54B435] text-center">유니크 특허</h3>
+                    <div class="space-y-4 text-[#2F3B40]">
+                        <div class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3"></i><span>출원부터 사업화까지 토탈솔루션</span></div>
+                        <div class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3"></i><span>창업자 맞춤형 IP 전략 수립</span></div>
+                        <div class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3"></i><span>스타트업 창업경험 기반 실전컨설팅</span></div>
+                        <div class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3"></i><span>정부지원사업 연계 및 제안서 작성 지원</span></div>
+                        <div class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3"></i><span>대표변리사의 직접상담과 밀착관리</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 차별화된 강점 섹션 -->
+<section class="py-16" style="background-color: #EDFBE2;">
+    <div class="container mx-auto">
+        <h2 class="section-title text-3xl font-bold text-center">유니크 특허만의 차별화된 강점</h2>
+        <p class="text-center text-[#2F3B40] text-lg mb-12">20년 경력의 전문성과 실전 경험이 만든 차별화된 서비스</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="strength-card">
+                <div class="strength-icon"><i class="fas fa-medal"></i></div>
+                <h3 class="text-2xl font-bold text-center mb-4 text-[#0F172A]">전문성과 경험</h3>
+                <div class="space-y-3 text-[#2F3B40]">
+                    <div class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3 flex-shrink-0"></i><span><strong>20년 경력 변리사</strong><br>검증된 전문성과 풍부한 실무 경험</span></div>
+                    <div class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3 flex-shrink-0"></i><span><strong>대기업부터 스타트업까지</strong><br>폭넓은 경험으로 맞춤형 서비스</span></div>
+                    <div class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3 flex-shrink-0"></i><span><strong>스타트업 창업경험</strong><br>창업경험으로 사업가적 관점 보유</span></div>
+                    <div class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3 flex-shrink-0"></i><span><strong>높은 등록 성공률</strong><br>체계적 선행조사와 전문적인 명세서 작성</span></div>
+                </div>
+            </div>
+            <div class="strength-card">
+                <div class="strength-icon"><i class="fas fa-rocket"></i></div>
+                <h3 class="text-2xl font-bold text-center mb-4 text-[#0F172A]">신속한 서비스</h3>
+                <div class="space-y-3 text-[#2F3B40]">
+                    <div class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3 flex-shrink-0"></i><span><strong>24시간 내 답변</strong><br>이메일 상담시 24시간 내 전문변리사 직접 답변</span></div>
+                    <div class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3 flex-shrink-0"></i><span><strong>초고속 출원</strong><br>업계 최고 수준의 빠른 출원 서비스</span></div>
+                    <div class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3 flex-shrink-0"></i><span><strong>실시간 진행상황 공유</strong><br>투명한 업무 진행과정 안내</span></div>
+                </div>
+            </div>
+            <div class="strength-card">
+                <div class="strength-icon"><i class="fas fa-coins"></i></div>
+                <h3 class="text-2xl font-bold text-center mb-4 text-[#0F172A]">합리적 비용</h3>
+                <div class="space-y-3 text-[#2F3B40]">
+                    <div class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3 flex-shrink-0"></i><span><strong>정찰제 수임료</strong><br>투명하고 합리적인 비용 체계</span></div>
+                    <div class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3 flex-shrink-0"></i><span><strong>창업자 할인</strong><br>예비창업가 및 초기 스타트업 특별할인</span></div>
+                    <div class="flex items-start"><i class="fas fa-check text-[#54B435] mt-1 mr-3 flex-shrink-0"></i><span><strong>성과연동제</strong><br>등록 성공시 비용 발생하는 옵션제</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 구성원 소개 섹션 -->
+<section id="profile" class="py-16 bg-white">
+    <div class="container mx-auto">
+        <h2 class="section-title text-3xl font-bold text-center">구성원 소개</h2>
+        <p class="text-center text-[#2F3B40] text-lg mb-12">전문성과 경험을 갖춘 유니크 특허사무소 구성원들을 소개합니다</p>
+        
+        <div class="mb-16">
+            <div class="ceo-card">
+                <div class="flex flex-col lg:flex-row items-center gap-12">
+                    <div class="lg:w-1/3 text-center">
+                        <img src="/images/lee-jun-hyeok-attorney.jpg" alt="이준혁 대표변리사" class="ceo-image">
+                        <h3 class="text-3xl font-bold text-[#0F172A] mb-2">이준혁 대표변리사</h3>
+                        <p class="text-[#54B435] font-semibold text-lg">제 42회 변리사 시험합격 (2004년)</p>
+                    </div>
+                    <div class="lg:w-2/3">
+                        <div class="space-y-6">
+                            <div>
+                                <h4 class="text-xl font-bold text-[#0F172A] mb-3">주요 경력</h4>
+                                <div class="space-y-2 text-[#2F3B40]">
+                                    <p>• 피닉스, 알렉스 등 특허법률사무소 근무 (2006 ~ 2014.7월)</p>
+                                    <p>• 現 유니크 국제특허법률사무소 대표이사 (2014. 8월~)</p>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-xl font-bold text-[#0F172A] mb-3">주요 활동</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <h5 class="font-semibold text-[#54B435] mb-2">특허 출원</h5>
+                                        <ul class="text-sm text-[#2F3B40] space-y-1">
+                                            <li>• 삼성전자, 삼성종합기술원, 제일모직, 효성화학 담당</li>
+                                            <li>• 대학, 연구소: 전북대, 호서대, 가천대, 서강대, 카이스트, 광주과학기술원 등</li>
+                                            <li>• 한국광기술원, 에너지기술원, 가스안전공사, 전주생물소재연구소 등</li>
+                                            <li>• 중소기업, 개인: STS, KMF, RTI, KSF, 올앤올 등 다수</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-semibold text-[#54B435] mb-2">심판 소송</h5>
+                                        <ul class="text-sm text-[#2F3B40] space-y-1">
+                                            <li>• 라스고, 비엘프로세스 등 무효심판</li>
+                                            <li>• 권리범위 확인 심판</li>
+                                        </ul>
+                                        
+                                        <h5 class="font-semibold text-[#54B435] mb-2 mt-4">위페이퍼 창업</h5>
+                                        <ul class="text-sm text-[#2F3B40] space-y-1">
+                                            <li>• 친환경 캡슐커피 회사 창업</li>
+                                            <li>• 친환경 캡슐커피 특허 다수 출원, 등록</li>
+                                            <li>• 환경부 국가 R&D 과제 수행</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="member-card">
+                <div class="member-avatar"><i class="fas fa-user"></i></div>
+                <h4 class="text-xl font-bold text-[#0F172A] mb-2">강태희 변리사</h4>
+                <p class="text-[#54B435] font-semibold mb-3">2006년 변리사 자격 취득</p>
+                <div class="text-left space-y-2 text-sm text-[#2F3B40]">
+                    <div><strong>경력:</strong><p>(주)한화 근무</p></div>
+                    <div><strong>주요 담당 분야:</strong><p>화학, 바이오 분야</p></div>
+                </div>
+            </div>
+            <div class="member-card">
+                <div class="member-avatar"><i class="fas fa-user"></i></div>
+                <h4 class="text-xl font-bold text-[#0F172A] mb-2">추혁 변리사</h4>
+                <p class="text-[#54B435] font-semibold mb-3">2005년 변리사 자격 취득</p>
+                <div class="text-left space-y-2 text-sm text-[#2F3B40]">
+                    <div><strong>경력:</strong><p>지엠 국제특허법률사무소 대표</p></div>
+                    <div><strong>주요 담당 분야:</strong><p>물리, 화학, 생물학 연구개발</p></div>
+                </div>
+            </div>
+            <div class="member-card">
+                <div class="member-avatar">
+                    <img src="/images/mun.png" alt="문익주 이사" class="w-full h-full object-cover rounded-full">
+                </div>
+                <h4 class="text-xl font-bold text-[#0F172A] mb-2">문익주 이사</h4>
+                <p class="text-[#54B435] font-semibold mb-3">기술기획 전문가</p>
+                <div class="text-left space-y-2 text-sm text-[#2F3B40]">
+                    <div><strong>주요 경력:</strong><p>삼성전자(LCD 총괄) 기술기획 총괄 팀장</p></div>
+                    <div><strong>주요 업무:</strong><p>기술기획, 비즈니스 모델 설정 및 사업화</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA 섹션 -->
+<section class="py-16" style="background: linear-gradient(135deg, #54B435 0%, #16a34a 100%);">
+    <div class="container mx-auto text-center">
+        <h2 class="text-3xl font-bold mb-6 text-white">유니크 특허사무소와 함께하세요</h2>
+        <p class="text-lg mb-8 max-w-2xl mx-auto text-gray-100">
+            20년 경력의 전문성과 실전 창업 경험을 바탕으로<br>
+            귀하의 아이디어를 성공적인 비즈니스로 만들어드리겠습니다
+        </p>
+        <div class="flex justify-center space-x-4">
+            <a href="/contact" class="bg-white text-green-800 hover:bg-gray-100 text-lg px-8 py-3 rounded-lg font-bold transition duration-300">상담 신청하기</a>
+            <a href="tel:010-3131-7960" class="border-2 border-white text-white hover:bg-white hover:text-green-800 text-lg px-8 py-3 rounded-lg font-bold transition duration-300">전화 문의하기</a>
+        </div>
+    </div>
+</section>
+
+<%- include('partials/footer') %>

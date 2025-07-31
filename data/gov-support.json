@@ -1,0 +1,62 @@
+{
+  "types": [
+    {
+      "agency": "창업진흥원",
+      "programs": "예비창업패키지, 초기창업패키지, 창업도약패키지, 초격차 스타트업, 아기유니콘 200, 재도전 성공패키지, 창업중심대학",
+      "description": "창업 관련 지원 사업",
+      "url": "https://www.k-startup.go.kr"
+    },
+    {
+      "agency": "중소벤처기업진흥공단",
+      "programs": "창업성공 패키지",
+      "description": "39세 이하 창업 지원 사업",
+      "url": "https://www.kosmes.or.kr/nsh/map/main.do"
+    },
+    {
+      "agency": "한국 환경 산업 기술원",
+      "programs": "에코스타트업",
+      "description": "환경관련 유망기업 지원",
+      "url": "https://www.keiti.re.kr/site/keiti/main.do"
+    },
+    {
+      "agency": "지식재산센터 (경제진흥원)",
+      "programs": "IP 나래, IP 디딤돌, 중소기업 IP 바로지원",
+      "description": "예비, 초기 창업자 지원, 중소기업 IP 지원",
+      "url": "https://www.ripc.org/www2/portal/main.do"
+    },
+    {
+      "agency": "한국지식재산보호원",
+      "programs": "국제 지재권분쟁 대응전략 지원사업",
+      "description": "해외진출시 특허, 상표·디자인의 권리보호, 분쟁 대응",
+      "url": "https://www.koipa.re.kr"
+    },
+    {
+      "agency": "한국스마트컨설팅협회",
+      "programs": "혁신 바우처, 지식서비스 R&D, 소상공인 역량강화사업",
+      "description": "중소기업, 소상공인 지원 사업",
+      "url": "http://www.korsca.kr"
+    }
+  ],
+  "projects": [
+    {
+      "title": "2025년 하반기 4차 특허로 R&D 전략지원 사업 시행 계획 공고(자유공모)",
+      "period": "2025.7.9(수) ~ 2025.7.24(목) 14시 까지",
+      "url": "https://www.kipo.go.kr/ko/kpoBultnDetail.do?ntatcSeq=19991&aprchId=BUT0000021"
+    },
+    {
+      "title": "2025년 재도전성공패키지 주관기관 모집 공고",
+      "period": "매년 초",
+      "url": "https://www.bizinfo.go.kr/web/lay1/bbs/S1T122C128/AS/74/view.do?pblancId=PBLN_000000000103222"
+    },
+    {
+      "title": "2025년 초기 창업패키지",
+      "period": "매년 초",
+      "url": "https://www.bizinfo.go.kr/web/lay1/bbs/S1T122C128/AS/74/view.do?pblancId=PBLN_000000000103222"
+    },
+    {
+      "title": "2025년 IP 나래",
+      "period": "매년 초",
+      "url": "https://www.kipa.org/kipa/ip001/kw_business_1501.jsp"
+    }
+  ]
+}
