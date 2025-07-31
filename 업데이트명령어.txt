@@ -1,0 +1,3 @@
+git add .
+git commit -m "Fix: Make admin data loading more robust"
+git push
