@@ -5,16 +5,13 @@ const path = require('path');
 const multer = require('multer');
 const session = require('express-session');
 
-// --- Session 설정 (수정됨) ---
+// --- Session 설정 ---
 router.use(session({
     secret: process.env.SESSION_SECRET || 'a-very-secret-key-for-session',
     resave: false,
-    saveUninitialized: false, // true에서 false로 변경
+    saveUninitialized: true,
     cookie: { 
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true, // 보안 강화
-        maxAge: 24 * 60 * 60 * 1000, // 24시간
-        sameSite: 'lax' // Vercel HTTPS 환경에서 중요
+        secure: process.env.NODE_ENV === 'production' // 배포 환경(production)에서는 true, 로컬에서는 false
     }
 }));
 
@@ -79,36 +76,12 @@ router.get('/login', (req, res) => {
     res.render('admin/login', { title: '관리자 로그인', error: null });
 });
 
-// 로그인 처리 (디버깅 로그 추가)
 router.post('/login', (req, res) => {
     const { password } = req.body;
-    
-    // 디버깅 로그
-    console.log('=== 로그인 시도 ===');
-    console.log('NODE_ENV:', process.env.NODE_ENV);
-    console.log('ADMIN_PASSWORD 존재:', !!process.env.ADMIN_PASSWORD);
-    console.log('입력된 비밀번호 길이:', password ? password.length : 0);
-    console.log('세션 ID:', req.sessionID);
-    console.log('로그인 전 세션:', req.session);
-    
     if (password === process.env.ADMIN_PASSWORD) {
         req.session.loggedIn = true;
-        console.log('로그인 성공! 세션 설정 후:', req.session);
-        
-        // 세션 저장 확실히 하기
-        req.session.save((err) => {
-            if (err) {
-                console.error('세션 저장 오류:', err);
-                return res.render('admin/login', { 
-                    title: '관리자 로그인', 
-                    error: '세션 저장 중 오류가 발생했습니다.' 
-                });
-            }
-            console.log('세션 저장 완료, 대시보드로 리디렉션');
-            res.redirect('/admin/dashboard');
-        });
+        res.redirect('/admin/dashboard');
     } else {
-        console.log('비밀번호 불일치');
         res.render('admin/login', { title: '관리자 로그인', error: '비밀번호가 틀렸습니다.' });
     }
 });
@@ -119,12 +92,7 @@ router.get('/logout', (req, res) => {
     });
 });
 
-// 대시보드 (디버깅 로그 추가)
 router.get('/dashboard', requireLogin, (req, res) => {
-    console.log('=== 대시보드 접근 ===');
-    console.log('세션 상태:', req.session);
-    console.log('로그인 상태:', req.session.loggedIn);
-    
     const posts = readData(dataPath.posts);
     const newsletters = readData(dataPath.newsletters);
     const supportData = readData(dataPath.govSupport);
