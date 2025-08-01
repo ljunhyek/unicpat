@@ -23,11 +23,14 @@
         .footer { background: #0F172A; color: #e2e8f0; }
     </style>
 </head>
-<!-- ▼▼▼ [핵심 수정 1] 본문의 상단 패딩(안전 여백)을 늘립니다. (예: 120px) ▼▼▼ -->
-<body class="pt-[120px]"> 
 
+<!-- ▼▼▼ [핵심 수정 1] 본문의 상단 패딩(안전 여백)을 늘립니다. (예: 112px) ▼▼▼ -->
+<!-- Tailwind CSS는 동적 클래스 생성을 지원하지 않으므로, body 태그 자체를 수정해야 합니다. -->
+<!-- JIT 모드가 아니라면 pt-[112px] 같은 임의 값 클래스는 작동하지 않을 수 있습니다. -->
+<!-- body 태그에 직접 style을 추가하거나, 아래처럼 기존 클래스(pt-28 = 112px)를 사용합니다. -->
+<body style="padding-top: 112px;"> 
     <header class="header">
-        <!-- ▼▼▼ [핵심 수정 2] 헤더 자체의 상하 패딩을 늘립니다. ▼▼▼ -->
+        <!-- ▼▼▼ [핵심 수정 2] 헤더 자체의 상하 패딩을 py-8 (32px)로 늘립니다. ▼▼▼ -->
         <div class="container mx-auto py-8">
             <div class="flex justify-between items-center">
                 <a href="/" class="flex items-center space-x-2">
@@ -39,12 +42,8 @@
                 </a>
                 
                 <nav class="hidden md:flex space-x-8" id="main-nav">
-                    <div class="nav-item">
-                        <a href="/" class="nav-link" id="nav-home">홈</a>
-                    </div>
-                    <div class="nav-item">
-                        <a href="/about" class="nav-link" id="nav-about">유니크 소개</a>
-                    </div>
+                    <div class="nav-item"><a href="/" class="nav-link" id="nav-home">홈</a></div>
+                    <div class="nav-item"><a href="/about" class="nav-link" id="nav-about">유니크 소개</a></div>
                     <div class="nav-item">
                         <a href="/patent" class="nav-link" id="nav-service">서비스 안내</a>
                         <div class="dropdown-menu">
@@ -55,18 +54,10 @@
                             <a href="/dispute-transfer" class="dropdown-item">IP 분쟁 대응</a>
                         </div>
                     </div>
-                    <div class="nav-item">
-                        <a href="/column" class="nav-link" id="nav-column">유니크 칼럼</a>
-                    </div>
-                    <div class="nav-item">
-                        <a href="/newsletter" class="nav-link" id="nav-newsletter">뉴스레터</a>
-                    </div>
-                    <div class="nav-item">
-                        <a href="/gov-support" class="nav-link" id="nav-gov">정부지원사업 안내</a>
-                    </div>
-                    <div class="nav-item">
-                        <a href="/contact" class="nav-link" id="nav-contact">Contact Us</a>
-                    </div>
+                    <div class="nav-item"><a href="/column" class="nav-link" id="nav-column">유니크 칼럼</a></div>
+                    <div class="nav-item"><a href="/newsletter" class="nav-link" id="nav-newsletter">뉴스레터</a></div>
+                    <div class="nav-item"><a href="/gov-support" class="nav-link" id="nav-gov">정부지원사업 안내</a></div>
+                    <div class="nav-item"><a href="/contact" class="nav-link" id="nav-contact">Contact Us</a></div>
                 </nav>
 
                 <div class="md:hidden">
