@@ -1,0 +1,383 @@
+<%- include('partials/header') %>
+
+<style>
+    .hero {
+        position: relative;
+        height: 600px;
+        background-image: url('/images/hero-background-tech.jpg');
+        background-size: cover;
+        background-position: center 13%; /* 상단에 10% 여유 공간 */
+        margin-top: -80px;
+        overflow: hidden;
+    }
+    .hero-content {
+        position: relative;
+        z-index: 2; 
+        text-align: center;
+        padding-top: 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+    .hero-content h1 { 
+        color: #0F172A;
+    }
+    .hero-content p { 
+        color: #2F3B40;
+    }
+    .section-title {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+        color: #0F172A;
+    }
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        width: 60px;
+        height: 3px;
+        background: #54B435;
+        transform: translateX(-50%);
+    }
+    .btn-primary { background: #54B435; color: white; padding: 0.75rem 1.5rem; border-radius: 5px; font-weight: 500; transition: background 0.3s; }
+    .btn-primary:hover { background: #469b2d; }
+    .btn-outline { border: 2px solid #54B435; color: #54B435; padding: 0.75rem 1.5rem; border-radius: 5px; font-weight: 500; transition: background 0.3s, color 0.3s; }
+    .btn-outline:hover { background: #54B435; color: white; }
+    .contact-info-card { background-color: #ffffff; padding: 2.5rem; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; height: 100%; }
+    .info-block { display: flex; align-items: flex-start; margin-bottom: 1.75rem; }
+    .info-block .icon { flex-shrink: 0; width: 50px; height: 50px; background-color: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1.5rem; }
+    .info-block .icon i { color: #54B435; font-size: 1.5rem; }
+    .info-block .info-text h4 { color: #0F172A; font-weight: 700; font-size: 1.125rem; margin-bottom: 0.5rem; }
+    .info-block .info-text p, .info-block .info-text a { color: #2F3B40; font-size: 1rem; line-height: 1.6; }
+    @media (max-width: 768px) {
+        .hero {
+            background-image: url('/images/hero-background-mobile.jpg');
+        }
+    }
+</style>
+
+<!-- 히어로 섹션 -->
+<section class="hero flex items-center justify-center">
+    <div class="container mx-auto z-10">
+        <div class="hero-content">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4" style="line-height: 1.5;">특허, 그 이상의 가치를 만드는 곳!<br>유니크 특허사무소가 함께 합니다</h1>
+            <p class="text-lg my-8 max-w-3xl mx-auto">단순한 출원을 넘어 아이디어의 사업화까지 20년 경력의 전문 변리사가<br>꼼꼼하게 상담하고 지원해드리겠습니다</p>
+            <a href="/contact" class="bg-white text-green-800 hover:bg-gray-100 text-lg font-bold py-3 px-6 rounded-lg transition-all mt-8 inline-block">상담 신청하기</a>
+        </div>
+    </div>
+</section>
+
+<!-- 왜 유니크 특허인가요? 섹션 -->
+<section id="about" class="py-16 bg-white">
+    <div class="container mx-auto">
+        <h2 class="section-title text-3xl font-bold text-center">왜 유니크 특허인가요?</h2>
+        <p class="text-center text-[#2F3B40] text-lg max-w-2xl mx-auto mb-16">
+            특허 출원, 그 자체가 목적이 아닙니다.<br> 
+            진짜 중요한건, 그 특허가 사업화에 어떻게 도움이 되는지, 시장에서 어떻게 지켜낼 수 있는지입니다.
+        </p>
+        <div class="space-y-20">
+            <div class="flex flex-col md:flex-row items-center gap-10 md:gap-16">
+                <div class="md:w-1/2"><img src="/images/image-idea-expert.jpg" alt="아이디어 현실화 전문가" class="rounded-lg shadow-xl w-full h-auto object-cover"></div>
+                <div class="md:w-1/2">
+                    <h3 class="text-3xl font-bold mb-4 text-[#0F172A]">아이디어 현실화 전문가</h3>
+                    <p class="text-[#2F3B40] text-lg leading-relaxed">초기 컨셉부터 특허등록, 상표등록, 기술이전, 상업화까지 전 과정을 컨설팅해드립니다. 단순히 출원만 하는 곳이 아닙니다.</p>
+                </div>
+            </div>
+            <div class="flex flex-col md:flex-row-reverse items-center gap-10 md:gap-16">
+                <div class="md:w-1/2"><img src="/images/image-top-professional.jpg" alt="최고 수준의 전문성" class="rounded-lg shadow-xl w-full h-auto object-cover"></div>
+                <div class="md:w-1/2">
+                    <h3 class="text-3xl font-bold mb-4 text-[#0F172A]">최고 수준의 전문성</h3>
+                    <p class="text-[#2F3B40] text-lg leading-relaxed">삼성전자, 카이스트, 서강대, 기업 연구소부터 중소기업까지 수많은 기술을 검토하고 지식재산권 출원·분쟁을 수행한 실전경험을 보유하고 있습니다.</p>
+                </div>
+            </div>
+            <div class="flex flex-col md:flex-row items-center gap-10 md:gap-16">
+                <div class="md:w-1/2"><img src="/images/image-startup-experience.jpg" alt="스타트업 창업 경험 보유" class="rounded-lg shadow-xl w-full h-auto object-cover"></div>
+                <div class="md:w-1/2">
+                    <h3 class="text-3xl font-bold mb-4 text-[#0F172A]">스타트업 창업 경험 보유</h3>
+                    <p class="text-[#2F3B40] text-lg leading-relaxed">대표 변리사는 스타트업을 창업하고 정부 연구과제와 투자유치까지 경험한 전문가로서 창업자의 고민을 누구보다 잘 이해합니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 대표변리사 소개 섹션 -->
+<section id="experts" class="py-16" style="background-color: #EDFBE2;">
+    <div class="container mx-auto">
+        <div class="flex flex-col md:flex-row items-center gap-10">
+            <div class="md:w-1/2">
+                <h3 class="text-2xl font-bold mb-6 text-[#0F172A]">대표변리사 소개</h3>
+                <p class="text-[#2F3B40] mb-4">
+                    저는 2005년에 변리사 시험에 합격하여, 대기업, 대학, 중소 벤처기업 등 특허출원, 심판소송 업무를 하고 있는 20년 경력의 전문 변리사입니다.
+                </p>
+                <p class="text-[#2F3B40]">
+                    또한 2019년에는 스타트업인 (주)위페이퍼를 창업한 경험을 바탕으로 사업제안서 작성, 국가 연구과제 참여방법 등 아이디어를 현실화하도록 실질적인 컨설팅을 제공해드리겠습니다. 여러분의 든든한 조력자가 되겠습니다.
+                </p>
+            </div>
+            <div class="md:w-1/2">
+                <img src="/images/representative-patent-attorney.png" alt="대표 변리사" class="rounded-lg shadow-lg">
+            </div>
+        </div>
+        <div class="mt-12 text-center">
+            <a href="/about#profile" class="btn-outline">자세히 보러가기</a>
+        </div>
+    </div>
+</section>
+
+<!-- 서비스 섹션 -->
+<section id="services" class="py-16 bg-white">
+    <div class="container mx-auto">
+        <h2 class="section-title text-3xl font-bold text-center">서비스 안내</h2>
+        <p class="text-center text-[#2F3B40] mb-12">유니크 특허사무소는 다양한 지식재산권 서비스를 제공합니다</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+            <a href="/patent" class="block h-full">
+                <div class="service-card p-6 h-full" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb;">
+                    <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-lightbulb" style="font-size: 24px; color: #54B435;"></i></div>
+                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">특허/실용신안 출원</h3>
+                    <ul class="text-[#2F3B40] space-y-2 mt-4">
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>국내 특허/실용신안 출원 및 등록</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>해외 특허 출원 (PCT, 개별국)</span></li>
+                    </ul>
+                </div>
+            </a>
+            
+            <a href="/trademark" class="block h-full">
+                <div class="service-card p-6 h-full" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb;">
+                    <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-trademark" style="font-size: 24px; color: #54B435;"></i></div>
+                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">상표, 디자인 출원</h3>
+                    <ul class="text-[#2F3B40] space-y-2 mt-4">
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>국내외 상표 출원 및 등록</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>디자인권 출원 및 등록</span></li>
+                    </ul>
+                </div>
+            </a>
+            
+            <a href="/startup" class="block h-full">
+                <div class="service-card p-6 h-full" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb;">
+                    <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-rocket" style="font-size: 24px; color: #54B435;"></i></div>
+                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">창업 및 스타트업 특화 서비스</h3>
+                    <ul class="text-[#2F3B40] space-y-2 mt-4">
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>IP 포트폴리오 전략 수립</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>정부지원사업 연계 컨설팅</span></li>
+                    </ul>
+                </div>
+            </a>
+            
+            <a href="/dispute-transfer" class="block h-full">
+                <div class="service-card p-6 h-full" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb;">
+                    <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-gavel" style="font-size: 24px; color: #54B435;"></i></div>
+                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">지식재산권 분쟁대응, IP 활용</h3>
+                    <ul class="text-[#2F3B40] space-y-2 mt-4">
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>경고장, 답변서 등 분쟁 대응</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>기술가치평가 및 기술이전</span></li>
+                    </ul>
+                </div>
+            </a>
+        </div>
+
+        <div class="mt-12 text-center">
+            <a href="/patent" class="btn-outline">서비스 자세히 보기</a>
+        </div>
+    </div>
+</section>
+    <!-- 고객 후기 섹션 -->
+    <section id="achievements" class="py-16" style="background-color: #EDFBE2;">
+        <div class="container mx-auto">
+            <h2 class="section-title text-3xl font-bold text-center">고객 후기</h2>
+            <p class="text-center text-[#2F3B40] mb-12">유니크 특허사무소와 함께 성공을 이룬 고객들의 생생한 후기입니다</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="achievement-card p-8" style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s; text-align: center; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-quote-left" style="font-size: 24px; color: #54B435;"></i></div>
+                        <h3 class="text-xl font-bold mb-3 text-[#0F172A]">가능성을 만들어준 유니크</h3>
+                        <p class="text-[#2F3B40]">"다른 곳에서 두 번이나 특허로는 불가능한 발명품이라는 말을 들었던 저에게 <b>이준혁 변리사님은 가능성이 있어보인다며 함께 만들어보자 해주셨어요.</b> 의기소침해 있던 중 마지막 희망으로 찾아갔는데, 작은 포인트도 놓치지 않고 좋은 결과로 이끌어주셔서 <b>덕분에 발명 특허도 등록하고 사업도 시작</b>하게 되었어요"</p>
+                    </div>
+                    <p class="text-center text-[#2F3B40] mt-8">손**** (네이버예약 후기 중)</p>
+                </div>
+                
+                <div class="achievement-card p-8" style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s; text-align: center; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-quote-left" style="font-size: 24px; color: #54B435;"></i></div>
+                        <h3 class="text-xl font-bold mb-3 text-[#0F172A]">지식재산권 전략 컨설팅</h3>
+                        <p class="text-[#2F3B40]">"제가 사업 초기이고 당장 상품은 런칭해야 되는데 지식재산권에 대해 너무 몰라 무조건 신청을 했어요. <b>어떻게 하면 방어를 할 수 있는지 등 몰랐던 부분을 많이 배웠습니다. 덕분에 필요한 부분을 조치</b>할 수 있었어요. 국비지원 프로젝트 등도 함께 할 수 있다고 하네요. 상담까지는 무료이니 부담없이 방문하기에 좋을것 같습니다."</p>
+                    </div>
+                    <p class="text-center text-[#2F3B40] mt-8">Poya** (네이버예약 후기 중)</p>
+                </div>
+                
+                <div class="achievement-card p-8" style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s; text-align: center; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-quote-left" style="font-size: 24px; color: #54B435;"></i></div>
+                        <h3 class="text-xl font-bold mb-3 text-[#0F172A]">친절한 상담 및 가이드 제공</h3>
+                        <p class="text-[#2F3B40]">"유니크 특허법률사무소에서 상담받길 너무 잘했어요! <b>변리사님이 친절하게 특허에 대해 이해하기 쉽게 설명해주셨고, 앞으로의 계획과 순서까지 명확하게 가이드</b>해주셨어요. 변리사님과 함께 안심하고 다음 단계로 나아갈 수 있게 되어 무한 감사드립니다!"</p>
+                    </div>
+                    <p class="text-center text-[#2F3B40] mt-8">WJD**** (네이버예약 후기 중)</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 유니크 칼럼 섹션 -->
+    <section id="column" class="py-16 bg-white">
+        <div class="container mx-auto">
+            <h2 class="section-title text-3xl font-bold text-center">유니크 칼럼</h2>
+            <p class="text-center text-[#2F3B40] mb-12">지식재산권에 관한 유용한 정보를 제공합니다</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <% posts.forEach(post => { %>
+                    <a href="<%= post.url %>" target="_blank" rel="noopener noreferrer" class="block column-card overflow-hidden group" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s; border: 1px solid #e5e7eb;">
+                        <div class="relative w-full overflow-hidden" style="padding-top: 56.25%;">
+                            <img src="<%= post.image %>" alt="<%= post.title %>" class="absolute top-0 left-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300">
+                        </div>
+                        <div class="p-6 flex flex-col">
+                            <h3 class="text-lg font-bold mb-3 text-[#0F172A] flex-grow" style="min-height: 3.75rem;"><%= post.title %></h3>
+                            <span class="text-[#54B435] group-hover:underline inline-flex items-center font-bold mt-2">
+                                자세히 보기 <i class="fas fa-arrow-right ml-1"></i>
+                            </span>
+                        </div>
+                    </a>
+                <% }); %>
+            </div>
+            
+            <div class="mt-12 text-center">
+                <a href="/column" class="btn-outline">칼럼 더 보기</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 유니크 뉴스레터 섹션 -->
+    <section id="newsletter" class="py-16" style="background-color: #EDFBE2;">
+        <div class="container mx-auto">
+            <h2 class="section-title text-3xl font-bold text-center">유니크 뉴스레터</h2>
+            <p class="text-center text-[#2F3B40] mb-12">사업에 도움이 되는 특허, 상표, 정부지원사업 등 지식재산 뉴스를 담아 전해드립니다.</p>
+            
+            <div class="max-w-3xl mx-auto">
+                <div class="space-y-4">
+                    <% newsletters.forEach(item => { %>
+                        <a href="<%= item.link %>" target="_blank" rel="noopener noreferrer" class="block bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                            <div class="flex justify-between items-center gap-4">
+                                <h3 class="text-xl font-bold text-[#0F172A] flex-1"><%= item.title %></h3>
+                                <span class="text-gray-500 text-sm flex-shrink-0 whitespace-nowrap">발행일: <%= item.date %></span>
+                            </div>
+                        </a>
+                    <% }); %>
+                </div>
+            </div>
+            
+            <div class="mt-12 text-center">
+                <p class="text-[#2F3B40] mb-4">더 많은 소식과 지난호를 확인해보세요.</p>
+                <a href="/newsletter" class="btn-primary">뉴스레터 전체보기</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 정부지원사업 안내 섹션 -->
+    <section id="gov-support" class="py-16 bg-white">
+        <div class="container mx-auto">
+            <h2 class="section-title text-3xl font-bold text-center">정부지원사업 안내</h2>
+            <p class="text-center text-[#2F3B40] mb-12">특허 및 지식재산권 관련 최신 정부지원사업 정보를 확인하세요.</p>
+            
+            <div class="max-w-3xl mx-auto">
+                <div class="space-y-4">
+                    <% govProjects.forEach(project => { %>
+                        <a href="<%= project.url %>" target="_blank" rel="noopener noreferrer" class="block bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 border-[#54B435]">
+                            <h3 class="text-xl font-bold text-[#0F172A] mb-2"><%= project.title %></h3>
+                            <p class="text-gray-600">신청기간: <%= project.period %></p>
+                        </a>
+                    <% }); %>
+                </div>
+            </div>
+            
+            <div class="mt-12 text-center">
+                <a href="/gov-support" class="btn-outline">지원사업 정보 더 보기</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 상담 신청 및 문의 섹션 -->
+    <section id="contact" class="py-16" style="background-color: #EDFBE2;">
+        <div class="container mx-auto">
+            <h2 class="section-title text-3xl font-bold text-center">Contact Us / 상담 신청</h2>
+            <div class="bg-white rounded-lg shadow-lg p-8 md:p-12 border border-gray-200">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    
+                    <div>
+                        <form action="https://api.web3forms.com/submit" method="POST">
+                            <input type="hidden" name="access_key" value="dd3c9ad5-1802-4bd1-b7e6-397002308afa">
+           		<input type="hidden" name="redirect" value=""https://unicpat.vercel.app/thanks"">
+                            <div class="mb-4">
+                                <label for="name-main" class="block text-[#2F3B40] mb-2 font-medium">이름 *</label>
+                                <input type="text" id="name-main" name="name" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#54B435]" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="email-main" class="block text-[#2F3B40] mb-2 font-medium">이메일 *</label>
+                                <input type="email" id="email-main" name="email" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#54B435]" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="phone-main" class="block text-[#2F3B40] mb-2 font-medium">연락처</label>
+                                <input type="tel" id="phone-main" name="phone" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#54B435]">
+                            </div>
+                            <div class="mb-6">
+                                <label for="message-main" class="block text-[#2F3B40] mb-2 font-medium">문의 내용 *</label>
+                                <textarea id="message-main" name="message" rows="3" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#54B435]" required></textarea>
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-[#2F3B40] mb-2 font-medium">개인정보 수집 및 이용 동의 <span class="text-red-500">*</span></label>
+                                <div class="mt-3 flex items-center">
+                                    <input type="checkbox" id="privacy-consent-main" name="privacy_consent" class="h-4 w-4 text-[#54B435] focus:ring-[#54B435] border-gray-300 rounded" required>
+                                    <label for="privacy-consent-main" class="ml-2 block text-sm text-[#2F3B40]">개인정보 수집 및 이용에 동의합니다.</label>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-primary w-full text-lg">상담 신청하기</button>
+                        </form>
+                    </div>
+                    
+                    <div class="contact-info-card">
+                        <h3 class="text-2xl font-bold mb-8 text-[#0F172A]">유니크 특허 정보</h3>
+                        <div class="info-block">
+                            <div class="icon"><i class="fas fa-phone-alt"></i></div>
+                            <div class="info-text">
+                                <h4>전화상담</h4>
+                                <p class="font-semibold"><a href="tel:010-3131-7960" class="hover:text-[#54B435]">010-3131-7960</a></p>
+                            </div>
+                        </div>
+                        <div class="info-block">
+                            <div class="icon"><i class="fas fa-envelope"></i></div>
+                            <div class="info-text">
+                                <h4>메일상담</h4>
+                                <p class="font-semibold"><a href="mailto:ljunhyek@naver.com" class="hover:text-[#54B435]">ljunhyek@naver.com</a></p>
+                            </div>
+                        </div>
+                        <div class="info-block">
+                            <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
+                            <div class="info-text">
+                                <h4>찾아오시는 길</h4>
+                                <p>인천 서구 청라커낼로 260번길 27 202호</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA 섹션 -->
+    <section class="cta-section py-12" style="background: linear-gradient(135deg, #54B435 0%, #16a34a 100%);">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl font-bold mb-6 text-white">지금 바로 상담을 시작하세요</h2>
+            <p class="text-lg mb-8 max-w-2xl mx-auto text-gray-100">유니크 특허사무소와 함께 귀하의 아이디어와 창작물을 보호하고<br>비즈니스 성장을 위한 최적의 IP 전략을 수립하세요.</p>
+            <div class="flex justify-center space-x-4">
+                <a href="/contact" class="bg-white text-green-800 hover:bg-gray-100 text-lg px-8 py-3 rounded-lg font-bold transition duration-300">상담 신청</a>
+                <a href="tel:010-3131-7960" class="border-2 border-white text-white hover:bg-white hover:text-green-800 text-lg px-8 py-3 rounded-lg font-bold transition duration-300">전화 문의</a>
+            </div>
+        </div>
+    </section>
+
+<%- include('partials/footer') %>

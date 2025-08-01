@@ -51,14 +51,12 @@
         font-size: 1.125rem;
         line-height: 1.6;
         display: -webkit-box;
-        /* ▼▼▼ [수정 1] 2줄에서 3줄로 변경 ▼▼▼ */
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
     }
     
-    /* ▼▼▼ [추가] 카테고리 제목 스타일 추가 ▼▼▼ */
     .section-title {
         position: relative;
         display: inline-block;
@@ -70,13 +68,14 @@
         content: '';
         position: absolute;
         bottom: -8px;
-        left: 50%;
+        /* ▼▼▼ [핵심 수정 1] 밑줄을 왼쪽으로 정렬합니다. ▼▼▼ */
+        left: 0;
+        transform: none;
+        /* ▲▲▲ 여기까지 ▲▲▲ */
         width: 60px;
         height: 3px;
         background: #54B435;
-        transform: translateX(-50%);
     }
-    /* ▲▲▲ 여기까지 ▲▲▲ */
 
     .btn-more {
         display: inline-block;
@@ -96,7 +95,6 @@
 
 <section class="hero-section">
     <div class="container mx-auto text-center">
-        <!-- ▼▼▼ [수정 2] Hero 제목에 section-title 스타일 적용 ▼▼▼ -->
         <h1 class="section-title text-4xl md:text-5xl font-bold mb-8 text-[#0F172A]">유니크 칼럼</h1>
         <p class="text-xl max-w-3xl mx-auto text-[#2F3B40]">
             지식재산권에 관한 전문적이고 실용적인 정보를 제공합니다.<br>
@@ -132,8 +130,8 @@ const postsToShow = 8;
 <!-- EJS 반복문을 사용하여 각 카테고리 섹션을 동적으로 생성합니다. -->
 <% categories.forEach(category => { %>
 <section class="py-20" style="background-color: <%= category.bgColor %>;">
-    <div class="container mx-auto text-center"> <!-- 가운데 정렬을 위해 text-center 추가 -->
-        <!-- ▼▼▼ [수정 3] 카테고리 제목에 section-title 스타일 적용 ▼▼▼ -->
+    <!-- ▼▼▼ [핵심 수정 2] 제목의 부모 div에서 'text-center' 클래스를 삭제합니다. ▼▼▼ -->
+    <div class="container mx-auto">
         <h2 class="section-title text-3xl font-bold mb-12"><%= category.title %></h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <% 
@@ -145,7 +143,7 @@ const postsToShow = 8;
                     <div class="new-blog-card">
                         <div class="card-header">
                             <img src="/images/unique-mark.png" alt="유니크 마크" class="card-logo">
-                            <span class="card-brand-name">유니크 특허</span>
+                            <span class="card-brand-name">유니크 칼럼</span>
                         </div>
                         <div class="card-content">
                             <h3 class="card-title"><%= post.title %></h3>
