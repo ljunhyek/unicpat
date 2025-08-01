@@ -37,7 +37,7 @@ router.get('/', (req, res) => {
         posts,
         newsletters,
         govProjects: govSupport,
-        BASE_URL: res.locals.BASE_URL // 이 줄을 추가합니다.
+  //      BASE_URL: res.locals.BASE_URL // 이 줄을 추가합니다.
     });
     // ▲▲▲ 여기까지 ▲▲▲
 });
@@ -48,7 +48,7 @@ router.get('/', (req, res) => {
 router.get('/contact', (req, res) => {
     res.render('contact', { 
         title: 'Contact Us',
-        BASE_URL: res.locals.BASE_URL // 이 줄을 추가합니다.
+  //      BASE_URL: res.locals.BASE_URL // 이 줄을 추가합니다.
     });
 });
 
@@ -58,14 +58,14 @@ router.get('/gov-support', (req, res) => {
         title: '정부지원사업 안내',
         programTypes: supportData.types || [],
         govProjects: supportData.projects || [],
-        BASE_URL: res.locals.BASE_URL // 이 줄을 추가합니다.
+    //    BASE_URL: res.locals.BASE_URL // 이 줄을 추가합니다.
     });
 });
 
 router.get('/subscribe', (req, res) => {
     res.render('subscribe', { 
         title: '뉴스레터 구독 신청',
-        BASE_URL: res.locals.BASE_URL // 이 줄을 추가합니다.
+   //     BASE_URL: res.locals.BASE_URL // 이 줄을 추가합니다.
     });
 });
 
