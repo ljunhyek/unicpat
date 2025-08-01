@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- EJS 템플릿을 사용하여 각 페이지에 맞는 동적 타이틀을 생성합니다. -->
     <title><%= title %> - 유니크 특허법률사무소</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    <!-- 모든 페이지에 공통으로 적용될 스타일 -->
     <style>
         body { font-family: 'Noto Sans KR', sans-serif; color: #2F3B40; background-color: #f9fafb; overflow-x: hidden; }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
@@ -25,14 +23,17 @@
         .footer { background: #0F172A; color: #e2e8f0; }
     </style>
 </head>
-<body class="pt-[80px]"> <!-- 헤더가 fixed이므로 본문에 상단 패딩을 주어 가려지지 않게 함 -->
 
+<!-- ▼▼▼ [핵심 수정 1] 본문의 상단 패딩(안전 여백)을 늘립니다. (예: 112px) ▼▼▼ -->
+<!-- Tailwind CSS는 동적 클래스 생성을 지원하지 않으므로, body 태그 자체를 수정해야 합니다. -->
+<!-- JIT 모드가 아니라면 pt-[112px] 같은 임의 값 클래스는 작동하지 않을 수 있습니다. -->
+<!-- body 태그에 직접 style을 추가하거나, 아래처럼 기존 클래스(pt-28 = 112px)를 사용합니다. -->
+<body style="padding-top: 112px;"> 
     <header class="header">
-        <div class="container mx-auto py-4">
+        <!-- ▼▼▼ [핵심 수정 2] 헤더 자체의 상하 패딩을 py-8 (32px)로 늘립니다. ▼▼▼ -->
+        <div class="container mx-auto py-8">
             <div class="flex justify-between items-center">
-                <!-- 로고: 모든 경로는 '/' (루트) 기준으로 설정 -->
                 <a href="/" class="flex items-center space-x-2">
-                    <!-- 이미지는 public 폴더를 기준으로 경로 설정 -->
                     <img src="/images/unique-mark.png" alt="유니크 특허사무소 로고 마크" class="h-8">
                     <span class="flex items-center text-xl font-bold">
                         <span class="text-[#0F172A]">유니크</span>
@@ -40,14 +41,9 @@
                     </span>
                 </a>
                 
-                <!-- 데스크탑 네비게이션 -->
                 <nav class="hidden md:flex space-x-8" id="main-nav">
-                    <div class="nav-item">
-                        <a href="/" class="nav-link" id="nav-home">홈</a>
-                    </div>
-                    <div class="nav-item">
-                        <a href="/about" class="nav-link" id="nav-about">유니크 소개</a>
-                    </div>
+                    <div class="nav-item"><a href="/" class="nav-link" id="nav-home">홈</a></div>
+                    <div class="nav-item"><a href="/about" class="nav-link" id="nav-about">유니크 소개</a></div>
                     <div class="nav-item">
                         <a href="/patent" class="nav-link" id="nav-service">서비스 안내</a>
                         <div class="dropdown-menu">
@@ -58,21 +54,12 @@
                             <a href="/dispute-transfer" class="dropdown-item">IP 분쟁 대응</a>
                         </div>
                     </div>
-                    <div class="nav-item">
-                        <a href="/column" class="nav-link" id="nav-column">유니크 칼럼</a>
-                    </div>
-                    <div class="nav-item">
-                        <a href="/newsletter" class="nav-link" id="nav-newsletter">뉴스레터</a>
-                    </div>
-                    <div class="nav-item">
-                        <a href="/gov-support" class="nav-link" id="nav-gov">정부지원사업 안내</a>
-                    </div>
-                    <div class="nav-item">
-                        <a href="/contact" class="nav-link" id="nav-contact">Contact Us</a>
-                    </div>
+                    <div class="nav-item"><a href="/column" class="nav-link" id="nav-column">유니크 칼럼</a></div>
+                    <div class="nav-item"><a href="/newsletter" class="nav-link" id="nav-newsletter">뉴스레터</a></div>
+                    <div class="nav-item"><a href="/gov-support" class="nav-link" id="nav-gov">정부지원사업 안내</a></div>
+                    <div class="nav-item"><a href="/contact" class="nav-link" id="nav-contact">Contact Us</a></div>
                 </nav>
 
-                <!-- 모바일 메뉴 버튼 -->
                 <div class="md:hidden">
                     <button class="focus:outline-none mobile-menu-button">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -82,5 +69,4 @@
         </div>
     </header>
 
-    <!-- 메인 컨텐츠 시작 (이 태그는 header.ejs의 마지막에 위치합니다) -->
     <main>

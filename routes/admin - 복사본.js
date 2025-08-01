@@ -10,9 +10,7 @@ router.use(session({
     secret: process.env.SESSION_SECRET || 'a-very-secret-key-for-session',
     resave: false,
     saveUninitialized: true,
-    cookie: { 
-        secure: process.env.NODE_ENV === 'production' // 배포 환경(production)에서는 true, 로컬에서는 false
-    }
+    cookie: { secure: process.env.NODE_ENV === 'production' } // HTTPS 배포 시 true, 로컬 개발 시 false
 }));
 
 // --- 데이터 경로 ---
@@ -29,10 +27,12 @@ const storage = multer.diskStorage({
         if (req.body.type === 'column') {
             dest = 'public/images/columns/';
         }
+        // 디렉토리가 없으면 생성
         fs.mkdirSync(dest, { recursive: true });
         cb(null, dest);
     },
     filename: (req, file, cb) => {
+        // 파일명 중복을 피하기 위해 현재 시간을 파일명 앞에 붙임
         cb(null, Date.now() + '-' + file.originalname);
     }
 });
@@ -41,14 +41,16 @@ const upload = multer({ storage: storage });
 // --- 데이터 I/O 헬퍼 함수 ---
 const readData = (filePath) => {
     try {
+        // Vercel의 서버리스 환경에서는 파일 시스템이 읽기 전용일 수 있으므로, 파일 존재 여부 먼저 확인
         if (fs.existsSync(filePath)) {
             const fileContent = fs.readFileSync(filePath, 'utf-8');
+            // 파일 내용이 비어있는 경우 빈 배열/객체 반환
             return fileContent ? JSON.parse(fileContent) : [];
         }
-        return [];
+        return []; // 파일이 없으면 빈 배열/객체 반환
     } catch (error) {
         console.error(`Error reading or parsing ${filePath}:`, error);
-        return [];
+        return []; // 에러 발생 시에도 빈 배열/객체 반환
     }
 };
 const writeData = (filePath, data) => {
@@ -92,6 +94,7 @@ router.get('/logout', (req, res) => {
     });
 });
 
+// GET: 대시보드
 router.get('/dashboard', requireLogin, (req, res) => {
     const posts = readData(dataPath.posts);
     const newsletters = readData(dataPath.newsletters);
@@ -101,47 +104,56 @@ router.get('/dashboard', requireLogin, (req, res) => {
         title: '관리자 대시보드',
         posts: Array.isArray(posts) ? posts : [],
         newsletters: Array.isArray(newsletters) ? newsletters : [],
+        // supportData가 객체가 아닐 수 있으므로 안전하게 접근
         programTypes: supportData.types || [],
         govProjects: supportData.projects || []
     });
 });
 
+// POST: 항목 추가 (공통 핸들러)
 router.post('/add', requireLogin, upload.single('image'), (req, res) => {
     const { type, title, url, date, period, agency, programs, description } = req.body;
-    let imagePath = req.file ? req.file.path.replace('public', '') : "";
+     
+    let imagePath = req.file ? req.file.path.replace('public', '') : ""; 
+
     if (imagePath) {
-      imagePath = imagePath.replace(/\\/g, '/');
+      imagePath = imagePath.replace(/\\/g, '/'); // Windows 경로 수정
     }
 
     switch (type) {
         case 'column':
             const posts = readData(dataPath.posts);
-            posts.unshift({ title, url, image: imagePath, category: req.body.category || 'strategy' });
+            const newPost = { title, url, image: imagePath, category: req.body.category || 'strategy' };
+            posts.unshift(newPost);
             writeData(dataPath.posts, posts);
             break;
         case 'newsletter':
             const newsletters = readData(dataPath.newsletters);
-            newsletters.unshift({ title, link: url, date });
+            const newNewsletter = { title, link: url, date };
+            newsletters.unshift(newNewsletter);
             writeData(dataPath.newsletters, newsletters);
             break;
         case 'govProject':
             const supportDataProj = readData(dataPath.govSupport);
+            const newProject = { title, period, url };
             if (!supportDataProj.projects) supportDataProj.projects = [];
-            supportDataProj.projects.unshift({ title, period, url });
+            supportDataProj.projects.unshift(newProject);
             writeData(dataPath.govSupport, supportDataProj);
             break;
         case 'programType':
             const supportDataType = readData(dataPath.govSupport);
+            const newType = { agency, programs, description, url };
             if (!supportDataType.types) supportDataType.types = [];
-            supportDataType.types.unshift({ agency, programs, description, url });
+            supportDataType.types.unshift(newType);
             writeData(dataPath.govSupport, supportDataType);
             break;
     }
     res.redirect(`/admin/dashboard#tab-${type === 'column' ? 'column' : (type === 'newsletter' ? 'newsletter' : 'gov-support')}`);
 });
 
+// POST: 항목 삭제 (공통 핸들러)
 router.post('/delete', requireLogin, (req, res) => {
-    const { type, id } = req.body;
+    const { type, id } = req.body; // id는 삭제할 항목의 고유 식별자 (예: url, title)
     
     try {
         switch (type) {
