@@ -24,6 +24,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// ▼▼▼ [핵심 수정] 이 부분을 추가하세요. ▼▼▼
+app.use((req, res, next) => {
+    // Vercel 환경에서는 VERCEL_URL을 사용하고, 로컬에서는 localhost를 사용합니다.
+    const baseUrl = process.env.VERCEL_URL 
+        ? `https://${process.env.VERCEL_URL}` 
+        : `http://localhost:${PORT}`;
+    res.locals.BASE_URL = baseUrl; // 모든 EJS 템플릿에서 'BASE_URL' 변수를 사용할 수 있게 됩니다.
+    next();
+});
+// ▲▲▲ 여기까지 ▲▲▲
+
 // 페이지 라우트 사용
 app.use('/', pageRoutes);
 // 관리자 라우트 사용

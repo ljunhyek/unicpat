@@ -111,8 +111,7 @@
                 <form action="https://api.web3forms.com/submit" method="POST">
             
                     <input type="hidden" name="access_key" value="dd3c9ad5-1802-4bd1-b7e6-397002308afa">
-                    <!-- 리디렉션 주소를 절대 경로로 수정 -->
-                    <input type="hidden" name="redirect" value="https://your-deployed-domain.com/thanks"> 
+                    <input type="hidden" name="redirect" value="<%= BASE_URL %>/thanks">
                     <p class="text-xs text-gray-500 mb-4">* 배포 후 your-deployed-domain.com을 실제 도메인으로 변경해야 합니다.</p>
             
                     <div class="mb-4">
