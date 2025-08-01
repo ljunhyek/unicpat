@@ -113,8 +113,9 @@ router.get('/dashboard', requireLogin, (req, res) => {
 // POST: 항목 추가 (공통 핸들러)
 router.post('/add', requireLogin, upload.single('image'), (req, res) => {
     const { type, title, url, date, period, agency, programs, description } = req.body;
-    let imagePath = req.file ? req.file.path.replace('public', '') : null;
-    
+     
+    let imagePath = req.file ? req.file.path.replace('public', '') : ""; 
+
     if (imagePath) {
       imagePath = imagePath.replace(/\\/g, '/'); // Windows 경로 수정
     }
