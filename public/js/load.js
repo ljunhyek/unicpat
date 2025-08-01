@@ -3,10 +3,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // 현재 페이지 URL을 기반으로 메뉴에 'active' 클래스를 추가하는 함수
     const setActiveNav = () => {
-        // 서버에서 렌더링된 페이지의 URL 경로를 가져옵니다.
         const currentPage = window.location.pathname;
 
-        // 모든 nav-link에서 'active' 클래스를 먼저 제거합니다.
         document.querySelectorAll('#main-nav .nav-link').forEach(link => {
             link.classList.remove('active');
         });
@@ -43,23 +41,20 @@ document.addEventListener("DOMContentLoaded", function() {
         if (!mobileMenuButton) return;
 
         mobileMenuButton.addEventListener('click', function() {
-            // 기존 메뉴가 있으면 제거 (토글 기능)
             const existingMenu = document.querySelector('.mobile-menu-container');
             if (existingMenu) {
                 existingMenu.remove();
                 return;
             }
 
-            // 모바일 메뉴 컨테이너 생성
             const mobileMenu = document.createElement('div');
             mobileMenu.className = 'mobile-menu-container fixed inset-0 bg-white z-50 p-6 overflow-y-auto';
             
-            // 모바일 메뉴 HTML 구조
+            // ▼▼▼ [핵심 수정] "전체 메뉴" 텍스트 부분을 삭제하고 닫기 버튼만 남깁니다. ▼▼▼
             mobileMenu.innerHTML = `
-                <div class="flex justify-between items-center mb-6">
-                    <span class="font-bold text-2xl text-[#0F172A]">전체 메뉴</span>
-                    <button class="close-menu focus:outline-none">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <div class="flex justify-end items-center mb-6">
+                    <button class="close-menu focus:outline-none p-2 -mr-2">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
@@ -68,7 +63,6 @@ document.addEventListener("DOMContentLoaded", function() {
                     <a href="/" class="block py-3 border-b">홈</a>
                     <a href="/about" class="block py-3 border-b">유니크 소개</a>
                     
-                    <!-- 서비스 안내 (아코디언 메뉴) -->
                     <div class="border-b">
                         <div class="flex justify-between items-center py-3 cursor-pointer mobile-menu-toggle">
                             <span>서비스 안내</span>
@@ -89,17 +83,16 @@ document.addEventListener("DOMContentLoaded", function() {
                     <a href="/contact" class="block py-3">Contact Us</a>
                 </nav>
             `;
+            // ▲▲▲ 여기까지 ▲▲▲
 
             document.body.appendChild(mobileMenu);
-            document.body.style.overflow = 'hidden'; // 스크롤 방지
+            document.body.style.overflow = 'hidden';
 
-            // 닫기 버튼 이벤트 리스너
             mobileMenu.querySelector('.close-menu').addEventListener('click', function() {
                 mobileMenu.remove();
-                document.body.style.overflow = ''; // 스크롤 복원
+                document.body.style.overflow = '';
             });
 
-            // 아코디언 메뉴 토글 이벤트 리스너
             mobileMenu.querySelectorAll('.mobile-menu-toggle').forEach(button => {
                 button.addEventListener('click', function() {
                     const submenu = this.nextElementSibling;
@@ -112,7 +105,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     };
 
-    // 함수 실행
     setActiveNav();
     setupMobileMenu();
 });
