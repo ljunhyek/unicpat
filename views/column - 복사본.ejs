@@ -1,65 +1,49 @@
 <%- include('partials/header') %>
 
 <style>
+    /* 페이지별로 필요한 추가 스타일을 여기에 정의할 수 있습니다. */
     .hero-section {
         background: linear-gradient(135deg, #e9eff1 0%, #d8e1e6 100%);
-        margin-top: -80px;
-        padding: 120px 0 80px 0;
+        margin-top: -80px; /* 헤더의 pt-80px 상쇄 */
+        padding: 120px 0 80px 0; /* 헤더 높이만큼 안쪽 패딩 추가 */
     }
-    
-    /* ▼▼▼ [핵심 수정] 새로운 카드 디자인을 위한 스타일 추가 ▼▼▼ */
-    .new-blog-card {
+    .blog-card {
         background-color: white;
         border-radius: 8px;
+        overflow: hidden;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         border: 1px solid #e5e7eb;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
-        display: flex;
-        flex-direction: column; /* 세로 정렬 */
-        padding: 1.5rem;
-        height: 250px; /* 카드의 고정 높이 지정 (필요에 따라 조절) */
     }
-    .new-blog-card:hover {
+    .blog-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 15px rgba(0, 0, 0, 0.08);
     }
-    .card-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1rem;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 1rem;
+    .blog-card-img-wrapper {
+        position: relative;
+        width: 100%;
+        padding-top: 56.25%; /* 16:9 비율 */
     }
-    .card-logo {
-        height: 24px; /* 로고 높이 */
-        margin-right: 8px;
+    .blog-card-img-wrapper img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
-    .card-brand-name {
-        font-size: 0.875rem; /* 14px */
-        font-weight: 500;
-        color: #6b7280; /* gray-500 */
-    }
-    .card-content {
-        flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
-        display: flex;
-        align-items: center; /* 수직 중앙 정렬 */
-        justify-content: center; /* 수평 중앙 정렬 */
-        text-align: center;
-    }
-    .card-title {
+    .blog-card-title {
         color: #1f2937;
         font-weight: 600;
-        font-size: 1.125rem; /* 18px */
-        line-height: 1.6;
-        /* 2줄 이상일 때 ... 처리 */
+        margin-top: 0.75rem;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
+        height: 3rem; /* 2줄 높이 고정 */
+        line-height: 1.5rem;
     }
-    /* ▲▲▲ 여기까지 ▲▲▲ */
-
     .btn-more {
         display: inline-block;
         background-color: #fff;
@@ -87,6 +71,7 @@
 </section>
 
 <% 
+// EJS 스크립트릿 태그 안에서 카테고리 정보를 정의합니다.
 const categories = [
     { 
         id: 'strategy', 
@@ -98,15 +83,18 @@ const categories = [
         id: 'patent', 
         title: '특허 출원', 
         bgColor: '#EDFBE2',
-        blogLink: 'https://blog.naver.com/PostList.naver?blogId=unicpat&categoryNo=1'
+        blogLink: 'https://blog.naver.com/PostList.naver?blogId=unicpat&categoryNo=1' // 예시 링크
     },
     { 
         id: 'trademark', 
         title: '상표/디자인 출원', 
         bgColor: '#f9fafb',
-        blogLink: 'https://blog.naver.com/PostList.naver?blogId=unicpat&categoryNo=1'
+        blogLink: 'https://blog.naver.com/PostList.naver?blogId=unicpat&categoryNo=1' // 예시 링크
     }
 ];
+
+// 화면 너비에 따른 표시 개수를 결정하는 로직을 서버에서 처리하는 대신,
+// 여기서는 최대 8개까지 가져와서 보여주는 것으로 단순화합니다.
 const postsToShow = 8;
 %>
 
@@ -117,36 +105,36 @@ const postsToShow = 8;
         <h2 class="text-3xl font-bold text-[#0F172A] mb-8"><%= category.title %></h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <% 
+            // 현재 카테고리에 해당하는 게시물만 필터링하고, 정해진 개수만큼 자릅니다.
             const filteredPosts = posts.filter(p => p.category === category.id).slice(0, postsToShow);
 
+            // 해당 카테고리에 게시물이 있는지 확인합니다.
             if (filteredPosts.length > 0) {
-                // ▼▼▼ [핵심 수정] 카드 HTML 구조를 새로운 디자인으로 변경 ▼▼▼
+                // 게시물이 있으면, 각 게시물 카드를 생성합니다.
                 filteredPosts.forEach(post => { %>
                 <a href="<%= post.url %>" target="_blank" class="block">
-                    <div class="new-blog-card">
-                        <!-- 카드 헤더: 로고와 브랜드명 -->
-                        <div class="card-header">
-                            <img src="/images/unique-mark.png" alt="유니크 마크" class="card-logo">
-                            <span class="card-brand-name">유니크 특허</span>
+                    <div class="blog-card h-full">
+                        <div class="blog-card-img-wrapper">
+                            <!-- 이미지 경로는 루트(/)부터 시작합니다. -->
+                            <img src="<%= post.image %>" alt="<%= post.title %>">
                         </div>
-                        <!-- 카드 컨텐츠: 중앙에 제목 표시 -->
-                        <div class="card-content">
-                            <h3 class="card-title"><%= post.title %></h3>
+                        <div class="p-4">
+                            <p class="blog-card-title"><%= post.title %></p>
                         </div>
                     </div>
                 </a>
-                <% });
-                // ▲▲▲ 여기까지 ▲▲▲
+                <% }); // end of filteredPosts.forEach
             } else {
+                // 게시물이 없으면 메시지를 표시합니다.
             %>
                 <p class="col-span-full text-gray-500">해당 카테고리의 게시물이 없습니다. 관리자 페이지에서 추가해주세요.</p>
-            <% } %>
+            <% } // end of if %>
         </div>
         <div class="text-center mt-12">
             <a href="<%= category.blogLink %>" target="_blank" class="btn-more">블로그에서 더 보기</a>
         </div>
     </div>
 </section>
-<% }); %>
+<% }); // end of categories.forEach %>
 
 <%- include('partials/footer') %>
