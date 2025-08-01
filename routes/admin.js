@@ -71,6 +71,46 @@ const requireLogin = (req, res, next) => {
     }
 };
 
+
+// 디버깅용 라우트 추가 (임시)
+router.get('/debug', (req, res) => {
+    res.json({
+        NODE_ENV: process.env.NODE_ENV,
+        ADMIN_PASSWORD_EXISTS: !!process.env.ADMIN_PASSWORD,
+        ADMIN_PASSWORD_LENGTH: process.env.ADMIN_PASSWORD ? process.env.ADMIN_PASSWORD.length : 0,
+        SESSION_SECRET_EXISTS: !!process.env.SESSION_SECRET,
+        SESSION_ID: req.sessionID,
+        SESSION_DATA: req.session
+    });
+});
+
+// 로그인 처리 (더 간단한 디버깅)
+router.post('/login', (req, res) => {
+    const { password } = req.body;
+    
+    // 임시 하드코딩 비밀번호로 테스트
+    const testPassword = 'admin123';  // 이 값으로 테스트해보세요
+    const envPassword = process.env.ADMIN_PASSWORD;
+    
+    if (password === testPassword || password === envPassword) {
+        req.session.loggedIn = true;
+        req.session.save((err) => {
+            if (err) {
+                return res.render('admin/login', { 
+                    title: '관리자 로그인', 
+                    error: '세션 오류: ' + err.message 
+                });
+            }
+            res.redirect('/admin/dashboard');
+        });
+    } else {
+        res.render('admin/login', { 
+            title: '관리자 로그인', 
+            error: `비밀번호 틀림. 환경변수 존재: ${!!envPassword}` 
+        });
+    }
+});
+
 // --- 라우트 ---
 
 router.get('/', (req, res) => res.redirect('/admin/dashboard'));
