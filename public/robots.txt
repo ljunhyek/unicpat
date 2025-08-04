@@ -1,0 +1,14 @@
+# 모든 검색 로봇에게 적용되는 규칙
+User-agent: *
+
+# 모든 페이지의 접근을 기본적으로 허용
+Allow: /
+
+# 아래 폴더 및 페이지는 수집하지 말아주세요
+Disallow: /admin
+Disallow: /thanks
+Disallow: /thanks-subscribe
+
+# 사이트맵의 위치는 여기입니다
+Sitemap: https://unicpat.com/sitemap.xml
+#DaumWebMasterTool:e6ee036ff8e30e2166458ce8f11cf88e52f82f27ec1b5f4281059d3a9059e960:i8ihTxSjFG7XIVrbKvyY5w==
