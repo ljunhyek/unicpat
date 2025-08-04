@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    
+    <!-- 메인 페이지 (가장 중요) -->
+    <url>
+        <loc>https://unicpat.com/</loc>
+        <lastmod>2025-08-04</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+    
+    <!-- 주요 메뉴 페이지들 -->
+    <url>
+        <loc>https://unicpat.com/about</loc>
+        <lastmod>2025-08-04</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://unicpat.com/column</loc>
+        <lastmod>2025-08-04</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://unicpat.com/newsletter</loc>
+        <lastmod>2025-08-04</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://unicpat.com/gov-support</loc>
+        <lastmod>2025-08-04</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://unicpat.com/contact</loc>
+        <lastmod>2025-08-04</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- 서비스 상세 페이지들 -->
+    <url>
+        <loc>https://unicpat.com/patent</loc>
+        <lastmod>2025-08-04</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://unicpat.com/trademark</loc>
+        <lastmod>2025-08-04</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://unicpat.com/design</loc>
+        <lastmod>2025-08-04</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://unicpat.com/startup</loc>
+        <lastmod>2025-08-04</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://unicpat.com/dispute-transfer</loc>
+        <lastmod>2025-08-04</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
+</urlset>
