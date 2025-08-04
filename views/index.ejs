@@ -344,12 +344,23 @@
                             <label for="message-main" class="block text-[#2F3B40] mb-2 font-medium">문의 내용 *</label>
                             <textarea id="message-main" name="message" rows="3" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#54B435]" required></textarea>
                         </div>
+                        
                         <div class="mb-6">
                             <label class="block text-[#2F3B40] mb-2 font-medium">개인정보 수집 및 이용 동의 <span class="text-red-500">*</span></label>
+                            <div class="border rounded-md bg-gray-50 text-sm text-gray-700">
+                                <textarea rows="3" id="privacy-policy-textarea" class="w-full p-3 bg-transparent border-0 resize-none focus:outline-none leading-relaxed" readonly>본 동의는 거부할 수 있으며 거부 시 상담서비스가 제한됩니다.
+
+                                수집·이용 목적 - 상담신청 답변 처리 등
+                                수집 항목 - 이름, 연락처, 이메일
+                                    보유 및 이용 기간 - 상담완료 시</textarea>
+                            </div>
                             <div class="mt-3 flex items-center">
                                 <input type="checkbox" id="privacy-consent-main" name="privacy_consent" class="h-4 w-4 text-[#54B435] focus:ring-[#54B435] border-gray-300 rounded" required>
                                 <label for="privacy-consent-main" class="ml-2 block text-sm text-[#2F3B40]">개인정보 수집 및 이용에 동의합니다.</label>
                             </div>
+                        </div>
+
+
                         </div>
                         <button type="submit" class="btn-primary w-full text-lg">상담 신청하기</button>
                     </form>
