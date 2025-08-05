@@ -333,13 +333,10 @@
         <div class="bg-white rounded-lg shadow-lg p-8 md:p-12 border border-gray-200">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 
-                <!-- 왼쪽: 상담 신청 폼 -->
                 <div>
-                    <h3 class="text-2xl font-bold mb-6 text-[#0F172A]">상담 신청하기</h3>
                     <form action="https://api.web3forms.com/submit" method="POST">
                         <input type="hidden" name="access_key" value="dd3c9ad5-1802-4bd1-b7e6-397002308afa">
                         <input type="hidden" name="redirect" value="https://unicpat.com/thanks">
-                        
                         <div class="mb-4">
                             <label for="name-main" class="block text-[#2F3B40] mb-2 font-medium">이름 *</label>
                             <input type="text" id="name-main" name="name" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#54B435]" required>
@@ -357,27 +354,27 @@
                             <textarea id="message-main" name="message" rows="3" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#54B435]" required></textarea>
                         </div>
                         
-                        <!-- 개인정보 수집 및 이용 동의 (텍스트 박스 포함) -->
                         <div class="mb-6">
                             <label class="block text-[#2F3B40] mb-2 font-medium">개인정보 수집 및 이용 동의 <span class="text-red-500">*</span></label>
                             <div class="border rounded-md bg-gray-50 text-sm text-gray-700">
-                                <textarea rows="3" class="w-full p-3 bg-transparent border-0 resize-none focus:outline-none leading-relaxed" readonly>본 동의는 거부할 수 있으며 거부 시 상담서비스가 제한됩니다.
+                                <textarea rows="3" id="privacy-policy-textarea" class="w-full p-3 bg-transparent border-0 resize-none focus:outline-none leading-relaxed" readonly>본 동의는 거부할 수 있으며 거부 시 상담서비스가 제한됩니다.
 
-수집·이용 목적 - 상담신청 답변 처리 등
-수집 항목 - 이름, 연락처, 이메일
-보유 및 이용 기간 - 상담완료 시</textarea>
+                                수집·이용 목적 - 상담신청 답변 처리 등
+                                수집 항목 - 이름, 연락처, 이메일
+                                    보유 및 이용 기간 - 상담완료 시</textarea>
                             </div>
                             <div class="mt-3 flex items-center">
                                 <input type="checkbox" id="privacy-consent-main" name="privacy_consent" class="h-4 w-4 text-[#54B435] focus:ring-[#54B435] border-gray-300 rounded" required>
                                 <label for="privacy-consent-main" class="ml-2 block text-sm text-[#2F3B40]">개인정보 수집 및 이용에 동의합니다.</label>
                             </div>
                         </div>
-                        
+
+
+                        </div>
                         <button type="submit" class="btn-primary w-full text-lg">상담 신청하기</button>
                     </form>
                 </div>
                 
-                <!-- 오른쪽: 유니크 특허 정보 -->
                 <div class="contact-info-card">
                     <h3 class="text-2xl font-bold mb-8 text-[#0F172A]">유니크 특허 정보</h3>
                     <div class="info-block">
@@ -402,7 +399,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
