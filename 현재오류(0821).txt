@@ -1,0 +1,6 @@
+상담 신청하기 메뉴에서 상담 신청 시 아래와 같이 영어가 나옴
+
+Form submitted successfully!
+Thank you! The form has been submitted successfully. We will reply to you soon!
+
+Go back
