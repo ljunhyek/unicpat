@@ -1,0 +1,758 @@
+프로젝트 폴더 구조 및 추가 설정 파일
+# 프로젝트 폴더 구조
+unic-patent-status/
+│
+├── node_modules/           # npm 패키지 (자동 생성)
+│
+├── public/                 # 정적 파일
+│   ├── css/
+│   │   └── style.css      # 공통 스타일
+│   ├── js/
+│   │   └── main.js        # 공통 JavaScript
+│   └── images/
+│       └── logo.png       # 로고 이미지
+│
+├── views/                  # EJS 템플릿
+│   ├── partials/
+│   │   ├── header.ejs     # 공통 헤더
+│   │   ├── footer.ejs     # 공통 푸터
+│   │   └── nav.ejs        # 네비게이션
+│   ├── registered.ejs     # 등록특허 현황 페이지
+│   ├── application.ejs    # 출원특허 현황 페이지
+│   ├── 404.ejs           # 404 에러 페이지
+│   └── error.ejs         # 일반 에러 페이지
+│
+├── routes/                 # 라우트 파일
+│   ├── api.js             # API 라우트
+│   └── web.js             # 웹 페이지 라우트
+│
+├── services/              # 비즈니스 로직
+│   └── patentService.js  # 특허 조회 서비스
+│
+├── .env                   # 환경변수
+├── .env.example          # 환경변수 예제
+├── .gitignore            # Git 무시 파일
+├── package.json          # 프로젝트 설정
+├── package-lock.json     # 의존성 잠금 파일
+├── README.md             # 프로젝트 문서
+└── server.js             # 메인 서버 파일
+
+# 설치 및 실행 방법
+1. 프로젝트 클론 또는 생성
+   mkdir unic-patent-status
+   cd unic-patent-status
+
+2. 필요한 파일들 생성 (위 구조 참고)
+
+3. 패키지 설치
+   npm install
+
+4. 환경변수 설정
+   cp .env.example .env
+   # .env 파일 편집하여 API 키 등 설정
+
+5. 개발 서버 실행
+   npm run dev
+
+6. 프로덕션 서버 실행
+   npm start
+
+7. 브라우저에서 접속
+   http://localhost:3001
+
+package.json - 프로젝트 설정
+{
+  "name": "unic-patent-status",
+  "version": "1.0.0",
+  "description": "유니크 특허사무소 - 특허 현황 조회 시스템",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "patent",
+    "kipris",
+    "patent-status",
+    "application-status"
+  ],
+  "author": "Unic Patent Office",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.2.0",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  }
+}
+.env - 환경변수 설정
+# 서버 설정
+NODE_ENV=development
+PORT=3001
+HOST=localhost
+
+# 특허청 API 설정
+KIPRIS_API_KEY=3Mc0FYs/RDD7M4buAiSD8oaxme74hLKKGZ0T0jjvePY=
+KIPRIS_API_BASE_URL=http://plus.kipris.or.kr/kipo-api/kipi
+
+# 로깅 설정
+LOG_LEVEL=debug
+
+# CORS 설정 (유니크 메인 사이트에서 접근 가능하도록)
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001,https://unicpat.com
+
+# Rate Limiting
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+
+# 기본 고객번호 (테스트용)
+DEFAULT_CUSTOMER_NUMBER=120190612244
+
+server.js - 메인 서버 파일
+// server.js - 유니크 특허 현황 조회 시스템
+require('dotenv').config();
+
+const express = require('express');
+const path = require('path');
+const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+// 보안 미들웨어
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net"],
+            imgSrc: ["'self'", "data:", "https:"],
+        },
+    },
+}));
+
+// CORS 설정
+const corsOptions = {
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3001'],
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+
+// Rate Limiting
+const limiter = rateLimit({
+    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
+    message: '너무 많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.'
+});
+app.use('/api/', limiter);
+
+// 로깅
+if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev'));
+} else {
+    app.use(morgan('combined'));
+}
+
+// Body Parser
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// View Engine 설정
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Static Files
+app.use(express.static(path.join(__dirname, 'public')));
+
+// 라우트 파일들
+const patentApiRoutes = require('./routes/api');
+const webRoutes = require('./routes/web');
+
+// API 라우트
+app.use('/api', patentApiRoutes);
+
+// 웹 페이지 라우트
+app.use('/', webRoutes);
+
+// 404 에러 처리
+app.use((req, res, next) => {
+    res.status(404).render('404', {
+        title: '페이지를 찾을 수 없습니다'
+    });
+});
+
+// 에러 처리 미들웨어
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(err.status || 500).render('error', {
+        title: '오류가 발생했습니다',
+        message: err.message || '서버 오류가 발생했습니다.',
+        error: process.env.NODE_ENV === 'development' ? err : {}
+    });
+});
+
+// 서버 시작
+app.listen(PORT, () => {
+    console.log(`
+    ╔════════════════════════════════════════╗
+    ║   유니크 특허 현황 조회 시스템          ║
+    ╠════════════════════════════════════════╣
+    ║   환경: ${process.env.NODE_ENV.padEnd(27)}  ║
+    ║   서버: http://localhost:${PORT}          ║
+    ║   시간: ${new Date().toLocaleString('ko-KR').padEnd(27)}  ║
+    ╚════════════════════════════════════════╝
+    `);
+});
+
+routes/web.js - 웹 페이지 라우트
+// routes/web.js - 웹 페이지 라우트
+const express = require('express');
+const router = express.Router();
+
+// 메인 페이지 (등록특허 현황)
+router.get('/', (req, res) => {
+    res.render('registered', {
+        title: '등록특허 현황',
+        defaultCustomerNumber: process.env.DEFAULT_CUSTOMER_NUMBER || '120190612244'
+    });
+});
+
+// 등록특허 현황
+router.get('/registered', (req, res) => {
+    res.render('registered', {
+        title: '등록특허 현황',
+        defaultCustomerNumber: process.env.DEFAULT_CUSTOMER_NUMBER || '120190612244'
+    });
+});
+
+// 출원특허 현황
+router.get('/application', (req, res) => {
+    res.render('application', {
+        title: '출원특허 현황',
+        defaultCustomerNumber: process.env.DEFAULT_CUSTOMER_NUMBER || '120190612244'
+    });
+});
+
+module.exports = router;
+
+routes/api/patent.js - API 라우트
+// routes/api.js - API 라우트
+const express = require('express');
+const router = express.Router();
+const patentService = require('../services/patentService');
+
+// 등록특허 검색 API
+router.post('/search-registered', async (req, res) => {
+    try {
+        const { customerNumber } = req.body;
+        
+        if (!customerNumber) {
+            return res.status(400).json({
+                success: false,
+                error: '고객번호를 입력해주세요.'
+            });
+        }
+
+        // 고객번호 형식 정리
+        const cleanedNumber = customerNumber.replace(/-/g, '');
+        
+        // 등록특허 정보 조회
+        const result = await patentService.searchRegisteredPatents(cleanedNumber);
+        
+        res.json({
+            success: true,
+            ...result
+        });
+
+    } catch (error) {
+        console.error('등록특허 검색 오류:', error);
+        
+        if (process.env.NODE_ENV === 'development') {
+            return res.status(500).json({
+                success: false,
+                error: error.message,
+                stack: error.stack
+            });
+        }
+        
+        res.status(500).json({
+            success: false,
+            error: '특허 정보를 조회하는 중 오류가 발생했습니다.'
+        });
+    }
+});
+
+// 출원특허 검색 API
+router.post('/search-application', async (req, res) => {
+    try {
+        const { customerNumber } = req.body;
+        
+        if (!customerNumber) {
+            return res.status(400).json({
+                success: false,
+                error: '고객번호를 입력해주세요.'
+            });
+        }
+
+        // 고객번호 형식 정리
+        const cleanedNumber = customerNumber.replace(/-/g, '');
+        
+        // 출원특허 정보 조회
+        const result = await patentService.searchApplicationPatents(cleanedNumber);
+        
+        res.json({
+            success: true,
+            ...result
+        });
+
+    } catch (error) {
+        console.error('출원특허 검색 오류:', error);
+        
+        if (process.env.NODE_ENV === 'development') {
+            return res.status(500).json({
+                success: false,
+                error: error.message,
+                stack: error.stack
+            });
+        }
+        
+        res.status(500).json({
+            success: false,
+            error: '특허 정보를 조회하는 중 오류가 발생했습니다.'
+        });
+    }
+});
+
+// 엑셀 다운로드 API
+router.post('/export-excel', async (req, res) => {
+    try {
+        const { patents, type } = req.body;
+        
+        if (!patents || !Array.isArray(patents)) {
+            return res.status(400).json({
+                success: false,
+                error: '다운로드할 특허 데이터가 없습니다.'
+            });
+        }
+
+        // CSV 생성
+        const csv = patentService.generateCSV(patents, type);
+        
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename=${type}_patents_${Date.now()}.csv`);
+        res.send('\ufeff' + csv); // BOM 추가 (한글 깨짐 방지)
+
+    } catch (error) {
+        console.error('엑셀 다운로드 오류:', error);
+        res.status(500).json({
+            success: false,
+            error: '엑셀 파일 생성 중 오류가 발생했습니다.'
+        });
+    }
+});
+
+module.exports = router;
+
+services/patentService.js - 비즈니스 로직
+// services/patentService.js - 특허 서비스 로직
+const axios = require('axios');
+const xml2js = require('xml2js');
+
+class PatentService {
+    constructor() {
+        this.apiKey = process.env.KIPRIS_API_KEY;
+        this.baseUrl = process.env.KIPRIS_API_BASE_URL;
+        this.parser = new xml2js.Parser({ explicitArray: false });
+    }
+
+    // 등록특허 검색
+    async searchRegisteredPatents(customerNumber) {
+        try {
+            const url = `${this.baseUrl}/patUtiModInfoSearchSevice/getWordSearch`;
+            
+            const response = await axios.get(url, {
+                params: {
+                    word: customerNumber,
+                    ServiceKey: this.apiKey
+                },
+                timeout: 10000
+            });
+
+            // 응답 데이터 파싱
+            const allPatents = await this.parseResponse(response.data);
+            
+            // 등록된 특허만 필터링
+            const registeredPatents = allPatents.filter(p => 
+                p.registrationStatus === '등록' || 
+                (p.registrationNumber && p.registrationNumber !== '-')
+            );
+
+            return {
+                customerNumber,
+                applicantName: registeredPatents[0]?.applicantName || '정보 없음',
+                totalCount: registeredPatents.length,
+                patents: registeredPatents
+            };
+
+        } catch (error) {
+            console.error('등록특허 API 호출 오류:', error.message);
+            
+            // 개발 환경에서는 테스트 데이터 반환
+            if (process.env.NODE_ENV === 'development') {
+                return this.getTestRegisteredData(customerNumber);
+            }
+            
+            throw error;
+        }
+    }
+
+    // 출원특허 검색
+    async searchApplicationPatents(customerNumber) {
+        try {
+            const url = `${this.baseUrl}/patUtiModInfoSearchSevice/getWordSearch`;
+            
+            const response = await axios.get(url, {
+                params: {
+                    word: customerNumber,
+                    ServiceKey: this.apiKey
+                },
+                timeout: 10000
+            });
+
+            // 응답 데이터 파싱
+            const allPatents = await this.parseResponse(response.data);
+            
+            // 출원 중인 특허만 필터링 (등록되지 않은 것들)
+            const applicationPatents = allPatents.filter(p => 
+                p.registrationStatus !== '등록' && 
+                (!p.registrationNumber || p.registrationNumber === '-')
+            );
+
+            return {
+                customerNumber,
+                applicantName: applicationPatents[0]?.applicantName || '정보 없음',
+                totalCount: applicationPatents.length,
+                patents: applicationPatents
+            };
+
+        } catch (error) {
+            console.error('출원특허 API 호출 오류:', error.message);
+            
+            // 개발 환경에서는 테스트 데이터 반환
+            if (process.env.NODE_ENV === 'development') {
+                return this.getTestApplicationData(customerNumber);
+            }
+            
+            throw error;
+        }
+    }
+
+    // API 응답 파싱
+    async parseResponse(data) {
+        try {
+            // XML 응답인 경우
+            if (typeof data === 'string' && data.includes('<?xml')) {
+                return await this.parseXMLResponse(data);
+            }
+            
+            // JSON 응답인 경우
+            if (typeof data === 'object') {
+                return this.parseJSONResponse(data);
+            }
+            
+            return [];
+        } catch (error) {
+            console.error('응답 파싱 오류:', error);
+            return [];
+        }
+    }
+
+    // XML 응답 파싱
+    async parseXMLResponse(xmlData) {
+        return new Promise((resolve, reject) => {
+            this.parser.parseString(xmlData, (err, result) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                try {
+                    const patents = [];
+                    
+                    if (result?.response?.body?.items?.item) {
+                        const items = Array.isArray(result.response.body.items.item) 
+                            ? result.response.body.items.item 
+                            : [result.response.body.items.item];
+
+                        items.forEach(item => {
+                            patents.push(this.formatPatentData(item));
+                        });
+                    }
+
+                    resolve(patents);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        });
+    }
+
+    // JSON 응답 파싱
+    parseJSONResponse(data) {
+        const patents = [];
+        
+        if (data?.response?.body?.items?.item) {
+            const items = Array.isArray(data.response.body.items.item) 
+                ? data.response.body.items.item 
+                : [data.response.body.items.item];
+
+            items.forEach(item => {
+                patents.push(this.formatPatentData(item));
+            });
+        }
+
+        return patents;
+    }
+
+    // 특허 데이터 포맷팅
+    formatPatentData(item) {
+        return {
+            applicationNumber: this.getValue(item.applicationNumber),
+            registrationNumber: this.getValue(item.registrationNumber),
+            applicantName: this.getValue(item.applicantName),
+            inventorName: this.getValue(item.inventorName),
+            applicationDate: this.formatDate(this.getValue(item.applicationDate)),
+            registrationDate: this.formatDate(this.getValue(item.registrationDate)),
+            publicationDate: this.formatDate(this.getValue(item.publicationDate)),
+            expirationDate: this.formatDate(this.getValue(item.rightDuration)),
+            inventionTitle: this.getValue(item.inventionTitle),
+            claimCount: this.getValue(item.claimCount),
+            registrationStatus: this.getValue(item.registerStatus) || '심사중',
+            examStatus: this.getValue(item.examStatus),
+            ipcCode: this.getValue(item.ipcCode),
+            abstract: this.getValue(item.abstract)
+        };
+    }
+
+    // 값 추출 헬퍼
+    getValue(value) {
+        if (value === undefined || value === null) return '-';
+        if (typeof value === 'object' && value._) return value._;
+        return String(value);
+    }
+
+    // 날짜 포맷팅
+    formatDate(dateStr) {
+        if (!dateStr || dateStr === '-') return '-';
+        
+        // YYYYMMDD -> YYYY-MM-DD
+        if (dateStr.length === 8) {
+            return `${dateStr.substring(0, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}`;
+        }
+        
+        return dateStr;
+    }
+
+    // 등록특허 테스트 데이터
+    getTestRegisteredData(customerNumber) {
+        return {
+            customerNumber,
+            applicantName: '유니크 특허사무소',
+            totalCount: 3,
+            patents: [
+                {
+                    applicationNumber: '10-2020-0098765',
+                    registrationNumber: '10-2234567',
+                    applicantName: '유니크 특허사무소',
+                    inventorName: '홍길동',
+                    applicationDate: '2020-08-15',
+                    registrationDate: '2021-11-30',
+                    publicationDate: '2021-02-15',
+                    expirationDate: '2040-08-15',
+                    inventionTitle: 'AI 기반 특허 자동 분석 시스템',
+                    claimCount: '18',
+                    registrationStatus: '등록',
+                    ipcCode: 'G06F 17/30'
+                },
+                {
+                    applicationNumber: '10-2019-0123456',
+                    registrationNumber: '10-2123456',
+                    applicantName: '유니크 특허사무소',
+                    inventorName: '김철수',
+                    applicationDate: '2019-10-20',
+                    registrationDate: '2021-03-15',
+                    publicationDate: '2020-04-20',
+                    expirationDate: '2039-10-20',
+                    inventionTitle: '블록체인 기반 지식재산권 관리 플랫폼',
+                    claimCount: '15',
+                    registrationStatus: '등록',
+                    ipcCode: 'G06Q 50/00'
+                },
+                {
+                    applicationNumber: '10-2018-0087654',
+                    registrationNumber: '10-2012345',
+                    applicantName: '유니크 특허사무소',
+                    inventorName: '이영희',
+                    applicationDate: '2018-07-25',
+                    registrationDate: '2020-01-10',
+                    publicationDate: '2019-01-25',
+                    expirationDate: '2038-07-25',
+                    inventionTitle: 'IoT 센서를 활용한 특허 모니터링 시스템',
+                    claimCount: '12',
+                    registrationStatus: '등록',
+                    ipcCode: 'H04L 29/08'
+                }
+            ]
+        };
+    }
+
+    // 출원특허 테스트 데이터
+    getTestApplicationData(customerNumber) {
+        return {
+            customerNumber,
+            applicantName: '유니크 특허사무소',
+            totalCount: 4,
+            patents: [
+                {
+                    applicationNumber: '10-2024-0012345',
+                    registrationNumber: '-',
+                    applicantName: '유니크 특허사무소',
+                    inventorName: '박민수',
+                    applicationDate: '2024-02-15',
+                    registrationDate: '-',
+                    publicationDate: '-',
+                    expirationDate: '-',
+                    inventionTitle: '양자컴퓨터 기반 특허 유사도 분석 방법',
+                    claimCount: '20',
+                    registrationStatus: '심사중',
+                    examStatus: '의견제출통지',
+                    ipcCode: 'G06N 10/00'
+                },
+                {
+                    applicationNumber: '10-2023-0198765',
+                    registrationNumber: '-',
+                    applicantName: '유니크 특허사무소',
+                    inventorName: '정수진',
+                    applicationDate: '2023-12-01',
+                    registrationDate: '-',
+                    publicationDate: '2024-06-01',
+                    expirationDate: '-',
+                    inventionTitle: '메타버스 환경에서의 지식재산권 보호 시스템',
+                    claimCount: '16',
+                    registrationStatus: '심사중',
+                    examStatus: '심사청구',
+                    ipcCode: 'G06F 21/10'
+                },
+                {
+                    applicationNumber: '10-2023-0156789',
+                    registrationNumber: '-',
+                    applicantName: '유니크 특허사무소',
+                    inventorName: '최동욱',
+                    applicationDate: '2023-09-20',
+                    registrationDate: '-',
+                    publicationDate: '2024-03-20',
+                    expirationDate: '-',
+                    inventionTitle: 'ChatGPT를 활용한 특허 명세서 자동 생성 장치',
+                    claimCount: '14',
+                    registrationStatus: '심사중',
+                    examStatus: '최초거절',
+                    ipcCode: 'G06F 40/00'
+                },
+                {
+                    applicationNumber: '10-2023-0134567',
+                    registrationNumber: '-',
+                    applicantName: '유니크 특허사무소',
+                    inventorName: '강미영',
+                    applicationDate: '2023-07-10',
+                    registrationDate: '-',
+                    publicationDate: '2024-01-10',
+                    expirationDate: '-',
+                    inventionTitle: '드론을 이용한 특허 침해 감시 시스템',
+                    claimCount: '11',
+                    registrationStatus: '심사중',
+                    examStatus: '등록결정',
+                    ipcCode: 'B64C 39/02'
+                }
+            ]
+        };
+    }
+
+    // CSV 생성
+    generateCSV(patents, type) {
+        let headers = [];
+        
+        if (type === 'registered') {
+            headers = [
+                '출원번호', '등록번호', '출원인', '발명자', '출원일', 
+                '등록일', '공개일', '존속기간만료일', '발명의명칭', 
+                '청구항수', '상태', 'IPC코드'
+            ];
+        } else {
+            headers = [
+                '출원번호', '출원인', '발명자', '출원일', 
+                '공개일', '발명의명칭', '청구항수', 
+                '심사상태', '진행상태', 'IPC코드'
+            ];
+        }
+
+        const rows = patents.map(p => {
+            if (type === 'registered') {
+                return [
+                    p.applicationNumber,
+                    p.registrationNumber,
+                    p.applicantName,
+                    p.inventorName,
+                    p.applicationDate,
+                    p.registrationDate,
+                    p.publicationDate,
+                    p.expirationDate,
+                    `"${p.inventionTitle}"`,
+                    p.claimCount,
+                    p.registrationStatus,
+                    p.ipcCode
+                ];
+            } else {
+                return [
+                    p.applicationNumber,
+                    p.applicantName,
+                    p.inventorName,
+                    p.applicationDate,
+                    p.publicationDate,
+                    `"${p.inventionTitle}"`,
+                    p.claimCount,
+                    p.examStatus,
+                    p.registrationStatus,
+                    p.ipcCode
+                ];
+            }
+        });
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.join(','))
+        ].join('\n');
+
+        return csvContent;
+    }
+}
+
+module.exports = new PatentService();
+
