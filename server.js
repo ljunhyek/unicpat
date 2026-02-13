@@ -1,14 +1,15 @@
 // server.js
 const express = require('express');
-const path =require('path');
+const path = require('path');
 const dotenv = require('dotenv');
+const cookieParser = require('cookie-parser');
+
+// .env 파일 로드
+dotenv.config();
 
 // 라우터 가져오기
 const pageRoutes = require('./routes/pages');
 const adminRoutes = require('./routes/admin');
-
-// .env 파일 로드
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,16 +25,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// ▼▼▼ [핵심 수정] 이 부분을 추가하세요. ▼▼▼
-//app.use((req, res, next) => {
-    // Vercel 환경에서는 VERCEL_URL을 사용하고, 로컬에서는 localhost를 사용합니다.
-  //  const baseUrl = process.env.VERCEL_URL 
-    //    ? `https://${process.env.VERCEL_URL}` 
-    //    : `http://localhost:${PORT}`;
-   // res.locals.BASE_URL = baseUrl; // 모든 EJS 템플릿에서 'BASE_URL' 변수를 사용할 수 있게 됩니다.
-  //  next();
-//});
-// ▲▲▲ 여기까지 ▲▲▲
+// Signed cookie 미들웨어
+app.use(cookieParser(process.env.COOKIE_SECRET || 'default-cookie-secret'));
 
 // 페이지 라우트 사용
 app.use('/', pageRoutes);

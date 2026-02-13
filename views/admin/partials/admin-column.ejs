@@ -1,0 +1,84 @@
+<h2 class="text-xl font-bold mb-4">유니크 칼럼 관리</h2>
+
+<!-- 추가 폼 -->
+<form action="/admin/add" method="POST" class="bg-gray-50 p-4 rounded-lg mb-6 space-y-3">
+    <input type="hidden" name="type" value="column">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">제목 *</label>
+            <input type="text" name="title" required
+                   class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   placeholder="칼럼 제목">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">URL *</label>
+            <input type="url" name="url" required
+                   class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   placeholder="https://blog.naver.com/...">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">카테고리 *</label>
+            <select name="category" required
+                    class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="strategy">전략</option>
+                <option value="patent">특허</option>
+                <option value="trademark">상표</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">이미지 경로</label>
+            <input type="text" name="image"
+                   class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   placeholder="/images/columns/example.png">
+        </div>
+    </div>
+    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-colors">
+        <i class="fas fa-plus mr-1"></i>칼럼 추가
+    </button>
+</form>
+
+<!-- 목록 -->
+<div class="overflow-x-auto">
+    <table class="w-full text-sm text-left">
+        <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+            <tr>
+                <th class="px-4 py-3">제목</th>
+                <th class="px-4 py-3">카테고리</th>
+                <th class="px-4 py-3">이미지</th>
+                <th class="px-4 py-3 text-center">삭제</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y">
+            <% if (posts && posts.length > 0) { %>
+                <% posts.forEach(post => { %>
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3">
+                            <a href="<%= post.url %>" target="_blank" class="text-blue-600 hover:underline"><%= post.title %></a>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 rounded text-xs font-medium
+                                <% if (post.category === 'strategy') { %>bg-purple-100 text-purple-700
+                                <% } else if (post.category === 'patent') { %>bg-green-100 text-green-700
+                                <% } else { %>bg-yellow-100 text-yellow-700<% } %>">
+                                <%= post.category === 'strategy' ? '전략' : (post.category === 'patent' ? '특허' : '상표') %>
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-gray-500 text-xs"><%= post.image || '-' %></td>
+                        <td class="px-4 py-3 text-center">
+                            <form action="/admin/delete" method="POST" class="inline"
+                                  onsubmit="return confirm('정말 삭제하시겠습니까?')">
+                                <input type="hidden" name="type" value="column">
+                                <input type="hidden" name="id" value="<%= post.id %>">
+                                <button type="submit" class="text-red-500 hover:text-red-700">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }) %>
+            <% } else { %>
+                <tr><td colspan="4" class="px-4 py-6 text-center text-gray-400">등록된 칼럼이 없습니다.</td></tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>

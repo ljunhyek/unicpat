@@ -1,253 +1,185 @@
 const express = require('express');
 const router = express.Router();
-const fs = require('fs');
-const path = require('path');
-const multer = require('multer');
-const session = require('express-session');
+const { createAnonClient, createAuthenticatedClient } = require('../lib/supabase');
 
-// --- Session 설정 (수정됨) ---
-router.use(session({
-    secret: process.env.SESSION_SECRET || 'a-very-secret-key-for-session',
-    resave: false,
-    saveUninitialized: false, // true에서 false로 변경
-    cookie: { 
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true, // 보안 강화
-        maxAge: 24 * 60 * 60 * 1000, // 24시간
-        sameSite: 'lax' // Vercel HTTPS 환경에서 중요
-    }
-}));
-
-// --- 데이터 경로 ---
-const dataPath = {
-    posts: path.join(__dirname, '..', 'data', 'blog-posts.json'),
-    newsletters: path.join(__dirname, '..', 'data', 'newsletters.json'),
-    govSupport: path.join(__dirname, '..', 'data', 'gov-support.json')
+// --- Cookie options ---
+const COOKIE_OPTS = {
+  httpOnly: true,
+  signed: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax',
+  maxAge: 24 * 60 * 60 * 1000 // 24h
 };
 
-// --- 파일 업로드(multer) 설정 ---
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        let dest = 'public/images/';
-        if (req.body.type === 'column') {
-            dest = 'public/images/columns/';
-        }
-        fs.mkdirSync(dest, { recursive: true });
-        cb(null, dest);
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});
-const upload = multer({ storage: storage });
+// --- Auth middleware ---
+const requireLogin = async (req, res, next) => {
+  const accessToken = req.signedCookies.sb_access_token;
+  const refreshToken = req.signedCookies.sb_refresh_token;
 
-// --- 데이터 I/O 헬퍼 함수 ---
-const readData = (filePath) => {
-    try {
-        if (fs.existsSync(filePath)) {
-            const fileContent = fs.readFileSync(filePath, 'utf-8');
-            return fileContent ? JSON.parse(fileContent) : [];
-        }
-        return [];
-    } catch (error) {
-        console.error(`Error reading or parsing ${filePath}:`, error);
-        return [];
-    }
-};
-const writeData = (filePath, data) => {
-    try {
-        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
-    } catch (error) {
-        console.error(`Error writing to ${filePath}:`, error);
-    }
-};
+  if (!accessToken) {
+    return res.redirect('/admin/login');
+  }
 
-// --- 인증 미들웨어 ---
-const requireLogin = (req, res, next) => {
-    if (req.session.loggedIn) {
-        next();
-    } else {
-        res.redirect('/admin/login');
-    }
-};
-
-
-// 디버깅용 라우트 추가 (임시)
-router.get('/debug', (req, res) => {
-    res.json({
-        NODE_ENV: process.env.NODE_ENV,
-        ADMIN_PASSWORD_EXISTS: !!process.env.ADMIN_PASSWORD,
-        ADMIN_PASSWORD_LENGTH: process.env.ADMIN_PASSWORD ? process.env.ADMIN_PASSWORD.length : 0,
-        SESSION_SECRET_EXISTS: !!process.env.SESSION_SECRET,
-        SESSION_ID: req.sessionID,
-        SESSION_DATA: req.session
+  try {
+    const supabase = createAnonClient();
+    const { data, error } = await supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken
     });
-});
 
-// 로그인 처리 (더 간단한 디버깅)
-router.post('/login', (req, res) => {
-    const { password } = req.body;
-    
-    // 임시 하드코딩 비밀번호로 테스트
-    const testPassword = 'admin123';  // 이 값으로 테스트해보세요
-    const envPassword = process.env.ADMIN_PASSWORD;
-    
-    if (password === testPassword || password === envPassword) {
-        req.session.loggedIn = true;
-        req.session.save((err) => {
-            if (err) {
-                return res.render('admin/login', { 
-                    title: '관리자 로그인', 
-                    error: '세션 오류: ' + err.message 
-                });
-            }
-            res.redirect('/admin/dashboard');
-        });
-    } else {
-        res.render('admin/login', { 
-            title: '관리자 로그인', 
-            error: `비밀번호 틀림. 환경변수 존재: ${!!envPassword}` 
-        });
+    if (error || !data.session) {
+      res.clearCookie('sb_access_token');
+      res.clearCookie('sb_refresh_token');
+      return res.redirect('/admin/login');
     }
-});
 
-// --- 라우트 ---
+    // Refresh cookies if tokens were refreshed
+    if (data.session.access_token !== accessToken) {
+      res.cookie('sb_access_token', data.session.access_token, COOKIE_OPTS);
+      res.cookie('sb_refresh_token', data.session.refresh_token, COOKIE_OPTS);
+    }
+
+    req.supabase = createAuthenticatedClient(data.session.access_token, data.session.refresh_token);
+    next();
+  } catch (err) {
+    console.error('Auth middleware error:', err);
+    return res.redirect('/admin/login');
+  }
+};
+
+// --- Routes ---
 
 router.get('/', (req, res) => res.redirect('/admin/dashboard'));
 
 router.get('/login', (req, res) => {
-    res.render('admin/login', { title: '관리자 로그인', error: null });
+  res.render('admin/login', { title: '관리자 로그인', error: null });
 });
 
-// 로그인 처리 (디버깅 로그 추가)
-router.post('/login', (req, res) => {
-    const { password } = req.body;
-    
-    // 디버깅 로그
-    console.log('=== 로그인 시도 ===');
-    console.log('NODE_ENV:', process.env.NODE_ENV);
-    console.log('ADMIN_PASSWORD 존재:', !!process.env.ADMIN_PASSWORD);
-    console.log('입력된 비밀번호 길이:', password ? password.length : 0);
-    console.log('세션 ID:', req.sessionID);
-    console.log('로그인 전 세션:', req.session);
-    
-    if (password === process.env.ADMIN_PASSWORD) {
-        req.session.loggedIn = true;
-        console.log('로그인 성공! 세션 설정 후:', req.session);
-        
-        // 세션 저장 확실히 하기
-        req.session.save((err) => {
-            if (err) {
-                console.error('세션 저장 오류:', err);
-                return res.render('admin/login', { 
-                    title: '관리자 로그인', 
-                    error: '세션 저장 중 오류가 발생했습니다.' 
-                });
-            }
-            console.log('세션 저장 완료, 대시보드로 리디렉션');
-            res.redirect('/admin/dashboard');
-        });
-    } else {
-        console.log('비밀번호 불일치');
-        res.render('admin/login', { title: '관리자 로그인', error: '비밀번호가 틀렸습니다.' });
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const supabase = createAnonClient();
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error || !data.session) {
+      return res.render('admin/login', {
+        title: '관리자 로그인',
+        error: '이메일 또는 비밀번호가 틀렸습니다.'
+      });
     }
+
+    res.cookie('sb_access_token', data.session.access_token, COOKIE_OPTS);
+    res.cookie('sb_refresh_token', data.session.refresh_token, COOKIE_OPTS);
+    res.redirect('/admin/dashboard');
+  } catch (err) {
+    console.error('Login error:', err);
+    res.render('admin/login', { title: '관리자 로그인', error: '로그인 중 오류가 발생했습니다.' });
+  }
 });
 
 router.get('/logout', (req, res) => {
-    req.session.destroy(() => {
-        res.redirect('/admin/login');
-    });
+  res.clearCookie('sb_access_token');
+  res.clearCookie('sb_refresh_token');
+  res.redirect('/admin/login');
 });
 
-// 대시보드 (디버깅 로그 추가)
-router.get('/dashboard', requireLogin, (req, res) => {
-    console.log('=== 대시보드 접근 ===');
-    console.log('세션 상태:', req.session);
-    console.log('로그인 상태:', req.session.loggedIn);
-    
-    const posts = readData(dataPath.posts);
-    const newsletters = readData(dataPath.newsletters);
-    const supportData = readData(dataPath.govSupport);
+// --- Dashboard ---
+router.get('/dashboard', requireLogin, async (req, res) => {
+  try {
+    const supabase = req.supabase;
+    const [colRes, nlRes, typesRes, projRes] = await Promise.all([
+      supabase.from('columns').select('*').order('sort_order'),
+      supabase.from('newsletters').select('*').order('created_at', { ascending: false }),
+      supabase.from('gov_support_types').select('*').order('created_at', { ascending: false }),
+      supabase.from('gov_projects').select('*').order('created_at', { ascending: false })
+    ]);
 
     res.render('admin/dashboard', {
-        title: '관리자 대시보드',
-        posts: Array.isArray(posts) ? posts : [],
-        newsletters: Array.isArray(newsletters) ? newsletters : [],
-        programTypes: supportData.types || [],
-        govProjects: supportData.projects || []
+      title: '관리자 대시보드',
+      posts: colRes.data || [],
+      newsletters: nlRes.data || [],
+      programTypes: typesRes.data || [],
+      govProjects: projRes.data || []
     });
+  } catch (err) {
+    console.error('Dashboard error:', err);
+    res.render('admin/dashboard', {
+      title: '관리자 대시보드',
+      posts: [], newsletters: [], programTypes: [], govProjects: []
+    });
+  }
 });
 
-router.post('/add', requireLogin, upload.single('image'), (req, res) => {
-    const { type, title, url, date, period, agency, programs, description } = req.body;
-    let imagePath = req.file ? req.file.path.replace('public', '') : "";
-    if (imagePath) {
-      imagePath = imagePath.replace(/\\/g, '/');
-    }
+// --- Add ---
+router.post('/add', requireLogin, async (req, res) => {
+  const { type, title, url, date, period, agency, programs, description, category, image } = req.body;
+  const supabase = req.supabase;
 
+  try {
     switch (type) {
-        case 'column':
-            const posts = readData(dataPath.posts);
-            posts.unshift({ title, url, image: imagePath, category: req.body.category || 'strategy' });
-            writeData(dataPath.posts, posts);
-            break;
-        case 'newsletter':
-            const newsletters = readData(dataPath.newsletters);
-            newsletters.unshift({ title, link: url, date });
-            writeData(dataPath.newsletters, newsletters);
-            break;
-        case 'govProject':
-            const supportDataProj = readData(dataPath.govSupport);
-            if (!supportDataProj.projects) supportDataProj.projects = [];
-            supportDataProj.projects.unshift({ title, period, url });
-            writeData(dataPath.govSupport, supportDataProj);
-            break;
-        case 'programType':
-            const supportDataType = readData(dataPath.govSupport);
-            if (!supportDataType.types) supportDataType.types = [];
-            supportDataType.types.unshift({ agency, programs, description, url });
-            writeData(dataPath.govSupport, supportDataType);
-            break;
+      case 'column': {
+        // Get current max sort_order
+        const { data: maxRow } = await supabase
+          .from('columns')
+          .select('sort_order')
+          .order('sort_order', { ascending: false })
+          .limit(1);
+        const nextOrder = (maxRow && maxRow.length > 0) ? maxRow[0].sort_order + 1 : 0;
+
+        await supabase.from('columns').insert({
+          title,
+          url,
+          image: image || '',
+          category: category || 'strategy',
+          sort_order: nextOrder
+        });
+        break;
+      }
+      case 'newsletter':
+        await supabase.from('newsletters').insert({ title, link: url, date });
+        break;
+      case 'govProject':
+        await supabase.from('gov_projects').insert({ title, period, url });
+        break;
+      case 'programType':
+        await supabase.from('gov_support_types').insert({ agency, programs, description, url });
+        break;
     }
-    res.redirect(`/admin/dashboard#tab-${type === 'column' ? 'column' : (type === 'newsletter' ? 'newsletter' : 'gov-support')}`);
+  } catch (err) {
+    console.error('Add error:', err);
+  }
+
+  const tabMap = { column: 'tab-column', newsletter: 'tab-newsletter', govProject: 'tab-gov-support', programType: 'tab-gov-support' };
+  res.redirect(`/admin/dashboard#${tabMap[type] || 'tab-column'}`);
 });
 
-router.post('/delete', requireLogin, (req, res) => {
-    const { type, id } = req.body;
-    
-    try {
-        switch (type) {
-            case 'column':
-                let posts = readData(dataPath.posts);
-                const postToDelete = posts.find(p => p.url === id);
-                if (postToDelete && postToDelete.image) {
-                    const imagePathToDelete = path.join(__dirname, '..', 'public', postToDelete.image);
-                    if (fs.existsSync(imagePathToDelete)) fs.unlinkSync(imagePathToDelete);
-                }
-                posts = posts.filter(p => p.url !== id);
-                writeData(dataPath.posts, posts);
-                break;
-            case 'newsletter':
-                let newsletters = readData(dataPath.newsletters);
-                newsletters = newsletters.filter(n => n.link !== id);
-                writeData(dataPath.newsletters, newsletters);
-                break;
-            case 'govProject':
-                let supportDataProj = readData(dataPath.govSupport);
-                supportDataProj.projects = supportDataProj.projects.filter(p => p.url !== id);
-                writeData(dataPath.govSupport, supportDataProj);
-                break;
-            case 'programType':
-                let supportDataType = readData(dataPath.govSupport);
-                supportDataType.types = supportDataType.types.filter(t => t.agency !== id);
-                writeData(dataPath.govSupport, supportDataType);
-                break;
-        }
-    } catch(err) {
-        console.error("삭제 중 오류 발생:", err);
+// --- Delete ---
+router.post('/delete', requireLogin, async (req, res) => {
+  const { type, id } = req.body;
+  const supabase = req.supabase;
+
+  try {
+    switch (type) {
+      case 'column':
+        await supabase.from('columns').delete().eq('id', id);
+        break;
+      case 'newsletter':
+        await supabase.from('newsletters').delete().eq('id', id);
+        break;
+      case 'govProject':
+        await supabase.from('gov_projects').delete().eq('id', id);
+        break;
+      case 'programType':
+        await supabase.from('gov_support_types').delete().eq('id', id);
+        break;
     }
-    
-    res.redirect(`/admin/dashboard#tab-${type === 'column' ? 'column' : (type === 'newsletter' ? 'newsletter' : 'gov-support')}`);
+  } catch (err) {
+    console.error('Delete error:', err);
+  }
+
+  const tabMap = { column: 'tab-column', newsletter: 'tab-newsletter', govProject: 'tab-gov-support', programType: 'tab-gov-support' };
+  res.redirect(`/admin/dashboard#${tabMap[type] || 'tab-column'}`);
 });
 
 module.exports = router;
