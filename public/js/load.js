@@ -80,7 +80,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     <a href="/column" class="block py-3 border-b">유니크 칼럼</a>
                     <a href="/newsletter" class="block py-3 border-b">뉴스레터</a>
                     <a href="/gov-support" class="block py-3 border-b">정부지원사업 안내</a>
-                    <a href="/contact" class="block py-3">Contact Us</a>
+                    <a href="/contact" class="block py-3 border-b">Contact Us</a>
+                    <a href="https://www.ipbot1.com" class="block py-3" target="_blank">실시간 특허관리</a>
                 </nav>
             `;
             // ▲▲▲ 여기까지 ▲▲▲
