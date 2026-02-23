@@ -1,254 +1,152 @@
 <%- include('partials/header') %>
 
 <style>
-    .hero {
-        position: relative;
-        padding: 8rem 0 4rem 0;
-        background: linear-gradient(135deg, #e9eff1 0%, #d8e1e6 100%);
-        margin-top: -80px; /* 헤더의 pt-[80px] 상쇄 */
-        overflow: hidden;
-    }
-    .hero-content {
-        position: relative;
-        z-index: 10;
-        text-align: center;
-    }
+    .hero { position: relative; padding: 8rem 0 4rem 0; background: linear-gradient(135deg, #e9eff1 0%, #d8e1e6 100%); margin-top: -80px; overflow: hidden; }
+    .hero-content { position: relative; z-index: 10; text-align: center; }
     .hero-content h1 { color: #0F172A; }
     .hero-content p { color: #2F3B40; }
-    .section-title {
-        position: relative;
-        display: inline-block;
-        margin-bottom: 1.5rem;
-        font-weight: 700;
-        color: #0F172A;
-    }
-    .section-title::after {
-        content: '';
-        position: absolute;
-        bottom: -8px;
-        left: 50%;
-        width: 60px;
-        height: 3px;
-        background: #54B435;
-        transform: translateX(-50%);
-    }
-    .info-card {
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        transition: transform 0.3s, box-shadow 0.3s;
-        border: 1px solid #e5e7eb;
-        height: 100%;
-    }
-    .info-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(84, 180, 53, 0.15);
-    }
-    .info-icon {
-        width: 60px;
-        height: 60px;
-        background: #f0fdf4;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1rem;
-    }
-    .info-icon i {
-        font-size: 24px;
-        color: #54B435;
-    }
-    .process-step {
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        position: relative;
-        border-left: 4px solid #54B435;
-    }
-    .process-number {
-        width: 40px;
-        height: 40px;
-        background: #54B435;
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        position: absolute;
-        left: -22px;
-        top: 20px;
-    }
-    .cost-table {
-        background: white;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    }
-    .cost-table th {
-        background: #54B435;
-        color: white;
-        padding: 1rem;
-        text-align: center;
-        font-weight: 600;
-    }
-    .cost-table td {
-        padding: 1rem;
-        border-bottom: 1px solid #e5e7eb;
-        text-align: center;
-    }
+    .section-title { position: relative; display: inline-block; margin-bottom: 1.5rem; font-weight: 700; color: #0F172A; }
+    .section-title::after { content: ''; position: absolute; bottom: -8px; left: 50%; width: 60px; height: 3px; background: #54B435; transform: translateX(-50%); }
+    .info-card { background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb; height: 100%; }
+    .info-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(84, 180, 53, 0.15); }
+    .info-icon { width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
+    .info-icon i { font-size: 24px; color: #54B435; }
+    .process-step { background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); position: relative; border-left: 4px solid #54B435; }
+    .process-number { width: 40px; height: 40px; background: #54B435; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; position: absolute; left: -22px; top: 20px; }
+    .cost-table { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+    .cost-table th { background: #54B435; color: white; padding: 1rem; text-align: center; font-weight: 600; }
+    .cost-table td { padding: 1rem; border-bottom: 1px solid #e5e7eb; text-align: center; }
     .cost-table tr:last-child td { border-bottom: none; }
-    .btn-primary {
-        background: #54B435;
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 5px;
-        font-weight: 500;
-        transition: background 0.3s;
-        display: inline-block;
-        text-decoration: none;
-    }
+    .btn-primary { background: #54B435; color: white; padding: 0.75rem 1.5rem; border-radius: 5px; font-weight: 500; transition: background 0.3s; display: inline-block; text-decoration: none; }
     .btn-primary:hover { background: #469b2d; }
-    .btn-outline {
-        border: 2px solid #54B435;
-        color: #54B435;
-        padding: 0.75rem 1.5rem;
-        border-radius: 5px;
-        font-weight: 500;
-        transition: background 0.3s, color 0.3s;
-        display: inline-block;
-        text-decoration: none;
-    }
+    .btn-outline { border: 2px solid #54B435; color: #54B435; padding: 0.75rem 1.5rem; border-radius: 5px; font-weight: 500; transition: background 0.3s, color 0.3s; display: inline-block; text-decoration: none; }
     .btn-outline:hover { background: #54B435; color: white; }
-    .highlight-box {
-        background: #EDFBE2;
-        border-left: 4px solid #54B435;
-        padding: 1.5rem;
-        border-radius: 8px;
-        margin: 2rem 0;
-    }
-    .case-card {
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        overflow: hidden;
-        border: 1px solid #e5e7eb;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-    .case-header {
-        background: linear-gradient(135deg, #54B435 0%, #16a34a 100%);
-        color: white;
-        padding: 1rem;
-    }
+    .highlight-box { background: #EDFBE2; border-left: 4px solid #54B435; padding: 1.5rem; border-radius: 8px; margin: 2rem 0; }
+    .case-card { background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e5e7eb; display: flex; flex-direction: column; height: 100%; }
+    .case-header { background: linear-gradient(135deg, #54B435 0%, #16a34a 100%); color: white; padding: 1rem; }
 </style>
 
-<!-- 히어로 섹션 -->
+<!-- 히어로 -->
 <section class="hero flex items-center justify-center">
     <div class="container mx-auto z-10">
         <div class="hero-content">
+            <% if (lang === 'en') { %>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Trademark Application</h1>
+            <p class="text-lg my-6 max-w-3xl mx-auto">The most reliable way to protect your brand —<br>the first impression of your business and a powerful asset.</p>
+            <% } else { %>
             <h1 class="text-4xl md:text-5xl font-bold mb-4">상표 출원</h1>
-            <p class="text-lg my-6 max-w-3xl mx-auto">
-                당신의 브랜드를 지키는 가장 확실한 방법,<br>
-                사업의 첫인상이자 강력한 자산이 됩니다.
-            </p>
+            <p class="text-lg my-6 max-w-3xl mx-auto">당신의 브랜드를 지키는 가장 확실한 방법,<br>사업의 첫인상이자 강력한 자산이 됩니다.</p>
+            <% } %>
         </div>
     </div>
 </section>
 
-<!-- 상표 출원의 중요성 -->
+<!-- 중요성 -->
 <section class="py-16 bg-white">
     <div class="container mx-auto">
+        <% if (lang === 'en') { %>
+        <h2 class="section-title text-3xl font-bold text-center">Why Is Trademark Application Essential?</h2>
+        <p class="text-center text-[#2F3B40] mb-12">A small investment can prevent major disputes in the future and multiply your brand value.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
+            <div class="info-card p-6"><div class="info-icon"><i class="fas fa-shield-alt"></i></div><h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">Exclusive Rights</h3><p class="text-[#2F3B40] text-center">A registered trademark grants nationwide exclusive rights, preventing others from imitating or misappropriating your brand.</p></div>
+            <div class="info-card p-6"><div class="info-icon"><i class="fas fa-store"></i></div><h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">Online Business Protection</h3><p class="text-[#2F3B40] text-center">You can immediately stop unauthorized sales of your products on platforms like Naver Smart Store and Coupang.</p></div>
+            <div class="info-card p-6"><div class="info-icon"><i class="fas fa-handshake"></i></div><h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">Brand Credibility</h3><p class="text-[#2F3B40] text-center">The ® symbol gives consumers a sense of professionalism and trust, and is a powerful tool when recruiting franchisees or distributors.</p></div>
+        </div>
+        <% } else { %>
         <h2 class="section-title text-3xl font-bold text-center">왜 상표 출원이 필수일까요?</h2>
         <p class="text-center text-[#2F3B40] mb-12">작은 투자로 미래의 큰 분쟁을 막고, 브랜드 가치를 수십 배로 키울 수 있습니다.</p>
-        
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
-            <div class="info-card p-6">
-                <div class="info-icon"><i class="fas fa-shield-alt"></i></div>
-                <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">독점적 권리 확보</h3>
-                <p class="text-[#2F3B40] text-center">등록된 상표는 전국에 걸쳐 독점적으로 사용할 권리가 생겨, 타인의 모방과 도용을 막을 수 있습니다.</p>
-            </div>
-            <div class="info-card p-6">
-                <div class="info-icon"><i class="fas fa-store"></i></div>
-                <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">온라인 비즈니스 보호</h3>
-                <p class="text-[#2F3B40] text-center">네이버 스마트스토어, 쿠팡 등에서 내 상품을 무단으로 판매하는 행위를 즉각 중단시킬 수 있습니다.</p>
-            </div>
-            <div class="info-card p-6">
-                <div class="info-icon"><i class="fas fa-handshake"></i></div>
-                <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">브랜드 신뢰도 상승</h3>
-                <p class="text-[#2F3B40] text-center">® 마크 사용으로 소비자에게 전문성과 신뢰감을 주며, 프랜차이즈나 대리점 모집 시 강력한 무기가 됩니다.</p>
-            </div>
+            <div class="info-card p-6"><div class="info-icon"><i class="fas fa-shield-alt"></i></div><h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">독점적 권리 확보</h3><p class="text-[#2F3B40] text-center">등록된 상표는 전국에 걸쳐 독점적으로 사용할 권리가 생겨, 타인의 모방과 도용을 막을 수 있습니다.</p></div>
+            <div class="info-card p-6"><div class="info-icon"><i class="fas fa-store"></i></div><h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">온라인 비즈니스 보호</h3><p class="text-[#2F3B40] text-center">네이버 스마트스토어, 쿠팡 등에서 내 상품을 무단으로 판매하는 행위를 즉각 중단시킬 수 있습니다.</p></div>
+            <div class="info-card p-6"><div class="info-icon"><i class="fas fa-handshake"></i></div><h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">브랜드 신뢰도 상승</h3><p class="text-[#2F3B40] text-center">® 마크 사용으로 소비자에게 전문성과 신뢰감을 주며, 프랜차이즈나 대리점 모집 시 강력한 무기가 됩니다.</p></div>
         </div>
+        <% } %>
     </div>
 </section>
 
-<!-- 유니크의 상표 등록 성공사례 -->
+<!-- 성공사례 -->
 <section class="py-16" style="background-color: #EDFBE2;">
     <div class="container mx-auto">
-        <h2 class="section-title text-3xl font-bold text-center">유니크의 상표 등록 성공사례</h2>
-        <p class="text-center text-[#2F3B40] mb-12">유니크는 결과로 증명합니다. 대표님의 성공이 유니크의 성공입니다.</p>
-        
+        <% if (lang === 'en') { %>
+        <h2 class="section-title text-3xl font-bold text-center">Unic Trademark Registration Success Cases</h2>
+        <p class="text-center text-[#2F3B40] mb-12">Unic proves it with results. Your success is our success.</p>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div class="case-card">
-                <div class="case-header">
-                    <h3 class="text-xl font-bold">F&B 프랜차이즈 '우주떡볶이'</h3>
-                    <p class="text-sm opacity-90">유사 상표 극복 및 등록 성공</p>
-                </div>
-                <div class="p-6 flex-grow flex flex-col">
-                    <p class="text-[#2F3B40] mb-4 flex-grow">"비슷한 이름의 떡볶이 가게가 많아 등록이 어려울 거라 생각했습니다. 유니크는 식별력이 약한 '떡볶이' 대신 '우주'라는 단어의 독창성을 강조하고, 로고의 디자인적 차별성을 함께 주장하여 최종 등록에 성공했습니다. 덕분에 안심하고 가맹사업을 확장하고 있습니다."</p>
-                    <div class="text-sm text-[#54B435] font-semibold mt-auto"><i class="fas fa-check-circle mr-2"></i><strong>핵심 전략:</strong> 식별력 강화 및 로고 디자인 연계</div>
-                </div>
+                <div class="case-header"><h3 class="text-xl font-bold">F&amp;B Franchise 'Wooju Tteokbokki'</h3><p class="text-sm opacity-90">Overcame similar marks and achieved registration</p></div>
+                <div class="p-6 flex-grow flex flex-col"><p class="text-[#2F3B40] mb-4 flex-grow">"I thought registration would be difficult because of so many similar shop names. Unic emphasized the uniqueness of 'Wooju' and the design differentiation of the logo, successfully achieving registration. I can now confidently expand my franchise business."</p><div class="text-sm text-[#54B435] font-semibold mt-auto"><i class="fas fa-check-circle mr-2"></i><strong>Key Strategy:</strong> Enhanced distinctiveness &amp; logo design linkage</div></div>
             </div>
             <div class="case-card">
-                <div class="case-header">
-                    <h3 class="text-xl font-bold">반려동물 용품 '댕냥이'</h3>
-                    <p class="text-sm opacity-90">온라인 스토어 권리 보호</p>
-                </div>
-                <div class="p-6 flex-grow flex flex-col">
-                    <p class="text-[#2F3B40] mb-4 flex-grow">"스마트스토어에서 저희 제품과 브랜드를 그대로 베껴 파는 셀러 때문에 골머리를 앓았습니다. 유니크를 통해 상표권을 확보한 후, 즉시 내용증명을 보내고 오픈마켓에 판매중지요청을 하여 모든 모방 판매를 중단시킬 수 있었습니다. 진작 할 걸 후회했습니다."</p>
-                    <div class="text-sm text-[#54B435] font-semibold mt-auto"><i class="fas fa-check-circle mr-2"></i><strong>핵심 성과:</strong> 모방 판매 중단 및 온라인 시장 보호</div>
-                </div>
+                <div class="case-header"><h3 class="text-xl font-bold">Pet Products Brand 'Daengnyang-i'</h3><p class="text-sm opacity-90">Online store rights protection</p></div>
+                <div class="p-6 flex-grow flex flex-col"><p class="text-[#2F3B40] mb-4 flex-grow">"A seller was copying our product and brand entirely on Smart Store. After securing our trademark through Unic, we immediately sent a cease-and-desist letter and requested removal on open markets — all copycat sales were stopped. I wish I had done this sooner."</p><div class="text-sm text-[#54B435] font-semibold mt-auto"><i class="fas fa-check-circle mr-2"></i><strong>Key Result:</strong> Stopped copycat sales &amp; protected online market</div></div>
             </div>
         </div>
-        <div class="mt-12 text-center">
-            <a href="https://blog.naver.com/PostList.naver?blogId=unicpat&categoryNo=1" target="_blank" class="btn-outline"><i class="fas fa-external-link-alt mr-2"></i>블로그로 더 많은 사례 보러가기</a>
+        <div class="mt-12 text-center"><a href="https://blog.naver.com/PostList.naver?blogId=unicpat&categoryNo=1" target="_blank" class="btn-outline"><i class="fas fa-external-link-alt mr-2"></i>View More Cases on Our Blog</a></div>
+        <% } else { %>
+        <h2 class="section-title text-3xl font-bold text-center">유니크의 상표 등록 성공사례</h2>
+        <p class="text-center text-[#2F3B40] mb-12">유니크는 결과로 증명합니다. 대표님의 성공이 유니크의 성공입니다.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="case-card">
+                <div class="case-header"><h3 class="text-xl font-bold">F&B 프랜차이즈 '우주떡볶이'</h3><p class="text-sm opacity-90">유사 상표 극복 및 등록 성공</p></div>
+                <div class="p-6 flex-grow flex flex-col"><p class="text-[#2F3B40] mb-4 flex-grow">"비슷한 이름의 떡볶이 가게가 많아 등록이 어려울 거라 생각했습니다. 유니크는 식별력이 약한 '떡볶이' 대신 '우주'라는 단어의 독창성을 강조하고, 로고의 디자인적 차별성을 함께 주장하여 최종 등록에 성공했습니다."</p><div class="text-sm text-[#54B435] font-semibold mt-auto"><i class="fas fa-check-circle mr-2"></i><strong>핵심 전략:</strong> 식별력 강화 및 로고 디자인 연계</div></div>
+            </div>
+            <div class="case-card">
+                <div class="case-header"><h3 class="text-xl font-bold">반려동물 용품 '댕냥이'</h3><p class="text-sm opacity-90">온라인 스토어 권리 보호</p></div>
+                <div class="p-6 flex-grow flex flex-col"><p class="text-[#2F3B40] mb-4 flex-grow">"스마트스토어에서 저희 제품과 브랜드를 그대로 베껴 파는 셀러 때문에 골머리를 앓았습니다. 유니크를 통해 상표권을 확보한 후, 즉시 내용증명을 보내고 모든 모방 판매를 중단시킬 수 있었습니다."</p><div class="text-sm text-[#54B435] font-semibold mt-auto"><i class="fas fa-check-circle mr-2"></i><strong>핵심 성과:</strong> 모방 판매 중단 및 온라인 시장 보호</div></div>
+            </div>
         </div>
+        <div class="mt-12 text-center"><a href="https://blog.naver.com/PostList.naver?blogId=unicpat&categoryNo=1" target="_blank" class="btn-outline"><i class="fas fa-external-link-alt mr-2"></i>블로그로 더 많은 사례 보러가기</a></div>
+        <% } %>
     </div>
 </section>
 
-<!-- 출원 절차 안내 -->
+<!-- 출원 절차 -->
 <section class="py-16 bg-white">
     <div class="container mx-auto">
+        <% if (lang === 'en') { %>
+        <h2 class="section-title text-3xl font-bold text-center">Trademark Application Process</h2>
+        <p class="text-center text-[#2F3B40] mb-12">A swift, systematic 3-step process to protect your valuable brand.</p>
+        <div class="space-y-8">
+            <div class="process-step p-8 ml-8"><div class="process-number">1</div><h3 class="text-xl font-bold mb-3 text-[#0F172A]">Free Consultation &amp; Registration Feasibility Review</h3><p class="text-[#2F3B40]">We consult for free on your brand (name, logo) and precisely search KIPRIS for identical or similar prior marks to diagnose registration feasibility.</p></div>
+            <div class="process-step p-8 ml-8"><div class="process-number">2</div><h3 class="text-xl font-bold mb-3 text-[#0F172A]">Filing Strategy &amp; Document Preparation</h3><p class="text-[#2F3B40]">We select the most appropriate goods classification and build a filing strategy that minimizes refusal risk. Our patent attorney then carefully drafts all application documents.</p></div>
+            <div class="process-step p-8 ml-8"><div class="process-number">3</div><h3 class="text-xl font-bold mb-3 text-[#0F172A]">KIPO Filing &amp; Examination</h3><p class="text-[#2F3B40]">We promptly submit documents to the KIPO to secure the filing date. The examination takes approximately 10–12 months (or within 3 months with expedited examination). Unic monitors every step.</p></div>
+        </div>
+        <% } else { %>
         <h2 class="section-title text-3xl font-bold text-center">상표 출원 절차</h2>
         <p class="text-center text-[#2F3B40] mb-12">신속하고 체계적인 5단계 프로세스로 대표님의 소중한 브랜드를 지켜드립니다.</p>
-        
         <div class="space-y-8">
-            <div class="process-step p-8 ml-8">
-                <div class="process-number">1</div>
-                <h3 class="text-xl font-bold mb-3 text-[#0F172A]">무료 상담 및 등록 가능성 검토</h3>
-                <p class="text-[#2F3B40]">대표님의 브랜드(상호, 로고)에 대해 무료로 상담하고, KIPRIS를 통해 동일·유사한 선행 상표를 정밀하게 검토하여 등록 가능성을 진단합니다.</p>
-            </div>
-            <div class="process-step p-8 ml-8">
-                <div class="process-number">2</div>
-                <h3 class="text-xl font-bold mb-3 text-[#0F172A]">출원전략 수립 및 서류작성</h3>
-                <p class="text-[#2F3B40]">가장 적합한 상품분류(지정상품)를 선정하고, 거절 가능성을 최소화하는 방향으로 출원 전략을 수립합니다. 이후 전문 변리사가 직접 출원 서류를 꼼꼼하게 작성합니다.</p>
-            </div>
-            <div class="process-step p-8 ml-8">
-                <div class="process-number">3</div>
-                <h3 class="text-xl font-bold mb-3 text-[#0F172A]">특허청 출원 및 심사</h3>
-                <p class="text-[#2F3B40]">작성된 서류를 특허청에 신속하게 제출하여 출원일을 확보합니다. 이후 약 10~12개월간 (빠른 심사 신청시 3개월 이내) 특허청 심사관이 등록 요건을 심사하게 되며, 유니크가 모든 과정을 모니터링합니다.</p>
-            </div>
+            <div class="process-step p-8 ml-8"><div class="process-number">1</div><h3 class="text-xl font-bold mb-3 text-[#0F172A]">무료 상담 및 등록 가능성 검토</h3><p class="text-[#2F3B40]">대표님의 브랜드(상호, 로고)에 대해 무료로 상담하고, KIPRIS를 통해 동일·유사한 선행 상표를 정밀하게 검토하여 등록 가능성을 진단합니다.</p></div>
+            <div class="process-step p-8 ml-8"><div class="process-number">2</div><h3 class="text-xl font-bold mb-3 text-[#0F172A]">출원전략 수립 및 서류작성</h3><p class="text-[#2F3B40]">가장 적합한 상품분류(지정상품)를 선정하고, 거절 가능성을 최소화하는 방향으로 출원 전략을 수립합니다.</p></div>
+            <div class="process-step p-8 ml-8"><div class="process-number">3</div><h3 class="text-xl font-bold mb-3 text-[#0F172A]">특허청 출원 및 심사</h3><p class="text-[#2F3B40]">작성된 서류를 특허청에 신속하게 제출하여 출원일을 확보합니다. 이후 약 10~12개월간 특허청 심사관이 등록 요건을 심사하며, 유니크가 모든 과정을 모니터링합니다.</p></div>
         </div>
+        <% } %>
     </div>
 </section>
 
 <!-- 비용 안내 -->
 <section class="py-16" style="background-color: #EDFBE2;">
     <div class="container mx-auto">
+        <% if (lang === 'en') { %>
+        <h2 class="section-title text-3xl font-bold text-center">Fee Guide</h2>
+        <p class="text-center text-[#2F3B40] mb-12">We promise the best results at honest, reasonable fees.</p>
+        <div class="max-w-lg mx-auto">
+            <div class="cost-table">
+                <table class="w-full">
+                    <thead>
+                        <tr><th colspan="2" class="text-xl">Trademark Application Fees (per class)</th></tr>
+                        <tr><th>Category</th><th>Cost (VAT excl.)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="font-semibold text-left pl-4">Filing</td><td><strong>Attorney Fee: KRW 200,000</strong><br>KIPO Official Fee: KRW 56,000</td></tr>
+                        <tr><td class="font-semibold text-left pl-4">Registration</td><td><strong>Attorney Fee: KRW 200,000</strong><br>Registration Fee (10yr): KRW 220,120</td></tr>
+                        <tr><td class="font-semibold text-left pl-4 text-blue-600">Office Action Response</td><td><strong>Attorney Fee: None</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="highlight-box mt-8"><h4 class="text-xl font-bold mb-3 text-[#0F172A]"><i class="fas fa-info-circle text-[#54B435] mr-2"></i>Cost-Saving Tip!</h4><p class="text-[#2F3B40]">Individuals, SMEs, and startups may receive a <strong>70% reduction</strong> on KIPO official fees. Unic handles the reduction application for you.</p></div>
+        <% } else { %>
         <h2 class="section-title text-3xl font-bold text-center">비용 안내</h2>
         <p class="text-center text-[#2F3B40] mb-12">거품을 뺀 합리적인 비용으로 최고의 결과를 약속합니다.</p>
-        
         <div class="max-w-lg mx-auto">
             <div class="cost-table">
                 <table class="w-full">
@@ -257,35 +155,30 @@
                         <tr><th>구분</th><th>비용 (VAT 별도)</th></tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="font-semibold text-left pl-4">출원 시</td>
-                            <td><strong>대리인 수수료: 200,000원</strong><br>특허청 관납료: 56,000원</td>
-                        </tr>
-                        <tr>
-                            <td class="font-semibold text-left pl-4">등록 시</td>
-                            <td><strong>대리인 수수료: 200,000원</strong><br>등록료(10년): 220,120원</td>
-                        </tr>
-                        <tr>
-                            <td class="font-semibold text-left pl-4 text-blue-600">중간사건 대응</td>
-                            <td><strong>대리인 수수료: 없음</strong></td>
-                        </tr>
+                        <tr><td class="font-semibold text-left pl-4">출원 시</td><td><strong>대리인 수수료: 200,000원</strong><br>특허청 관납료: 56,000원</td></tr>
+                        <tr><td class="font-semibold text-left pl-4">등록 시</td><td><strong>대리인 수수료: 200,000원</strong><br>등록료(10년): 220,120원</td></tr>
+                        <tr><td class="font-semibold text-left pl-4 text-blue-600">중간사건 대응</td><td><strong>대리인 수수료: 없음</strong></td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="highlight-box mt-8">
-            <h4 class="text-xl font-bold mb-3 text-[#0F172A]"><i class="fas fa-info-circle text-[#54B435] mr-2"></i>비용 절감 Tip!</h4>
-            <p class="text-[#2F3B40]">개인, 중소기업, 스타트업의 경우 특허청 관납료의 <strong>70% 감면</strong> 혜택을 받을 수 있습니다. 유니크에서 감면 신청까지 꼼꼼하게 챙겨드립니다.</p>
-        </div>
+        <div class="highlight-box mt-8"><h4 class="text-xl font-bold mb-3 text-[#0F172A]"><i class="fas fa-info-circle text-[#54B435] mr-2"></i>비용 절감 Tip!</h4><p class="text-[#2F3B40]">개인, 중소기업, 스타트업의 경우 특허청 관납료의 <strong>70% 감면</strong> 혜택을 받을 수 있습니다. 유니크에서 감면 신청까지 꼼꼼하게 챙겨드립니다.</p></div>
+        <% } %>
     </div>
 </section>
 
-<!-- CTA 섹션 -->
+<!-- CTA -->
 <section class="py-16 bg-white">
     <div class="container mx-auto text-center">
+        <% if (lang === 'en') { %>
+        <h2 class="text-3xl font-bold mb-4 text-[#0F172A]">Don't Wait to Protect Your Brand.</h2>
+        <p class="text-xl mb-8 text-[#2F3B40]">Someone may be eyeing your brand at this very moment.<br>Unic's experts will protect it faster and more surely than anyone else.</p>
+        <a href="/contact" class="btn-primary text-lg px-8 py-3"><i class="fas fa-rocket mr-2"></i>Request a Free Consultation Now</a>
+        <% } else { %>
         <h2 class="text-3xl font-bold mb-4 text-[#0F172A]">내 브랜드를 지키는 일, 더 이상 미루지 마세요.</h2>
         <p class="text-xl mb-8 text-[#2F3B40]">지금 이 순간에도 누군가 당신의 브랜드를 탐내고 있을지 모릅니다.<br>유니크의 전문가가 가장 빠르고 확실하게 지켜드리겠습니다.</p>
         <a href="/contact" class="btn-primary text-lg px-8 py-3"><i class="fas fa-rocket mr-2"></i>지금 바로 무료상담 신청하기</a>
+        <% } %>
     </div>
 </section>
 
