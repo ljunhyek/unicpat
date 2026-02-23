@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { createAnonClient } = require('../lib/supabase');
+const { translatePostTitles } = require('../lib/translate');
 
 const supabase = createAnonClient();
 
@@ -13,10 +14,14 @@ router.get('/', async (req, res) => {
             supabase.from('gov_projects').select('*').order('created_at', { ascending: false }).limit(4)
         ]);
 
+        const lang = res.locals.lang;
+        let posts = colRes.data || [];
+        if (lang === 'en') posts = await translatePostTitles(posts);
+
         res.render('index', {
             title: '유니크 특허법률사무소',
             description: '특허, 그 이상의 가치를 만드는 곳. 20년 경력의 전문 변리사가 아이디어의 사업화까지, 스타트업 창업 경험을 바탕으로 실질적인 컨설팅을 제공합니다.',
-            posts: colRes.data || [],
+            posts,
             newsletters: nlRes.data || [],
             govProjects: projRes.data || []
         });
@@ -42,10 +47,14 @@ router.get('/about', (req, res) => {
 router.get('/column', async (req, res) => {
     try {
         const { data } = await supabase.from('columns').select('*').order('sort_order');
+        const lang = res.locals.lang;
+        let posts = data || [];
+        if (lang === 'en') posts = await translatePostTitles(posts);
+
         res.render('column', {
             title: '유니크 칼럼',
             description: '지식재산권에 관한 전문적이고 실용적인 정보를 제공합니다. 특허, 상표, 디자인부터 AI 특허, 해외 출원까지 다양한 주제를 다룹니다.',
-            posts: data || []
+            posts
         });
     } catch (err) {
         console.error('Column page error:', err);
