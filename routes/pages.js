@@ -143,4 +143,11 @@ router.get('/thanks-subscribe', (req, res) => {
     res.render('thanks-subscribe', { title: '구독 완료' });
 });
 
+// 언어 전환
+router.get('/set-lang', (req, res) => {
+    const lang = req.query.lang === 'en' ? 'en' : 'ko';
+    res.cookie('lang', lang, { maxAge: 365 * 24 * 60 * 60 * 1000 });
+    res.redirect(req.headers.referer || '/');
+});
+
 module.exports = router;

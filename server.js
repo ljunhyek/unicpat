@@ -28,6 +28,12 @@ app.use(express.json());
 // Signed cookie 미들웨어
 app.use(cookieParser(process.env.COOKIE_SECRET || 'default-cookie-secret'));
 
+// 언어 미들웨어 - 모든 EJS 템플릿에 lang 변수 전달
+app.use((req, res, next) => {
+    res.locals.lang = req.cookies['lang'] || 'ko';
+    next();
+});
+
 // 페이지 라우트 사용
 app.use('/', pageRoutes);
 // 관리자 라우트 사용

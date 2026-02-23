@@ -5,42 +5,49 @@
         <div class="container mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
-                    <h3 class="text-xl font-bold text-white mb-4">유니크 특허사무소</h3>
-                    <p class="text-gray-300 mb-4">지식재산권의 가치를 극대화하는 파트너</p>
+                    <h3 class="text-xl font-bold text-white mb-4"><%= lang === 'en' ? 'Unic Patent Firm' : '유니크 특허사무소' %></h3>
+                    <p class="text-gray-300 mb-4"><%= lang === 'en' ? 'Your partner in maximizing the value of intellectual property' : '지식재산권의 가치를 극대화하는 파트너' %></p>
                     <div class="flex space-x-4">
                         <a href="https://blog.naver.com/unicpat" target="_blank" class="text-gray-300 hover:text-white">
-                            <!-- Font Awesome 아이콘 대신 SVG로 대체하여 외부 의존성 감소 -->
                             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true" role="img">
                                 <path d="M16.5 6.375c0-1.625-1.375-3-3-3s-3 1.375-3 3.001c0 1.5 1.125 2.75 2.625 2.875v5.312h-3.375v-5.25c1.5-.125 2.625-1.375 2.625-2.876C12 4.75 10.875 3.5 9.375 3.5S6.75 4.75 6.75 6.25c0 1.5 1.125 2.75 2.625 2.875v8.375h5.25V9.25c1.5-.125 2.625-1.375 2.625-2.875M5.25 2.25a3 3 0 0 0-3 3v13.5a3 3 0 0 0 3 3h13.5a3 3 0 0 0 3-3V5.25a3 3 0 0 0-3-3z"/>
                             </svg>
                         </a>
                     </div>
                 </div>
-                
+
                 <div>
-                    <h3 class="text-lg font-bold text-white mb-4">메뉴</h3>
+                    <h3 class="text-lg font-bold text-white mb-4"><%= lang === 'en' ? 'Menu' : '메뉴' %></h3>
                     <ul class="space-y-2 text-gray-300">
-                        <li><a href="/about" class="hover:text-white">유니크 소개</a></li>
-                        <li><a href="/patent" class="hover:text-white">서비스 안내</a></li>
-                        <li><a href="/column" class="hover:text-white">유니크 칼럼</a></li>
+                        <li><a href="/about" class="hover:text-white"><%= lang === 'en' ? 'About Unique' : '유니크 소개' %></a></li>
+                        <li><a href="/patent" class="hover:text-white"><%= lang === 'en' ? 'Services' : '서비스 안내' %></a></li>
+                        <li><a href="/column" class="hover:text-white"><%= lang === 'en' ? 'Unique Column' : '유니크 칼럼' %></a></li>
+                        <% if (lang !== 'en') { %>
                         <li><a href="/gov-support" class="hover:text-white">정부지원사업</a></li>
+                        <% } %>
                     </ul>
                 </div>
-                
+
                 <div>
-                    <h3 class="text-lg font-bold text-white mb-4">고객지원</h3>
+                    <h3 class="text-lg font-bold text-white mb-4"><%= lang === 'en' ? 'Contact' : '고객지원' %></h3>
                     <ul class="space-y-2 text-gray-300">
                         <li><a href="/contact" class="hover:text-white">Contact Us</a></li>
+                        <% if (lang !== 'en') { %>
                         <li><a href="/newsletter" class="hover:text-white">뉴스레터 구독</a></li>
+                        <% } %>
                     </ul>
                 </div>
-                
+
                 <div>
-                    <h3 class="text-lg font-bold text-white mb-4">연락처</h3>
+                    <h3 class="text-lg font-bold text-white mb-4"><%= lang === 'en' ? 'Contact Info' : '연락처' %></h3>
                     <ul class="space-y-2 text-gray-300">
                         <li class="flex items-start">
                             <i class="fas fa-map-marker-alt mt-1 mr-2 text-[#54B435]"></i>
+                            <% if (lang === 'en') { %>
+                            <span>202, 27 Cheongna Canal-ro 260beon-gil, Seo-gu, Incheon</span>
+                            <% } else { %>
                             <span>인천광역시 서구 청라커낼로 260번길 27 202호</span>
+                            <% } %>
                         </li>
                         <li class="flex items-center">
                             <i class="fas fa-phone-alt mr-2 text-[#54B435]"></i>
@@ -53,14 +60,14 @@
                     </ul>
                 </div>
             </div>
-            
+
             <div class="border-t border-gray-700 mt-8 pt-8">
                 <p class="text-center text-gray-400">ⓒ 2024. Unic Patent Law Firm all rights reserved.</p>
             </div>
         </div>
     </footer>
-    
-    <!-- 모든 페이지에서 공통으로 사용할 클라이언트 측 JavaScript -->
+
+    <!-- 공통 클라이언트 JavaScript -->
     <script src="/js/load.js"></script>
 
 </body>
