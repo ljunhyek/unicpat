@@ -6,7 +6,6 @@
         margin-top: -80px;
         padding: 120px 0 80px 0;
     }
-    
     .new-blog-card {
         background-color: white;
         border-radius: 8px;
@@ -29,15 +28,8 @@
         border-bottom: 1px solid #eee;
         padding-bottom: 1rem;
     }
-    .card-logo {
-        height: 24px;
-        margin-right: 8px;
-    }
-    .card-brand-name {
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: #6b7280;
-    }
+    .card-logo { height: 24px; margin-right: 8px; }
+    .card-brand-name { font-size: 0.875rem; font-weight: 500; color: #6b7280; }
     .card-content {
         flex-grow: 1;
         display: flex;
@@ -56,7 +48,6 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
-    
     .section-title {
         position: relative;
         display: inline-block;
@@ -68,15 +59,12 @@
         content: '';
         position: absolute;
         bottom: -8px;
-        /* ▼▼▼ [핵심 수정 1] 밑줄을 왼쪽으로 정렬합니다. ▼▼▼ */
         left: 0;
         transform: none;
-        /* ▲▲▲ 여기까지 ▲▲▲ */
         width: 60px;
         height: 3px;
         background: #54B435;
     }
-
     .btn-more {
         display: inline-block;
         background-color: #fff;
@@ -87,58 +75,65 @@
         font-weight: 600;
         transition: all 0.3s;
     }
-    .btn-more:hover {
-        background-color: #54B435;
-        color: #fff;
-    }
+    .btn-more:hover { background-color: #54B435; color: #fff; }
 </style>
 
 <section class="hero-section">
     <div class="container mx-auto text-center">
+        <% if (lang === 'en') { %>
+        <h1 class="section-title text-4xl md:text-5xl font-bold mb-8 text-[#0F172A]">Unique Column</h1>
+        <p class="text-xl max-w-3xl mx-auto text-[#2F3B40]">
+            Expert and practical insights on intellectual property rights.<br>
+            Covering patents, trademarks, design, AI patents, overseas filing, and more.
+        </p>
+        <% } else { %>
         <h1 class="section-title text-4xl md:text-5xl font-bold mb-8 text-[#0F172A]">유니크 칼럼</h1>
         <p class="text-xl max-w-3xl mx-auto text-[#2F3B40]">
             지식재산권에 관한 전문적이고 실용적인 정보를 제공합니다.<br>
             특허, 상표, 디자인부터 AI 특허, 해외 출원까지 다양한 주제를 다룹니다.
         </p>
+        <% } %>
     </div>
 </section>
 
-<% 
-const categories = [
-    { 
-        id: 'strategy', 
-        title: '지식재산 전략', 
-        bgColor: '#f9fafb',
-        blogLink: 'https://blog.naver.com/unicpat' 
-    },
-    { 
-        id: 'patent', 
-        title: '특허 출원', 
-        bgColor: '#EDFBE2',
-        blogLink: 'https://blog.naver.com/PostList.naver?blogId=unicpat&categoryNo=1'
-    },
-    { 
-        id: 'trademark', 
-        title: '상표/디자인 출원', 
-        bgColor: '#f9fafb',
-        blogLink: 'https://blog.naver.com/PostList.naver?blogId=unicpat&categoryNo=1'
-    }
+<%
+const categoriesKo = [
+    { id: 'strategy', title: '지식재산 전략',    bgColor: '#f9fafb', blogLink: 'https://blog.naver.com/unicpat' },
+    { id: 'patent',   title: '특허 출원',         bgColor: '#EDFBE2', blogLink: 'https://blog.naver.com/PostList.naver?blogId=unicpat&categoryNo=1' },
+    { id: 'trademark',title: '상표/디자인 출원',  bgColor: '#f9fafb', blogLink: 'https://blog.naver.com/PostList.naver?blogId=unicpat&categoryNo=1' }
 ];
+const categoriesEn = [
+    { id: 'strategy', title: 'IP Strategy',              bgColor: '#f9fafb', blogLink: 'https://blog.naver.com/unicpat' },
+    { id: 'patent',   title: 'Patent Application',       bgColor: '#EDFBE2', blogLink: 'https://blog.naver.com/PostList.naver?blogId=unicpat&categoryNo=1' },
+    { id: 'trademark',title: 'Trademark / Design',       bgColor: '#f9fafb', blogLink: 'https://blog.naver.com/PostList.naver?blogId=unicpat&categoryNo=1' }
+];
+const categories = (lang === 'en') ? categoriesEn : categoriesKo;
 const postsToShow = 8;
 %>
 
-<!-- EJS 반복문을 사용하여 각 카테고리 섹션을 동적으로 생성합니다. -->
 <% categories.forEach(category => { %>
 <section class="py-20" style="background-color: <%= category.bgColor %>;">
-    <!-- ▼▼▼ [핵심 수정 2] 제목의 부모 div에서 'text-center' 클래스를 삭제합니다. ▼▼▼ -->
     <div class="container mx-auto">
         <h2 class="section-title text-3xl font-bold mb-12"><%= category.title %></h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <% 
+            <%
             const filteredPosts = posts.filter(p => p.category === category.id).slice(0, postsToShow);
-
             if (filteredPosts.length > 0) {
-                filteredPosts.forEach(post => { %>
+                filteredPosts.forEach(post => {
+            %>
+                <% if (lang === 'en') { %>
+                <div class="block">
+                    <div class="new-blog-card">
+                        <div class="card-header">
+                            <img src="/images/unique-mark.png" alt="Unic" class="card-logo">
+                            <span class="card-brand-name">Unique Column</span>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title"><%= post.title %></h3>
+                        </div>
+                    </div>
+                </div>
+                <% } else { %>
                 <a href="<%= post.url %>" target="_blank" class="block">
                     <div class="new-blog-card">
                         <div class="card-header">
@@ -150,15 +145,20 @@ const postsToShow = 8;
                         </div>
                     </div>
                 </a>
-                <% });
-            } else {
-            %>
-                <p class="col-span-full text-gray-500">해당 카테고리의 게시물이 없습니다. 관리자 페이지에서 추가해주세요.</p>
+                <% } %>
+            <%
+                });
+            } else { %>
+                <p class="col-span-full text-gray-500">
+                    <%= lang === 'en' ? 'No posts in this category yet.' : '해당 카테고리의 게시물이 없습니다. 관리자 페이지에서 추가해주세요.' %>
+                </p>
             <% } %>
         </div>
+        <% if (lang !== 'en') { %>
         <div class="text-center mt-12">
             <a href="<%= category.blogLink %>" target="_blank" class="btn-more">블로그에서 더 보기</a>
         </div>
+        <% } %>
     </div>
 </section>
 <% }); %>
