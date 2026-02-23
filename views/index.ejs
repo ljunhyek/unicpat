@@ -121,21 +121,21 @@
         </p>
         <div class="space-y-20">
             <div class="flex flex-col md:flex-row items-center gap-10 md:gap-16">
-                <div class="md:w-1/2"><img src="/images/image-idea-expert.jpg" alt="Expert in Idea Commercialization" class="rounded-lg shadow-xl w-full h-auto object-cover"></div>
+                <div class="md:w-1/2"><img src="/images/en-image-idea-expert.jpg" alt="Expert in Idea Commercialization" class="rounded-lg shadow-xl w-full h-auto object-cover"></div>
                 <div class="md:w-1/2">
                     <h3 class="text-3xl font-bold mb-4 text-[#0F172A]">Expert in Idea Commercialization</h3>
                     <p class="text-[#2F3B40] text-lg leading-relaxed">We consult across the entire journey — from initial concept to patent registration, trademark registration, technology transfer, and commercialization. We do far more than just file.</p>
                 </div>
             </div>
             <div class="flex flex-col md:flex-row-reverse items-center gap-10 md:gap-16">
-                <div class="md:w-1/2"><img src="/images/image-top-professional.jpg" alt="World-Class Expertise" class="rounded-lg shadow-xl w-full h-auto object-cover"></div>
+                <div class="md:w-1/2"><img src="/images/en-image-top-professional.jpg" alt="World-Class Expertise" class="rounded-lg shadow-xl w-full h-auto object-cover"></div>
                 <div class="md:w-1/2">
                     <h3 class="text-3xl font-bold mb-4 text-[#0F172A]">World-Class Expertise</h3>
                     <p class="text-[#2F3B40] text-lg leading-relaxed">We have hands-on experience reviewing and filing patents and handling IP disputes for Samsung Electronics, KAIST, Sogang University, corporate R&amp;D labs, and SMEs.</p>
                 </div>
             </div>
             <div class="flex flex-col md:flex-row items-center gap-10 md:gap-16">
-                <div class="md:w-1/2"><img src="/images/image-startup-experience.jpg" alt="Startup Founding Experience" class="rounded-lg shadow-xl w-full h-auto object-cover"></div>
+                <div class="md:w-1/2"><img src="/images/en-image-startup-experience.jpg" alt="Startup Founding Experience" class="rounded-lg shadow-xl w-full h-auto object-cover"></div>
                 <div class="md:w-1/2">
                     <h3 class="text-3xl font-bold mb-4 text-[#0F172A]">Startup Founding Experience</h3>
                     <p class="text-[#2F3B40] text-lg leading-relaxed">Our lead attorney founded a startup and has firsthand experience with government research projects and investment fundraising — we understand founders' challenges better than anyone.</p>
@@ -324,23 +324,39 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <% posts.forEach(post => { %>
+                <% if (lang === 'en') { %>
+                <div class="block">
+                    <div class="new-blog-card">
+                        <div class="card-header">
+                            <img src="/images/unique-mark.png" alt="Unic" class="card-logo">
+                            <span class="card-brand-name">Unique Column</span>
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title"><%= post.title %></h3>
+                        </div>
+                    </div>
+                </div>
+                <% } else { %>
                 <a href="<%= post.url %>" target="_blank" rel="noopener noreferrer" class="block">
                     <div class="new-blog-card">
                         <div class="card-header">
                             <img src="/images/unique-mark.png" alt="Unic" class="card-logo">
-                            <span class="card-brand-name"><%= lang === 'en' ? 'Unique Column' : '유니크 칼럼' %></span>
+                            <span class="card-brand-name">유니크 칼럼</span>
                         </div>
                         <div class="card-content">
                             <h3 class="card-title"><%= post.title %></h3>
                         </div>
                     </div>
                 </a>
+                <% } %>
             <% }); %>
         </div>
 
+        <% if (lang !== 'en') { %>
         <div class="mt-12 text-center">
-            <a href="/column" class="btn-outline"><%= lang === 'en' ? 'View More Columns' : '칼럼 더 보기' %></a>
+            <a href="/column" class="btn-outline">칼럼 더 보기</a>
         </div>
+        <% } %>
     </div>
 </section>
 
