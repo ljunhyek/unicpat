@@ -75,7 +75,8 @@ document.addEventListener("DOMContentLoaded", function() {
                             </div>
                         </div>
                         <a href="/column" class="block py-3 border-b">Unique Column</a>
-                        <a href="/contact" class="block py-3">Contact Us</a>
+                        <a href="/contact" class="block py-3 border-b">Contact Us</a>
+                        <a href="https://www.ipbot1.com" class="block py-3" target="_blank">Real-time IP Management</a>
                     </nav>
                 `;
             } else {
