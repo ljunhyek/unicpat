@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { createAnonClient, createAuthenticatedClient } = require('../lib/supabase');
+const { sortByDateDesc } = require('../lib/sort');
 
 // --- Cookie options ---
 const COOKIE_OPTS = {
@@ -90,7 +91,7 @@ router.get('/dashboard', requireLogin, async (req, res) => {
     const supabase = req.supabase;
     const [colRes, nlRes, typesRes, projRes] = await Promise.all([
       supabase.from('columns').select('*').order('sort_order'),
-      supabase.from('newsletters').select('*').order('created_at', { ascending: false }),
+      supabase.from('newsletters').select('*'),
       supabase.from('gov_support_types').select('*').order('created_at', { ascending: false }),
       supabase.from('gov_projects').select('*').order('created_at', { ascending: false })
     ]);
@@ -98,7 +99,7 @@ router.get('/dashboard', requireLogin, async (req, res) => {
     res.render('admin/dashboard', {
       title: '관리자 대시보드',
       posts: colRes.data || [],
-      newsletters: nlRes.data || [],
+      newsletters: sortByDateDesc(nlRes.data || []),
       programTypes: typesRes.data || [],
       govProjects: projRes.data || []
     });
