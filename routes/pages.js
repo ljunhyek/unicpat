@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { createAnonClient } = require('../lib/supabase');
 const { translatePostTitles } = require('../lib/translate');
-const { sortByDateDesc } = require('../lib/sort');
+const { sortByDateDesc, currentByDeadline } = require('../lib/sort');
 
 const supabase = createAnonClient();
 
@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
         const [colRes, nlRes, projRes] = await Promise.all([
             supabase.from('columns').select('*').order('sort_order').limit(3),
             supabase.from('newsletters').select('*'),
-            supabase.from('gov_projects').select('*').order('created_at', { ascending: false }).limit(4)
+            supabase.from('gov_projects').select('*')
         ]);
 
         const lang = res.locals.lang;
@@ -24,7 +24,7 @@ router.get('/', async (req, res) => {
             description: '특허, 그 이상의 가치를 만드는 곳. 20년 경력의 전문 변리사가 아이디어의 사업화까지, 스타트업 창업 경험을 바탕으로 실질적인 컨설팅을 제공합니다.',
             posts,
             newsletters: sortByDateDesc(nlRes.data || []).slice(0, 4),
-            govProjects: projRes.data || []
+            govProjects: currentByDeadline(projRes.data || []).slice(0, 4)
         });
     } catch (err) {
         console.error('Homepage error:', err);
@@ -83,13 +83,13 @@ router.get('/gov-support', async (req, res) => {
     try {
         const [typesRes, projRes] = await Promise.all([
             supabase.from('gov_support_types').select('*').order('created_at', { ascending: false }),
-            supabase.from('gov_projects').select('*').order('created_at', { ascending: false })
+            supabase.from('gov_projects').select('*')
         ]);
         res.render('gov-support', {
             title: '정부지원사업 안내',
             description: '국가 R&D 지원사업 신청에 필요한 특허 컨설팅. 과제 준비부터 제안서 작성, 선정까지 유니크 특허사무소가 함께합니다.',
             programTypes: typesRes.data || [],
-            govProjects: projRes.data || []
+            govProjects: currentByDeadline(projRes.data || [])
         });
     } catch (err) {
         console.error('Gov-support page error:', err);
