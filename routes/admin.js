@@ -230,7 +230,7 @@ router.post('/mail/campaigns/:id/delete', requireLogin, loadCampaign, async (req
 });
 
 router.get('/mail/campaigns/:id/preview', requireLogin, loadCampaign, (req, res) => {
-  const html = mailer.personalize(req.campaign.html, '00000000-0000-0000-0000-000000000000');
+  const html = mailer.personalize(req.campaign.html, mailer.TEST_TOKEN);
   res.type('html').send(`<!doctype html><meta charset="utf-8"><title>${mailer.adSubject(req.campaign.subject).replace(/</g, '&lt;')}</title>${html}`);
 });
 

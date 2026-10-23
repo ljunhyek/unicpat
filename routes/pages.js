@@ -3,7 +3,7 @@ const router = express.Router();
 const { createAnonClient } = require('../lib/supabase');
 const { translatePostTitles } = require('../lib/translate');
 const { sortByDateDesc, currentByDeadline } = require('../lib/sort');
-const { UUID_RE } = require('../lib/newsletter-mailer');
+const { UUID_RE, TEST_TOKEN } = require('../lib/newsletter-mailer');
 
 const supabase = createAnonClient();
 
@@ -160,7 +160,7 @@ router.get('/unsubscribe', (req, res) => {
     const token = String(req.query.t || '');
     res.render('unsubscribe', {
         title: '뉴스레터 수신거부',
-        state: UUID_RE.test(token) ? 'confirm' : 'invalid',
+        state: token === TEST_TOKEN ? 'test' : UUID_RE.test(token) ? 'confirm' : 'invalid',
         token,
         email: null
     });
@@ -169,6 +169,9 @@ router.get('/unsubscribe', (req, res) => {
 router.post('/unsubscribe', async (req, res) => {
     const token = String(req.query.t || req.body.t || '');
     let email = null;
+    if (token === TEST_TOKEN) {
+        return res.render('unsubscribe', { title: '뉴스레터 수신거부', state: 'test', token, email });
+    }
     if (UUID_RE.test(token)) {
         const { data, error } = await supabase.rpc('newsletter_unsubscribe', { p_token: token });
         if (error) console.error('Unsubscribe error:', error);
