@@ -50,6 +50,9 @@
                 <button class="tab-button py-3 px-6 font-semibold text-gray-600 border-b-2 border-transparent hover:text-blue-600 focus:outline-none" onclick="showTab('tab-newsletter')">
                     <i class="fas fa-envelope-open-text mr-2"></i>뉴스레터
                 </button>
+                <button class="tab-button py-3 px-6 font-semibold text-gray-600 border-b-2 border-transparent hover:text-blue-600 focus:outline-none" onclick="showTab('tab-mailing')">
+                    <i class="fas fa-paper-plane mr-2"></i>뉴스레터 발송
+                </button>
                 <button class="tab-button py-3 px-6 font-semibold text-gray-600 border-b-2 border-transparent hover:text-blue-600 focus:outline-none" onclick="showTab('tab-gov-support')">
                     <i class="fas fa-building mr-2"></i>정부지원사업
                 </button>
@@ -71,6 +74,11 @@
                 <%- include('partials/admin-newsletter', { newsletters: newsletters }) %>
             </div>
             
+            <!-- 뉴스레터 발송 탭 -->
+            <div id="tab-mailing" class="tab-content hidden">
+                <%- include('partials/admin-mailing', { mailing: mailing }) %>
+            </div>
+
             <!-- 정부지원사업 탭 -->
             <div id="tab-gov-support" class="tab-content hidden">
                 <%- include('partials/admin-gov-support', { programTypes: programTypes, govProjects: govProjects }) %>
@@ -87,7 +95,7 @@
         // 페이지 로드 시 URL 해시를 확인하여 해당 탭을 열거나, 없으면 첫 번째 탭을 기본으로 표시
         document.addEventListener('DOMContentLoaded', () => {
             const hash = window.location.hash.substring(1); // 예: '#tab-newsletter' -> 'tab-newsletter'
-            const validTabs = ['tab-column', 'tab-newsletter', 'tab-gov-support', 'tab-stats'];
+            const validTabs = ['tab-column', 'tab-newsletter', 'tab-mailing', 'tab-gov-support', 'tab-stats'];
             
             if (hash && validTabs.includes(hash)) {
                 showTab(hash);

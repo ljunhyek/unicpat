@@ -1,0 +1,298 @@
+<h2 class="text-xl font-bold mb-4">뉴스레터 발송</h2>
+
+<% if (!mailing) { %>
+    <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-lg text-sm">
+        발송 데이터를 불러오지 못했습니다. Supabase SQL Editor에서 <code>supabase/newsletter_mailing.sql</code>을 실행했는지 확인하세요.
+    </div>
+<% } else { %>
+
+<!-- 고객 DB 현황 -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+    <div class="bg-gray-50 rounded-lg p-4">
+        <div class="text-xs text-gray-500">고객 DB 전체</div>
+        <div class="text-2xl font-bold"><%= mailing.subscribers.total.toLocaleString() %></div>
+    </div>
+    <div class="bg-gray-50 rounded-lg p-4">
+        <div class="text-xs text-gray-500">수신 가능</div>
+        <div class="text-2xl font-bold"><%= mailing.subscribers.active.toLocaleString() %></div>
+    </div>
+    <div class="bg-blue-50 rounded-lg p-4">
+        <div class="text-xs text-blue-600">기업인증 기업 (발송 대상)</div>
+        <div class="text-2xl font-bold text-blue-700"><%= mailing.subscribers.certified.toLocaleString() %></div>
+    </div>
+    <div class="bg-gray-50 rounded-lg p-4">
+        <div class="text-xs text-gray-500">수신거부</div>
+        <div class="text-2xl font-bold"><%= mailing.subscribers.unsubscribed.toLocaleString() %></div>
+    </div>
+</div>
+
+<!-- 새 발송 회차 -->
+<form action="/admin/mail/campaigns" method="POST" class="bg-gray-50 p-4 rounded-lg mb-6 space-y-3">
+    <h3 class="font-semibold">새 발송 만들기</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">메일 제목 * <span class="text-gray-400 font-normal">(발송 시 앞에 '(광고)'가 자동으로 붙습니다)</span></label>
+            <input type="text" name="subject" required
+                   class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   placeholder="[유니크 특허 인사이트 · 10월] 부품만 팔아도 특허침해일까요?">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">발송 대상</label>
+            <select name="target" class="w-full border rounded-lg px-3 py-2 text-sm">
+                <option value="certified">기업인증 기업 (<%= mailing.subscribers.certified %>곳)</option>
+                <option value="all">수신 가능 전체 (<%= mailing.subscribers.active %>곳)</option>
+            </select>
+        </div>
+    </div>
+    <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">본문 HTML *</label>
+        <input type="file" accept=".html,.htm" id="mail-html-file" class="text-sm mb-2">
+        <textarea name="html" id="mail-html" required rows="6"
+                  class="w-full border rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="HTML 파일을 선택하거나 붙여넣으세요."></textarea>
+        <p class="text-xs text-gray-500 mt-1">
+            본문의 <code>{{unsubscribe_url}}</code> 자리에 받는 사람별 수신거부 링크가 들어갑니다. 없으면 맨 아래에 수신거부 안내가 자동으로 붙습니다.
+            이미지는 <code>https://</code>로 시작하는 주소여야 합니다 (<code>cid:</code> 불가).
+        </p>
+    </div>
+    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-colors">
+        <i class="fas fa-plus mr-1"></i>발송 만들기
+    </button>
+</form>
+
+<!-- 발송 회차 목록 -->
+<div class="overflow-x-auto mb-8">
+    <table class="w-full text-sm text-left">
+        <thead class="bg-gray-100 text-gray-600 text-xs">
+            <tr>
+                <th class="px-4 py-3">제목</th>
+                <th class="px-4 py-3">대상</th>
+                <th class="px-4 py-3">진행</th>
+                <th class="px-4 py-3">작업</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y">
+            <% if (mailing.campaigns.length) { %>
+                <% mailing.campaigns.forEach(c => {
+                    const n = c.counts;
+                    const done = n.sent + n.failed + n.skipped;
+                    const total = c.status === 'draft' ? 0 : n.total;
+                %>
+                <tr class="align-top" data-campaign="<%= c.id %>">
+                    <td class="px-4 py-3">
+                        <div class="font-medium">(광고) <%= c.subject %></div>
+                        <div class="text-xs text-gray-400 mt-1">
+                            <%= new Date(c.created_at).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }) %> 작성
+                            <% if (c.finished_at) { %> · <%= new Date(c.finished_at).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }) %> 완료<% } %>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap"><%= c.target === 'all' ? '전체' : '기업인증' %></td>
+                    <td class="px-4 py-3 w-64">
+                        <% if (c.status === 'draft') { %>
+                            <span class="js-status text-gray-500">발송 전</span>
+                        <% } else { %>
+                            <span class="js-status <%= c.status === 'done' ? 'text-green-600' : 'text-blue-600' %>"><%= c.status === 'done' ? '완료' : '발송 중 (멈춤)' %></span>
+                        <% } %>
+                        <div class="w-full bg-gray-200 rounded h-2 mt-2 <%= c.status === 'draft' ? 'hidden' : '' %> js-bar-wrap">
+                            <div class="bg-blue-600 h-2 rounded js-bar" style="width:<%= total ? Math.round(done / total * 100) : 0 %>%"></div>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1 js-counts">
+                            <% if (c.status !== 'draft') { %>
+                                성공 <%= n.sent %> · 실패 <%= n.failed %> · 제외 <%= n.skipped %> · 남음 <%= n.pending + n.sending %> / <%= n.total %>
+                            <% } %>
+                        </div>
+                        <div class="text-xs text-red-600 mt-1 js-error"></div>
+                    </td>
+                    <td class="px-4 py-3 space-y-2">
+                        <div class="flex flex-wrap gap-2">
+                            <a href="/admin/mail/campaigns/<%= c.id %>/preview" target="_blank" class="text-blue-600 hover:underline">미리보기</a>
+                            <% if (c.status !== 'done') { %>
+                                <button type="button" class="js-send text-white bg-green-600 hover:bg-green-700 rounded px-2 py-1 text-xs"
+                                        data-id="<%= c.id %>" data-draft="<%= c.status === 'draft' %>"
+                                        data-count="<%= c.target === 'all' ? mailing.subscribers.active : mailing.subscribers.certified %>">
+                                    <%= c.status === 'draft' ? '발송 시작' : '이어서 발송' %>
+                                </button>
+                            <% } %>
+                            <% if (n.failed) { %>
+                                <button type="button" class="js-failures text-red-600 hover:underline text-xs" data-id="<%= c.id %>">실패 목록</button>
+                                <form action="/admin/mail/campaigns/<%= c.id %>/retry-failed" method="POST" class="inline">
+                                    <button type="submit" class="text-orange-600 hover:underline text-xs">실패 건 다시 보내기</button>
+                                </form>
+                            <% } %>
+                            <% if (c.status === 'draft') { %>
+                                <form action="/admin/mail/campaigns/<%= c.id %>/delete" method="POST" class="inline"
+                                      onsubmit="return confirm('이 발송을 삭제하시겠습니까?')">
+                                    <button type="submit" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                                </form>
+                            <% } %>
+                        </div>
+                        <div class="flex gap-1">
+                            <input type="text" class="js-test-email border rounded px-2 py-1 text-xs w-44" placeholder="테스트 받을 이메일">
+                            <button type="button" class="js-test bg-gray-600 hover:bg-gray-700 text-white rounded px-2 py-1 text-xs" data-id="<%= c.id %>">테스트 발송</button>
+                        </div>
+                        <ul class="js-failure-list text-xs text-red-600 hidden"></ul>
+                    </td>
+                </tr>
+                <% }) %>
+            <% } else { %>
+                <tr><td colspan="4" class="px-4 py-6 text-center text-gray-400">아직 만든 발송이 없습니다.</td></tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+<!-- 수신거부 직접 처리 -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-gray-50 p-4 rounded-lg">
+        <h3 class="font-semibold mb-2">수신거부 직접 처리</h3>
+        <p class="text-xs text-gray-500 mb-3">메일 회신 등으로 수신거부 요청을 받았을 때 입력하세요.</p>
+        <div class="flex flex-wrap gap-2">
+            <input type="email" id="unsub-email" class="border rounded-lg px-3 py-2 text-sm flex-1" placeholder="이메일 주소">
+            <button type="button" class="js-sub-status bg-red-500 hover:bg-red-600 text-white rounded-lg px-3 py-2 text-sm" data-status="unsubscribed">수신거부</button>
+            <button type="button" class="js-sub-status bg-gray-200 hover:bg-gray-300 rounded-lg px-3 py-2 text-sm" data-status="active">수신 재개</button>
+        </div>
+        <p id="unsub-result" class="text-sm mt-2"></p>
+    </div>
+    <div class="bg-gray-50 p-4 rounded-lg">
+        <h3 class="font-semibold mb-2">최근 수신거부</h3>
+        <% if (mailing.recentUnsubscribes.length) { %>
+            <ul class="text-sm divide-y">
+                <% mailing.recentUnsubscribes.forEach(u => { %>
+                    <li class="py-1 flex justify-between gap-2">
+                        <span><%= u.company_name || '' %> <span class="text-gray-500"><%= u.email %></span></span>
+                        <span class="text-xs text-gray-400 whitespace-nowrap"><%= u.unsubscribed_at ? new Date(u.unsubscribed_at).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }) : '' %></span>
+                    </li>
+                <% }) %>
+            </ul>
+        <% } else { %>
+            <p class="text-sm text-gray-400">없음</p>
+        <% } %>
+    </div>
+</div>
+
+<script>
+(function () {
+    const fileInput = document.getElementById('mail-html-file');
+    fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            document.getElementById('mail-html').value = reader.result;
+            if (/src=["']cid:/i.test(reader.result)) {
+                alert('이 HTML에는 cid: 이미지가 있어 메일에 이미지가 표시되지 않습니다. 이미지 주소를 https:// 주소로 바꾼 파일을 사용하세요.');
+            }
+        };
+        reader.readAsText(file, 'utf-8');
+    });
+
+    async function post(url, body) {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body || {})
+        });
+        const json = await res.json().catch(() => ({ error: '서버 응답 오류 (HTTP ' + res.status + ')' }));
+        if (!res.ok) throw new Error(json.error || '오류');
+        return json;
+    }
+
+    function render(row, n, running) {
+        const total = n.total || 1;
+        const done = n.sent + n.failed + n.skipped;
+        row.querySelector('.js-bar-wrap').classList.remove('hidden');
+        row.querySelector('.js-bar').style.width = Math.round(done / total * 100) + '%';
+        row.querySelector('.js-counts').textContent =
+            '성공 ' + n.sent + ' · 실패 ' + n.failed + ' · 제외 ' + n.skipped + ' · 남음 ' + (n.pending + n.sending) + ' / ' + n.total;
+        const status = row.querySelector('.js-status');
+        const finished = n.pending === 0 && n.sending === 0;
+        status.textContent = finished ? '완료' : running ? '발송 중…' : '발송 중 (멈춤)';
+        status.className = 'js-status ' + (finished ? 'text-green-600' : 'text-blue-600');
+        return finished;
+    }
+
+    document.querySelectorAll('.js-send').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const row = btn.closest('tr');
+            const msg = btn.dataset.draft === 'true'
+                ? '약 ' + btn.dataset.count + '곳에 실제로 발송합니다. 시작할까요?\n\n발송 중에는 이 창을 닫지 마세요. 닫혀도 [이어서 발송]으로 계속할 수 있습니다.'
+                : '남은 수신자에게 이어서 발송할까요?';
+            if (!confirm(msg)) return;
+
+            btn.disabled = true;
+            btn.textContent = '발송 중…';
+            row.querySelector('.js-error').textContent = '';
+            window.onbeforeunload = () => true;
+            try {
+                while (true) {
+                    const { counts } = await post('/admin/mail/campaigns/' + btn.dataset.id + '/send-batch');
+                    if (render(row, counts, true)) break;
+                    await new Promise(r => setTimeout(r, 1000));
+                }
+                btn.remove();
+            } catch (err) {
+                row.querySelector('.js-error').textContent = '발송 멈춤: ' + err.message;
+                row.querySelector('.js-status').textContent = '발송 중 (멈춤)';
+                btn.disabled = false;
+                btn.dataset.draft = 'false';
+                btn.textContent = '이어서 발송';
+            } finally {
+                window.onbeforeunload = null;
+            }
+        });
+    });
+
+    document.querySelectorAll('.js-test').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const row = btn.closest('tr');
+            const emails = row.querySelector('.js-test-email').value.trim();
+            const error = row.querySelector('.js-error');
+            btn.disabled = true;
+            btn.textContent = '보내는 중…';
+            try {
+                await post('/admin/mail/campaigns/' + btn.dataset.id + '/test', { emails });
+                error.className = 'text-xs text-green-600 mt-1 js-error';
+                error.textContent = '테스트 메일을 보냈습니다: ' + emails;
+            } catch (err) {
+                error.className = 'text-xs text-red-600 mt-1 js-error';
+                error.textContent = '테스트 실패: ' + err.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '테스트 발송';
+            }
+        });
+    });
+
+    document.querySelectorAll('.js-failures').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const list = btn.closest('tr').querySelector('.js-failure-list');
+            const res = await fetch('/admin/mail/campaigns/' + btn.dataset.id + '/failures');
+            const { failures } = await res.json();
+            list.innerHTML = '';
+            failures.forEach(f => {
+                const li = document.createElement('li');
+                li.textContent = f.email + ' — ' + (f.error || '');
+                list.appendChild(li);
+            });
+            list.classList.toggle('hidden');
+        });
+    });
+
+    document.querySelectorAll('.js-sub-status').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const email = document.getElementById('unsub-email').value.trim();
+            const result = document.getElementById('unsub-result');
+            if (!email) return;
+            try {
+                await post('/admin/mail/subscribers/status', { email, status: btn.dataset.status });
+                result.className = 'text-sm mt-2 text-green-600';
+                result.textContent = email + (btn.dataset.status === 'active' ? ' 수신 재개 처리했습니다.' : ' 수신거부 처리했습니다.');
+            } catch (err) {
+                result.className = 'text-sm mt-2 text-red-600';
+                result.textContent = err.message;
+            }
+        });
+    });
+})();
+</script>
+<% } %>

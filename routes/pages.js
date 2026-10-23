@@ -3,6 +3,7 @@ const router = express.Router();
 const { createAnonClient } = require('../lib/supabase');
 const { translatePostTitles } = require('../lib/translate');
 const { sortByDateDesc, currentByDeadline } = require('../lib/sort');
+const { UUID_RE } = require('../lib/newsletter-mailer');
 
 const supabase = createAnonClient();
 
@@ -151,6 +152,34 @@ router.get('/thanks', (req, res) => {
 
 router.get('/thanks-subscribe', (req, res) => {
     res.render('thanks-subscribe', { title: '구독 완료' });
+});
+
+// 뉴스레터 수신거부 (메일 하단 링크 / Gmail·네이버 원클릭 수신거부)
+// GET은 확인 화면만 보여줌: 메일 보안 프로그램이 링크를 미리 열어도 수신거부되지 않도록
+router.get('/unsubscribe', (req, res) => {
+    const token = String(req.query.t || '');
+    res.render('unsubscribe', {
+        title: '뉴스레터 수신거부',
+        state: UUID_RE.test(token) ? 'confirm' : 'invalid',
+        token,
+        email: null
+    });
+});
+
+router.post('/unsubscribe', async (req, res) => {
+    const token = String(req.query.t || req.body.t || '');
+    let email = null;
+    if (UUID_RE.test(token)) {
+        const { data, error } = await supabase.rpc('newsletter_unsubscribe', { p_token: token });
+        if (error) console.error('Unsubscribe error:', error);
+        email = data || null;
+    }
+    res.render('unsubscribe', {
+        title: '뉴스레터 수신거부',
+        state: email ? 'done' : 'invalid',
+        token,
+        email
+    });
 });
 
 // 언어 전환

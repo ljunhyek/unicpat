@@ -3,6 +3,7 @@ const router = express.Router();
 const { createAnonClient, createAuthenticatedClient } = require('../lib/supabase');
 const { sortByDateDesc } = require('../lib/sort');
 const { getVisitStats } = require('../lib/analytics');
+const mailer = require('../lib/newsletter-mailer');
 
 // --- Cookie options ---
 const COOKIE_OPTS = {
@@ -91,13 +92,17 @@ router.get('/dashboard', requireLogin, async (req, res) => {
   try {
     const supabase = req.supabase;
     const days = [7, 30, 90].includes(Number(req.query.days)) ? Number(req.query.days) : 30;
-    const [colRes, nlRes, typesRes, projRes, stats] = await Promise.all([
+    const [colRes, nlRes, typesRes, projRes, stats, mailing] = await Promise.all([
       supabase.from('columns').select('*').order('sort_order'),
       supabase.from('newsletters').select('*'),
       supabase.from('gov_support_types').select('*').order('created_at', { ascending: false }),
       supabase.from('gov_projects').select('*').order('created_at', { ascending: false }),
       getVisitStats(supabase, days).catch(err => {
         console.error('Visit stats error:', err.message || err);
+        return null;
+      }),
+      mailer.getOverview(supabase).catch(err => {
+        console.error('Mailing overview error:', err.message || err);
         return null;
       })
     ]);
@@ -108,13 +113,14 @@ router.get('/dashboard', requireLogin, async (req, res) => {
       newsletters: sortByDateDesc(nlRes.data || []),
       programTypes: typesRes.data || [],
       govProjects: projRes.data || [],
-      stats
+      stats,
+      mailing
     });
   } catch (err) {
     console.error('Dashboard error:', err);
     res.render('admin/dashboard', {
       title: '관리자 대시보드',
-      posts: [], newsletters: [], programTypes: [], govProjects: [], stats: null
+      posts: [], newsletters: [], programTypes: [], govProjects: [], stats: null, mailing: null
     });
   }
 });
@@ -188,6 +194,109 @@ router.post('/delete', requireLogin, async (req, res) => {
 
   const tabMap = { column: 'tab-column', newsletter: 'tab-newsletter', govProject: 'tab-gov-support', programType: 'tab-gov-support' };
   res.redirect(`/admin/dashboard#${tabMap[type] || 'tab-column'}`);
+});
+
+// --- Newsletter mailing (뉴스레터 발송 탭) ---
+const MAIL_TAB = '/admin/dashboard#tab-mailing';
+const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+async function loadCampaign(req, res, next) {
+  const { data, error } = await req.supabase
+    .from('newsletter_campaigns').select('*').eq('id', req.params.id).single();
+  if (error || !data) return res.status(404).json({ error: '발송 회차를 찾을 수 없습니다.' });
+  req.campaign = data;
+  next();
+}
+
+router.post('/mail/campaigns', requireLogin, async (req, res) => {
+  const { subject, html, target } = req.body;
+  if (subject && html) {
+    const { error } = await req.supabase.from('newsletter_campaigns').insert({
+      subject: subject.trim(),
+      html,
+      target: target === 'all' ? 'all' : 'certified'
+    });
+    if (error) console.error('Campaign create error:', error);
+  }
+  res.redirect(MAIL_TAB);
+});
+
+router.post('/mail/campaigns/:id/delete', requireLogin, loadCampaign, async (req, res) => {
+  // 발송을 시작한 회차는 기록 보존을 위해 삭제하지 않음
+  if (req.campaign.status === 'draft') {
+    await req.supabase.from('newsletter_campaigns').delete().eq('id', req.campaign.id);
+  }
+  res.redirect(MAIL_TAB);
+});
+
+router.get('/mail/campaigns/:id/preview', requireLogin, loadCampaign, (req, res) => {
+  const html = mailer.personalize(req.campaign.html, '00000000-0000-0000-0000-000000000000');
+  res.type('html').send(`<!doctype html><meta charset="utf-8"><title>${mailer.adSubject(req.campaign.subject).replace(/</g, '&lt;')}</title>${html}`);
+});
+
+router.post('/mail/campaigns/:id/test', requireLogin, loadCampaign, async (req, res) => {
+  const emails = String(req.body.emails || '').split(/[\s,;]+/).filter(Boolean);
+  if (!emails.length || emails.length > 5 || !emails.every(e => EMAIL_RE.test(e))) {
+    return res.status(400).json({ error: '테스트 받을 이메일을 1~5개 입력하세요.' });
+  }
+  try {
+    await mailer.sendTest(req.campaign, emails);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Test send error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/mail/campaigns/:id/send-batch', requireLogin, loadCampaign, async (req, res) => {
+  const campaign = req.campaign;
+  if (mailer.isQuietHours()) {
+    return res.status(400).json({ error: '광고성 메일은 21시~다음날 8시에 보낼 수 없습니다 (정보통신망법). 8시 이후에 이어서 발송하세요.' });
+  }
+  try {
+    if (campaign.status === 'draft') {
+      await mailer.prepareRecipients(req.supabase, campaign);
+      await req.supabase.from('newsletter_campaigns')
+        .update({ status: 'sending', started_at: new Date().toISOString() })
+        .eq('id', campaign.id);
+    }
+    const counts = await mailer.sendNextBatch(req.supabase, campaign);
+    res.json({ counts });
+  } catch (err) {
+    console.error('Send batch error:', err);
+    res.status(500).json({ error: err.message || String(err) });
+  }
+});
+
+router.post('/mail/campaigns/:id/retry-failed', requireLogin, loadCampaign, async (req, res) => {
+  await req.supabase.from('newsletter_recipients')
+    .update({ status: 'pending', error: null })
+    .eq('campaign_id', req.campaign.id)
+    .eq('status', 'failed');
+  await req.supabase.from('newsletter_campaigns').update({ status: 'sending' }).eq('id', req.campaign.id);
+  res.redirect(MAIL_TAB);
+});
+
+router.get('/mail/campaigns/:id/failures', requireLogin, loadCampaign, async (req, res) => {
+  const { data } = await req.supabase.from('newsletter_recipients')
+    .select('email, error')
+    .eq('campaign_id', req.campaign.id)
+    .eq('status', 'failed')
+    .order('id');
+  res.json({ failures: data || [] });
+});
+
+// 회신 등으로 받은 수신거부를 직접 처리
+router.post('/mail/subscribers/status', requireLogin, async (req, res) => {
+  const email = String(req.body.email || '').trim().toLowerCase();
+  const status = req.body.status === 'active' ? 'active' : 'unsubscribed';
+  const { data, error } = await req.supabase.from('newsletter_subscribers')
+    .update({ status, unsubscribed_at: status === 'active' ? null : new Date().toISOString() })
+    .eq('email', email)
+    .select('email');
+  if (error) return res.status(500).json({ error: error.message });
+  if (!data.length) return res.status(404).json({ error: `${email} 주소가 고객 DB에 없습니다.` });
+  res.json({ ok: true, status });
 });
 
 module.exports = router;
