@@ -178,8 +178,15 @@
         if (!file) return;
         const reader = new FileReader();
         reader.onload = () => {
-            document.getElementById('mail-html').value = reader.result;
-            if (/src=["']cid:/i.test(reader.result)) {
+            const html = reader.result;
+            // 이미지가 파일 안에 들어 있는 미리보기용 HTML은 발송 불가 (용량 초과, 메일 프로그램이 차단)
+            if (/src=["']data:/i.test(html) || html.length > 80000) {
+                alert('이 파일은 이미지가 파일 안에 들어 있는 미리보기용 HTML이라 발송에 쓸 수 없습니다 (' + Math.round(file.size / 1024) + 'KB).\n\n이미지가 https:// 주소로 연결된 발송용 HTML을 선택하세요.\n예: design 폴더의 UNIC_2026-10_send.html');
+                fileInput.value = '';
+                return;
+            }
+            document.getElementById('mail-html').value = html;
+            if (/src=["']cid:/i.test(html)) {
                 alert('이 HTML에는 cid: 이미지가 있어 메일에 이미지가 표시되지 않습니다. 이미지 주소를 https:// 주소로 바꾼 파일을 사용하세요.');
             }
         };
