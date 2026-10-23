@@ -10,6 +10,7 @@ dotenv.config();
 // 라우터 가져오기
 const pageRoutes = require('./routes/pages');
 const adminRoutes = require('./routes/admin');
+const { trackPageView } = require('./lib/analytics');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,6 +34,9 @@ app.use((req, res, next) => {
     res.locals.lang = req.cookies['lang'] || 'ko';
     next();
 });
+
+// 방문 통계 기록 (관리자 페이지 '방문 통계' 탭에서 확인)
+app.use(trackPageView);
 
 // 페이지 라우트 사용
 app.use('/', pageRoutes);

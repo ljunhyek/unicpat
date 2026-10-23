@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { createAnonClient, createAuthenticatedClient } = require('../lib/supabase');
 const { sortByDateDesc } = require('../lib/sort');
+const { getVisitStats } = require('../lib/analytics');
 
 // --- Cookie options ---
 const COOKIE_OPTS = {
@@ -89,11 +90,16 @@ router.get('/logout', (req, res) => {
 router.get('/dashboard', requireLogin, async (req, res) => {
   try {
     const supabase = req.supabase;
-    const [colRes, nlRes, typesRes, projRes] = await Promise.all([
+    const days = [7, 30, 90].includes(Number(req.query.days)) ? Number(req.query.days) : 30;
+    const [colRes, nlRes, typesRes, projRes, stats] = await Promise.all([
       supabase.from('columns').select('*').order('sort_order'),
       supabase.from('newsletters').select('*'),
       supabase.from('gov_support_types').select('*').order('created_at', { ascending: false }),
-      supabase.from('gov_projects').select('*').order('created_at', { ascending: false })
+      supabase.from('gov_projects').select('*').order('created_at', { ascending: false }),
+      getVisitStats(supabase, days).catch(err => {
+        console.error('Visit stats error:', err.message || err);
+        return null;
+      })
     ]);
 
     res.render('admin/dashboard', {
@@ -101,13 +107,14 @@ router.get('/dashboard', requireLogin, async (req, res) => {
       posts: colRes.data || [],
       newsletters: sortByDateDesc(nlRes.data || []),
       programTypes: typesRes.data || [],
-      govProjects: projRes.data || []
+      govProjects: projRes.data || [],
+      stats
     });
   } catch (err) {
     console.error('Dashboard error:', err);
     res.render('admin/dashboard', {
       title: '관리자 대시보드',
-      posts: [], newsletters: [], programTypes: [], govProjects: []
+      posts: [], newsletters: [], programTypes: [], govProjects: [], stats: null
     });
   }
 });
