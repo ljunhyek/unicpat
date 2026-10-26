@@ -20,26 +20,32 @@
         return '?' + new URLSearchParams(entries.map(([k, v]) => [k, String(v)])).toString();
     };
     const tabs = [
-        ['all', '전체', counts.total],
-        ['target', '발송 대상', counts.target],
-        ['unsubscribed', '수신거부', counts.unsubscribed],
-        ['opened', '열어본 사람', counts.opened]
+        ['all', '전체', counts.total, '곳'],
+        ['target', '발송 대상', counts.target, '곳'],
+        ['unsent', '아직 못 받은 발송 대상', counts.unsent, '곳'],
+        ['unsubscribed', '수신거부', counts.unsubscribed, '곳'],
+        ['opened', '열어본 사람', counts.opened, '명']
     ];
+    const fmtDate = ts => ts ? new Date(ts).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', year: '2-digit', month: 'numeric', day: 'numeric' }) : '';
+    const HISTORY_STATUS = { sent: '발송', pending: '대기', sending: '발송 중', failed: '실패', skipped: '제외' };
     const STATUS = { active: ['수신 가능', 'bg-green-100 text-green-700'], unsubscribed: ['수신거부', 'bg-red-100 text-red-700'], bounced: ['반송', 'bg-yellow-100 text-yellow-700'] };
 %>
 <div class="max-w-6xl mx-auto px-4 py-8">
     <a href="/admin/dashboard#tab-mailing" class="text-sm text-blue-600 hover:underline"><i class="fas fa-arrow-left mr-1"></i>뉴스레터 발송으로 돌아가기</a>
     <h1 class="text-2xl font-bold mt-4">구독자 관리</h1>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
-        <% tabs.forEach(([f, label, n]) => { %>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mt-6">
+        <% tabs.forEach(([f, label, n, unit]) => { %>
         <a href="<%= link({ f, page: '' }) %>" class="rounded-lg p-4 shadow-sm <%= filter === f ? 'bg-blue-600 text-white' : 'bg-white hover:bg-gray-50' %>">
             <div class="text-xs <%= filter === f ? 'text-blue-100' : 'text-gray-500' %>"><%= label %></div>
-            <div class="text-2xl font-bold"><%= n.toLocaleString() %><span class="text-sm font-normal ml-1"><%= f === 'opened' ? '명' : '곳' %></span></div>
+            <div class="text-2xl font-bold"><%= n.toLocaleString() %><span class="text-sm font-normal ml-1"><%= unit %></span></div>
         </a>
         <% }) %>
     </div>
-    <p class="text-xs text-gray-500 mt-2">발송 대상 = 수신 가능 상태인 기업인증 기업 + 홈페이지 구독 신청자. 열어본 사람 = 지금까지 보낸 뉴스레터를 한 번이라도 연 사람(열람 기록 기능 추가 이후 발송분 기준).</p>
+    <p class="text-xs text-gray-500 mt-2 leading-relaxed">
+        발송 대상 = 수신 가능 상태인 기업인증 기업 + 홈페이지 구독 신청자. 지금까지 한 통 이상 받은 사람은 <%= counts.sentPeople.toLocaleString() %>명입니다.<br>
+        열어본 사람 = 보낸 뉴스레터를 한 번이라도 연 사람(열람 기록 기능 추가 이후 발송분 기준). [기록]을 누르면 회차별 발송일과 열람일을 볼 수 있습니다.
+    </p>
 
     <form method="GET" class="flex flex-wrap gap-2 mt-6">
         <input type="hidden" name="f" value="<%= filter %>">
@@ -67,8 +73,8 @@
                     <th class="px-3 py-3">이메일</th>
                     <th class="px-3 py-3">상태</th>
                     <th class="px-3 py-3">구분</th>
-                    <th class="px-3 py-3">최근 열람</th>
-                    <th class="px-3 py-3 text-right">열람</th>
+                    <th class="px-3 py-3">발송</th>
+                    <th class="px-3 py-3">열람</th>
                 </tr>
             </thead>
             <tbody class="divide-y">
@@ -89,9 +95,44 @@
                         <% if (r.certification) { %><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700" title="<%= r.certification %>">기업인증</span><% } %>
                         <% if (r.isTarget) { %><div class="text-green-700 mt-1">발송 대상</div><% } %>
                     </td>
-                    <td class="px-3 py-2 whitespace-nowrap text-xs"><%= r.open ? fmt(r.open.lastOpenedAt) : '' %></td>
-                    <td class="px-3 py-2 text-right whitespace-nowrap text-xs"><% if (r.open) { %><%= r.open.campaigns %>회차 · <%= r.open.opens %>번<% } %></td>
+                    <td class="px-3 py-2 whitespace-nowrap text-xs">
+                        <% if (r.stats) { %>
+                            <div>최근 <%= fmtDate(r.stats.lastSentAt) %></div>
+                            <div class="text-gray-400"><%= r.stats.sent %>통 받음</div>
+                        <% } else if (r.isTarget) { %>
+                            <span class="text-orange-600">아직 못 받음</span>
+                        <% } %>
+                    </td>
+                    <td class="px-3 py-2 whitespace-nowrap text-xs">
+                        <% if (r.stats && r.stats.openedCampaigns) { %>
+                            <div>최근 <%= fmt(r.stats.lastOpenedAt) %></div>
+                            <div class="text-gray-400"><%= r.stats.openedCampaigns %>회차 · <%= r.stats.opens %>번</div>
+                        <% } %>
+                        <% if (r.history.length) { %>
+                            <button type="button" class="js-history text-blue-600 hover:underline mt-1" data-id="<%= r.id %>">기록</button>
+                        <% } %>
+                    </td>
                 </tr>
+                <% if (r.history.length) { %>
+                <tr class="hidden bg-gray-50" id="history-<%= r.id %>">
+                    <td colspan="7" class="px-6 py-3">
+                        <table class="text-xs w-full">
+                            <thead class="text-gray-500"><tr><th class="text-left py-1">회차</th><th class="text-left py-1">상태</th><th class="text-left py-1">발송일</th><th class="text-left py-1">열람일</th><th class="text-right py-1">열람 횟수</th></tr></thead>
+                            <tbody>
+                                <% r.history.forEach(h => { %>
+                                <tr>
+                                    <td class="py-1 pr-3">(광고) <%= h.subject %></td>
+                                    <td class="py-1 pr-3"><%= HISTORY_STATUS[h.status] || h.status %></td>
+                                    <td class="py-1 pr-3 whitespace-nowrap"><%= fmt(h.sentAt) %></td>
+                                    <td class="py-1 pr-3 whitespace-nowrap"><%= h.openedAt ? fmt(h.openedAt) : (h.status === 'sent' ? '미열람' : '') %></td>
+                                    <td class="py-1 text-right"><%= h.opens || '' %></td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                <% } %>
                 <% }) %>
             </tbody>
         </table>
@@ -105,5 +146,14 @@
     </div>
     <% } %>
 </div>
+<script>
+document.querySelectorAll('.js-history').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const row = document.getElementById('history-' + btn.dataset.id);
+        row.classList.toggle('hidden');
+        btn.textContent = row.classList.contains('hidden') ? '기록' : '기록 닫기';
+    });
+});
+</script>
 </body>
 </html>
