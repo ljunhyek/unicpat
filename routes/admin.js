@@ -242,8 +242,10 @@ router.get('/columns/blog/new', requireLogin, async (req, res) => {
       req.supabase.from('columns').select('url')
     ]);
     if (error) throw error;
-    const have = new Set(data.map(c => blogPostNo(c.url)).filter(Boolean));
-    res.json({ posts: feed.filter(p => !have.has(p.no)) });
+    // 마지막으로 등록한 글보다 나중에 쓴 글만 (네이버 블로그 글번호는 작성 순서대로 커짐)
+    const latest = data.map(c => blogPostNo(c.url)).filter(Boolean)
+      .reduce((max, no) => (BigInt(no) > max ? BigInt(no) : max), 0n);
+    res.json({ posts: feed.filter(p => BigInt(p.no) > latest) });
   } catch (err) {
     console.error('Blog feed error:', err);
     res.status(500).json({ error: err.message });

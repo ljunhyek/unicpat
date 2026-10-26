@@ -140,10 +140,10 @@
         try {
             const { posts } = await api('GET', '/admin/columns/blog/new');
             if (!posts.length) {
-                msg.textContent = '새로 가져올 글이 없습니다. 블로그의 최근 글 50개가 모두 등록되어 있습니다.';
+                msg.textContent = '새로 가져올 글이 없습니다. 마지막으로 등록한 글 이후 블로그에 올라온 글이 없습니다.';
                 return;
             }
-            msg.textContent = '등록되지 않은 블로그 글 ' + posts.length + '개를 찾았습니다. 가져올 글을 선택하세요.';
+            msg.textContent = '마지막으로 등록한 글 이후 새 글 ' + posts.length + '개를 찾았습니다. 가져올 글을 선택하세요.';
             posts.forEach(p => {
                 const li = document.createElement('li');
                 li.innerHTML = '<label class="inline-flex items-start gap-2"><input type="checkbox" class="js-blog-pick mt-1" checked>' +
