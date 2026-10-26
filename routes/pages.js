@@ -88,7 +88,7 @@ router.get('/column', async (req, res) => {
 });
 
 // 칼럼 글 페이지: 블로그 글의 요약 + 블로그 전체 글 링크 (관리자가 요약을 '공개'한 글만)
-router.get('/column/:no(\d+)', async (req, res, next) => {
+router.get('/column/:no(\\d+)', async (req, res, next) => {
     const { data: post, error } = await supabase.from('columns').select('*')
         .eq('url', `https://blog.naver.com/unicpat/${req.params.no}`)
         .eq('summary_ready', true)
@@ -133,7 +133,7 @@ router.get('/newsletter', async (req, res) => {
 });
 
 // 관리자 메뉴에서 발송한 지난 뉴스레터 본문 (메일 HTML 그대로 표시)
-router.get('/newsletter/:id(\d+)', async (req, res, next) => {
+router.get('/newsletter/:id(\\d+)', async (req, res, next) => {
     const { data, error } = await supabase.rpc('newsletter_archive_get', { p_id: Number(req.params.id) });
     if (error) console.error('Newsletter archive error:', error.message);
     const item = data && data[0];
