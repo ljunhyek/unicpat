@@ -105,6 +105,7 @@ document.addEventListener("DOMContentLoaded", function() {
                             </div>
                         </div>
                         <a href="/column" class="block py-3 border-b">유니크 칼럼</a>
+                        <a href="https://blog.naver.com/unicpat" class="block py-3 border-b" target="_blank" rel="noopener">유니크 블로그</a>
                         <a href="/newsletter" class="block py-3 border-b">뉴스레터</a>
                         <a href="/gov-support" class="block py-3 border-b">정부지원사업 안내</a>
                         <a href="/contact" class="block py-3 border-b">Contact Us</a>

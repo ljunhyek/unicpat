@@ -75,7 +75,7 @@
         .lang-bar .lang-sep { font-size: 0.75rem; color: #d1d5db; margin: 0 6px; }
 
         .nav-item { position: relative; }
-        .nav-link { color: #2F3B40; font-weight: 500; position: relative; transition: color 0.3s; padding: 0.5rem 0.25rem; }
+        .nav-link { color: #2F3B40; font-weight: 500; position: relative; transition: color 0.3s; padding: 0.5rem 0.25rem; white-space: nowrap; }
         .nav-link:hover, .nav-link.active { color: #54B435; }
         .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -2px; left: 0; background-color: #54B435; transition: width 0.3s; }
         .nav-link:hover::after, .nav-link.active::after { width: 100%; }
@@ -143,7 +143,7 @@
                     <div class="nav-item"><a href="https://www.ipbot1.com" class="nav-link" id="nav-ipbot" target="_blank">Real-time IP Management</a></div>
                 </nav>
                 <% } else { %>
-                <nav class="hidden md:flex space-x-8" id="main-nav">
+                <nav class="hidden md:flex space-x-5" id="main-nav">
                     <div class="nav-item"><a href="/" class="nav-link" id="nav-home">홈</a></div>
                     <div class="nav-item"><a href="/about" class="nav-link" id="nav-about">유니크 소개</a></div>
                     <div class="nav-item">
@@ -157,6 +157,7 @@
                         </div>
                     </div>
                     <div class="nav-item"><a href="/column" class="nav-link" id="nav-column">유니크 칼럼</a></div>
+                    <div class="nav-item"><a href="https://blog.naver.com/unicpat" class="nav-link" id="nav-blog" target="_blank" rel="noopener">유니크 블로그</a></div>
                     <div class="nav-item"><a href="/newsletter" class="nav-link" id="nav-newsletter">뉴스레터</a></div>
                     <div class="nav-item"><a href="/gov-support" class="nav-link" id="nav-gov">정부지원사업 안내</a></div>
                     <div class="nav-item"><a href="/contact" class="nav-link" id="nav-contact">Contact Us</a></div>
