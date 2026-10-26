@@ -12,7 +12,7 @@ function kstDate(ts) {
     return new Date(new Date(ts).getTime() + 9 * 3600 * 1000).toISOString().slice(0, 10).replace(/-/g, '.');
 }
 
-// 직접 등록한 뉴스레터(스티비 링크) + 관리자 메뉴에서 발송 완료한 뉴스레터
+// 직접 등록한 뉴스레터(스티비 링크) + 관리자 메뉴에서 발송한 뉴스레터
 async function loadNewsletters() {
     const [nlRes, archiveRes] = await Promise.all([
         supabase.from('newsletters').select('*'),
@@ -22,7 +22,7 @@ async function loadNewsletters() {
     const sent = (archiveRes.data || []).map(c => ({
         title: c.subject,
         link: `/newsletter/${c.id}`,
-        date: kstDate(c.finished_at)
+        date: kstDate(c.sent_on)
     }));
     return sortByDateDesc([...(nlRes.data || []), ...sent]);
 }

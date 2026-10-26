@@ -93,30 +93,34 @@ $$;
 revoke all on function public.newsletter_unsubscribe(uuid) from public;
 grant execute on function public.newsletter_unsubscribe(uuid) to anon, authenticated;
 
--- 지난 뉴스레터 보기: 발송 완료된 회차의 제목·본문만 공개 (수신자 정보는 노출하지 않음)
+-- 지난 뉴스레터 보기: 발송을 시작한 회차의 제목·본문만 공개 (수신자 정보는 노출하지 않음)
+-- 하루 발송 한도 때문에 회차가 며칠간 'sending'으로 남으므로 발송 중인 회차도 포함
+drop function if exists public.newsletter_archive_list();
+drop function if exists public.newsletter_archive_get(bigint);
+
 create or replace function public.newsletter_archive_list()
-returns table (id bigint, subject text, finished_at timestamptz)
+returns table (id bigint, subject text, sent_on timestamptz)
 language sql
 stable
 security definer
 set search_path = public
 as $$
-  select id, subject, coalesce(finished_at, started_at, created_at)
+  select id, subject, coalesce(started_at, created_at)
     from public.newsletter_campaigns
-   where status = 'done'
-   order by coalesce(finished_at, started_at, created_at) desc;
+   where status in ('sending', 'done')
+   order by coalesce(started_at, created_at) desc;
 $$;
 
 create or replace function public.newsletter_archive_get(p_id bigint)
-returns table (id bigint, subject text, html text, finished_at timestamptz)
+returns table (id bigint, subject text, html text, sent_on timestamptz)
 language sql
 stable
 security definer
 set search_path = public
 as $$
-  select id, subject, html, coalesce(finished_at, started_at, created_at)
+  select id, subject, html, coalesce(started_at, created_at)
     from public.newsletter_campaigns
-   where status = 'done' and id = p_id;
+   where status in ('sending', 'done') and id = p_id;
 $$;
 
 revoke all on function public.newsletter_archive_list() from public;
