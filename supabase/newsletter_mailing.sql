@@ -127,3 +127,30 @@ revoke all on function public.newsletter_archive_list() from public;
 revoke all on function public.newsletter_archive_get(bigint) from public;
 grant execute on function public.newsletter_archive_list() to anon, authenticated;
 grant execute on function public.newsletter_archive_get(bigint) to anon, authenticated;
+
+-- 열람 확인: 메일 속 1x1 이미지가 열릴 때 기록 (이미지 차단 메일함에서는 기록되지 않음)
+alter table public.newsletter_recipients add column if not exists opened_at timestamptz;
+alter table public.newsletter_recipients add column if not exists last_opened_at timestamptz;
+alter table public.newsletter_recipients add column if not exists open_count integer not null default 0;
+
+create index if not exists newsletter_recipients_opened_idx on public.newsletter_recipients (campaign_id, opened_at);
+
+create or replace function public.newsletter_track_open(p_campaign bigint, p_token uuid)
+returns void
+language sql
+security definer
+set search_path = public
+as $$
+  update public.newsletter_recipients r
+     set opened_at = coalesce(r.opened_at, now()),
+         last_opened_at = now(),
+         open_count = r.open_count + 1
+    from public.newsletter_subscribers s
+   where s.unsubscribe_token = p_token
+     and r.subscriber_id = s.id
+     and r.campaign_id = p_campaign
+     and r.status = 'sent';
+$$;
+
+revoke all on function public.newsletter_track_open(bigint, uuid) from public;
+grant execute on function public.newsletter_track_open(bigint, uuid) to anon, authenticated;

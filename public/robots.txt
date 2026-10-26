@@ -10,6 +10,7 @@ Disallow: /thanks
 Disallow: /thanks-subscribe
 Disallow: /unsubscribe
 Disallow: /api/
+Disallow: /nl/
 
 # 사이트맵의 위치는 여기입니다
 Sitemap: https://www.unicpat.com/sitemap.xml

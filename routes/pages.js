@@ -214,6 +214,20 @@ router.post('/unsubscribe', async (req, res) => {
     });
 });
 
+// 뉴스레터 열람 확인용 1x1 이미지 (메일 본문에 들어감)
+const OPEN_PIXEL = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');
+
+router.get('/nl/open.gif', async (req, res) => {
+    const campaignId = Number(req.query.c);
+    const token = String(req.query.t || '');
+    if (Number.isInteger(campaignId) && UUID_RE.test(token) && token !== TEST_TOKEN) {
+        const { error } = await supabase.rpc('newsletter_track_open', { p_campaign: campaignId, p_token: token });
+        if (error) console.error('Newsletter open tracking error:', error.message);
+    }
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.type('gif').send(OPEN_PIXEL);
+});
+
 // 사이트맵: 고정 페이지 + 지난 뉴스레터 페이지 (발송할 때마다 자동으로 추가됨)
 const SITEMAP_PAGES = [
     ['/', 'weekly', '1.0'], ['/about', 'monthly', '0.8'], ['/column', 'weekly', '0.9'],

@@ -286,6 +286,29 @@ router.get('/mail/campaigns/:id/failures', requireLogin, loadCampaign, async (re
   res.json({ failures: data || [] });
 });
 
+// 회차별 열람 현황 페이지
+router.get('/mail/campaigns/:id/opens', requireLogin, loadCampaign, async (req, res) => {
+  try {
+    const rows = await mailer.getOpens(req.supabase, req.campaign.id);
+    const filter = ['opened', 'unopened'].includes(req.query.f) ? req.query.f : 'all';
+    res.render('admin/newsletter-opens', {
+      title: '열람 현황 - 관리자',
+      campaign: req.campaign,
+      total: rows.length,
+      opened: rows.filter(r => r.opened_at).length,
+      filter,
+      rows: filter === 'all' ? rows : rows.filter(r => (filter === 'opened') === !!r.opened_at),
+      error: null
+    });
+  } catch (err) {
+    console.error('Opens page error:', err);
+    res.render('admin/newsletter-opens', {
+      title: '열람 현황 - 관리자', campaign: req.campaign, total: 0, opened: 0, filter: 'all', rows: [],
+      error: '열람 기록을 불러오지 못했습니다. Supabase SQL Editor에서 newsletter_mailing.sql의 "열람 확인" 부분을 실행했는지 확인하세요.'
+    });
+  }
+});
+
 // 회신 등으로 받은 수신거부를 직접 처리
 router.post('/mail/subscribers/status', requireLogin, async (req, res) => {
   const email = String(req.body.email || '').trim().toLowerCase();
