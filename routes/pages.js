@@ -3,16 +3,36 @@ const router = express.Router();
 const { createAnonClient } = require('../lib/supabase');
 const { translatePostTitles } = require('../lib/translate');
 const { sortByDateDesc, currentByDeadline } = require('../lib/sort');
-const { UUID_RE, TEST_TOKEN } = require('../lib/newsletter-mailer');
+const { UUID_RE, TEST_TOKEN, archiveHtml } = require('../lib/newsletter-mailer');
 
 const supabase = createAnonClient();
+
+// KST 기준 'YYYY.MM.DD'
+function kstDate(ts) {
+    return new Date(new Date(ts).getTime() + 9 * 3600 * 1000).toISOString().slice(0, 10).replace(/-/g, '.');
+}
+
+// 직접 등록한 뉴스레터(스티비 링크) + 관리자 메뉴에서 발송 완료한 뉴스레터
+async function loadNewsletters() {
+    const [nlRes, archiveRes] = await Promise.all([
+        supabase.from('newsletters').select('*'),
+        supabase.rpc('newsletter_archive_list')
+    ]);
+    if (archiveRes.error) console.error('Newsletter archive error:', archiveRes.error.message);
+    const sent = (archiveRes.data || []).map(c => ({
+        title: c.subject,
+        link: `/newsletter/${c.id}`,
+        date: kstDate(c.finished_at)
+    }));
+    return sortByDateDesc([...(nlRes.data || []), ...sent]);
+}
 
 // 홈페이지
 router.get('/', async (req, res) => {
     try {
-        const [colRes, nlRes, projRes] = await Promise.all([
+        const [colRes, newsletters, projRes] = await Promise.all([
             supabase.from('columns').select('*').order('sort_order').limit(3),
-            supabase.from('newsletters').select('*'),
+            loadNewsletters(),
             supabase.from('gov_projects').select('*')
         ]);
 
@@ -24,7 +44,7 @@ router.get('/', async (req, res) => {
             title: '유니크 특허법률사무소',
             description: '특허, 그 이상의 가치를 만드는 곳. 20년 경력의 전문 변리사가 아이디어의 사업화까지, 스타트업 창업 경험을 바탕으로 실질적인 컨설팅을 제공합니다.',
             posts,
-            newsletters: sortByDateDesc(nlRes.data || []).slice(0, 4),
+            newsletters: newsletters.slice(0, 4),
             govProjects: currentByDeadline(projRes.data || []).slice(0, 4)
         });
     } catch (err) {
@@ -67,16 +87,25 @@ router.get('/column', async (req, res) => {
 // 뉴스레터 페이지
 router.get('/newsletter', async (req, res) => {
     try {
-        const { data } = await supabase.from('newsletters').select('*');
         res.render('newsletter', {
             title: '유니크 뉴스레터',
             description: '사업에 도움이 되는 특허, 상표, 정부지원사업 등 최신 IP 트렌드와 실무 팁을 담은 유니크 특허사무소의 뉴스레터를 만나보세요.',
-            newsletters: sortByDateDesc(data || [])
+            newsletters: await loadNewsletters()
         });
     } catch (err) {
         console.error('Newsletter page error:', err);
         res.render('newsletter', { title: '유니크 뉴스레터', description: '', newsletters: [] });
     }
+});
+
+// 관리자 메뉴에서 발송한 지난 뉴스레터 본문 (메일 HTML 그대로 표시)
+router.get('/newsletter/:id(\d+)', async (req, res, next) => {
+    const { data, error } = await supabase.rpc('newsletter_archive_get', { p_id: Number(req.params.id) });
+    if (error) console.error('Newsletter archive error:', error.message);
+    const item = data && data[0];
+    if (!item) return next();
+    const title = item.subject.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    res.type('html').send(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title} | 유니크 뉴스레터</title>${archiveHtml(item.html)}`);
 });
 
 // 정부지원사업 페이지

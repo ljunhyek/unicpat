@@ -92,3 +92,34 @@ $$;
 
 revoke all on function public.newsletter_unsubscribe(uuid) from public;
 grant execute on function public.newsletter_unsubscribe(uuid) to anon, authenticated;
+
+-- 지난 뉴스레터 보기: 발송 완료된 회차의 제목·본문만 공개 (수신자 정보는 노출하지 않음)
+create or replace function public.newsletter_archive_list()
+returns table (id bigint, subject text, finished_at timestamptz)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select id, subject, coalesce(finished_at, started_at, created_at)
+    from public.newsletter_campaigns
+   where status = 'done'
+   order by coalesce(finished_at, started_at, created_at) desc;
+$$;
+
+create or replace function public.newsletter_archive_get(p_id bigint)
+returns table (id bigint, subject text, html text, finished_at timestamptz)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select id, subject, html, coalesce(finished_at, started_at, created_at)
+    from public.newsletter_campaigns
+   where status = 'done' and id = p_id;
+$$;
+
+revoke all on function public.newsletter_archive_list() from public;
+revoke all on function public.newsletter_archive_get(bigint) from public;
+grant execute on function public.newsletter_archive_list() to anon, authenticated;
+grant execute on function public.newsletter_archive_get(bigint) to anon, authenticated;
