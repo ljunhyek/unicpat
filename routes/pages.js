@@ -214,6 +214,28 @@ router.post('/unsubscribe', async (req, res) => {
     });
 });
 
+// 사이트맵: 고정 페이지 + 지난 뉴스레터 페이지 (발송할 때마다 자동으로 추가됨)
+const SITEMAP_PAGES = [
+    ['/', 'weekly', '1.0'], ['/about', 'monthly', '0.8'], ['/column', 'weekly', '0.9'],
+    ['/newsletter', 'weekly', '0.8'], ['/gov-support', 'weekly', '0.9'], ['/contact', 'monthly', '0.7'],
+    ['/patent', 'monthly', '0.8'], ['/trademark', 'monthly', '0.8'], ['/design', 'monthly', '0.8'],
+    ['/startup', 'monthly', '0.8'], ['/dispute-transfer', 'monthly', '0.8'], ['/subscribe', 'monthly', '0.5']
+];
+
+router.get('/sitemap.xml', async (req, res) => {
+    const { data, error } = await supabase.rpc('newsletter_archive_list');
+    if (error) console.error('Sitemap newsletter error:', error.message);
+    const url = (loc, extra) => `  <url><loc>${res.locals.siteUrl}${loc}</loc>${extra}</url>`;
+    const urls = [
+        ...SITEMAP_PAGES.map(([loc, freq, priority]) => url(loc, `<changefreq>${freq}</changefreq><priority>${priority}</priority>`)),
+        ...(data || []).map(c => url(`/newsletter/${c.id}`, `<lastmod>${kstDate(c.sent_on).replace(/\./g, '-')}</lastmod><priority>0.6</priority>`))
+    ];
+    res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.join('\n')}
+</urlset>`);
+});
+
 // 언어 전환
 router.get('/set-lang', (req, res) => {
     const lang = req.query.lang === 'en' ? 'en' : 'ko';

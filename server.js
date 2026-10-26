@@ -20,6 +20,15 @@ const PORT = process.env.PORT || 3000;
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// 대표 주소: www.unicpat.com (unicpat.com으로 들어오면 같은 경로로 이동 — 검색엔진이 한 사이트로 인식하도록)
+const SITE_URL = (process.env.SITE_URL || 'https://www.unicpat.com').replace(/\/$/, '');
+app.use((req, res, next) => {
+    if (req.hostname === 'unicpat.com') return res.redirect(301, `${SITE_URL}${req.originalUrl}`);
+    res.locals.canonicalUrl = SITE_URL + req.path.replace(/(.)\/$/, '$1');
+    res.locals.siteUrl = SITE_URL;
+    next();
+});
+
 // 정적 파일 (CSS, JS, 이미지)을 제공하기 위한 미들웨어
 app.use(express.static(path.join(__dirname, 'public')));
 

@@ -10,6 +10,41 @@
     <title><%= title %> - 유니크 특허법률사무소</title>
     <meta name="description" content="<%= typeof description !== 'undefined' ? description : '20년 경력의 전문 변리사가 특허, 상표, 디자인 출원부터 IP 분쟁 대응, 스타트업 컨설팅까지 최고의 솔루션을 제공합니다.' %>">
     <% } %>
+    <% const metaDescription = typeof description !== 'undefined' && description ? description : '20년 경력의 전문 변리사가 특허, 상표, 디자인 출원부터 IP 분쟁 대응, 스타트업 컨설팅까지 최고의 솔루션을 제공합니다.'; %>
+    <link rel="canonical" href="<%= canonicalUrl %>">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="유니크 특허법률사무소">
+    <meta property="og:title" content="<%= title === '유니크 특허법률사무소' ? title : title + ' - 유니크 특허법률사무소' %>">
+    <meta property="og:description" content="<%= metaDescription %>">
+    <meta property="og:url" content="<%= canonicalUrl %>">
+    <meta property="og:image" content="<%= siteUrl %>/images/unic_logo.png">
+    <meta property="og:locale" content="ko_KR">
+    <meta name="twitter:card" content="summary">
+    <% if (canonicalUrl === siteUrl + '/') { %>
+    <script type="application/ld+json">
+    <%- JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'LegalService',
+        name: '유니크 특허법률사무소',
+        alternateName: 'Unic Patent Firm',
+        url: siteUrl + '/',
+        logo: siteUrl + '/images/unic_logo.png',
+        image: siteUrl + '/images/unic_logo.png',
+        description: metaDescription,
+        telephone: '+82-10-3131-7960',
+        email: 'ljunhyek@naver.com',
+        address: {
+            '@type': 'PostalAddress',
+            streetAddress: '청라커낼로 288번길 26, 103동 279호 (청라썬앤빌더테라스)',
+            addressLocality: '서해구',
+            addressRegion: '인천광역시',
+            addressCountry: 'KR'
+        },
+        areaServed: 'KR',
+        sameAs: ['https://blog.naver.com/unicpat']
+    }).replace(/</g, '\\u003c') %>
+    </script>
+    <% } %>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
