@@ -134,7 +134,7 @@ const postsToShow = 8;
                     </div>
                 </div>
                 <% } else { %>
-                <a href="<%= post.url %>" target="_blank" class="block">
+                <a href="<%= post.href %>"<%- post.internal ? '' : ' target="_blank" rel="noopener noreferrer"' %> class="block">
                     <div class="new-blog-card">
                         <div class="card-header">
                             <img src="/images/unique-mark.png" alt="유니크 마크" class="card-logo">

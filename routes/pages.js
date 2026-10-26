@@ -4,6 +4,7 @@ const { createAnonClient } = require('../lib/supabase');
 const { translatePostTitles } = require('../lib/translate');
 const { sortByDateDesc, currentByDeadline } = require('../lib/sort');
 const { UUID_RE, TEST_TOKEN, archiveHtml } = require('../lib/newsletter-mailer');
+const { withColumnLinks, CATEGORY_NAMES } = require('../lib/columns');
 
 const supabase = createAnonClient();
 
@@ -39,6 +40,7 @@ router.get('/', async (req, res) => {
         const lang = res.locals.lang;
         let posts = colRes.data || [];
         if (lang === 'en') posts = await translatePostTitles(posts);
+        posts = withColumnLinks(posts);
 
         res.render('index', {
             title: '유니크 특허법률사무소',
@@ -72,6 +74,7 @@ router.get('/column', async (req, res) => {
         const lang = res.locals.lang;
         let posts = data || [];
         if (lang === 'en') posts = await translatePostTitles(posts);
+        posts = withColumnLinks(posts);
 
         res.render('column', {
             title: '유니크 칼럼',
@@ -83,6 +86,37 @@ router.get('/column', async (req, res) => {
         res.render('column', { title: '유니크 칼럼', description: '', posts: [] });
     }
 });
+
+// 칼럼 글 페이지: 블로그 글의 요약 + 블로그 전체 글 링크 (관리자가 요약을 '공개'한 글만)
+router.get('/column/:no(\d+)', async (req, res, next) => {
+    const { data: post, error } = await supabase.from('columns').select('*')
+        .eq('url', `https://blog.naver.com/unicpat/${req.params.no}`)
+        .eq('summary_ready', true)
+        .maybeSingle();
+    if (error) console.error('Column post error:', error.message);
+    if (!post) return next();
+
+    const { data: related } = await supabase.from('columns').select('*')
+        .eq('category', post.category).eq('summary_ready', true).neq('id', post.id)
+        .order('sort_order').limit(3);
+    res.render('column-post', columnPostLocals(post, withColumnLinks(related || [])));
+});
+
+// 칼럼 글 페이지 화면 데이터 (관리자 미리보기와 같이 사용)
+function columnPostLocals(post, related) {
+    const paragraphs = String(post.summary || '').split(/\n\s*\n/).map(t => t.trim()).filter(Boolean);
+    return {
+        title: post.title,
+        description: (paragraphs[0] || post.title).replace(/\s+/g, ' ').slice(0, 150),
+        post,
+        paragraphs,
+        keyPoints: String(post.key_points || '').split('\n').map(t => t.trim()).filter(Boolean),
+        categoryName: CATEGORY_NAMES[post.category] || '유니크 칼럼',
+        related,
+        preview: false
+    };
+}
+router.columnPostLocals = columnPostLocals;
 
 // 뉴스레터 페이지
 router.get('/newsletter', async (req, res) => {
@@ -237,11 +271,16 @@ const SITEMAP_PAGES = [
 ];
 
 router.get('/sitemap.xml', async (req, res) => {
-    const { data, error } = await supabase.rpc('newsletter_archive_list');
+    const [{ data, error }, colRes] = await Promise.all([
+        supabase.rpc('newsletter_archive_list'),
+        supabase.from('columns').select('url, published_on').eq('summary_ready', true)
+    ]);
     if (error) console.error('Sitemap newsletter error:', error.message);
+    const columns = withColumnLinks((colRes.data || []).map(c => ({ ...c, summary_ready: true })));
     const url = (loc, extra) => `  <url><loc>${res.locals.siteUrl}${loc}</loc>${extra}</url>`;
     const urls = [
         ...SITEMAP_PAGES.map(([loc, freq, priority]) => url(loc, `<changefreq>${freq}</changefreq><priority>${priority}</priority>`)),
+        ...columns.map(c => url(c.href, `${c.published_on ? `<lastmod>${c.published_on}</lastmod>` : ''}<priority>0.7</priority>`)),
         ...(data || []).map(c => url(`/newsletter/${c.id}`, `<lastmod>${kstDate(c.sent_on).replace(/\./g, '-')}</lastmod><priority>0.6</priority>`))
     ];
     res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>

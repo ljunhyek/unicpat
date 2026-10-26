@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Noto Sans KR', sans-serif; }</style>
+</head>
+<body class="bg-gray-100">
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <a href="/admin/dashboard#tab-column" class="text-sm text-blue-600 hover:underline"><i class="fas fa-arrow-left mr-1"></i>칼럼 관리로 돌아가기</a>
+
+    <h1 class="text-2xl font-bold mt-4">칼럼 요약 편집</h1>
+    <p class="text-gray-600 mt-1"><%= post.title %></p>
+    <p class="text-sm mt-1"><a href="<%= post.url %>" target="_blank" class="text-blue-600 hover:underline">블로그 원문 보기 ↗</a></p>
+
+    <% if (saved) { %>
+        <div class="bg-green-50 border border-green-200 text-green-800 p-3 rounded-lg text-sm mt-4">저장했습니다.</div>
+    <% } %>
+    <% if (!postNo) { %>
+        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 p-3 rounded-lg text-sm mt-4">블로그 주소가 blog.naver.com/unicpat/글번호 형식이 아니어서 홈페이지 글 페이지를 만들 수 없습니다.</div>
+    <% } %>
+
+    <form method="POST" class="bg-white rounded-lg shadow-sm p-6 mt-6 space-y-5">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">요약 본문 <span class="text-gray-400 font-normal">(빈 줄로 문단을 나눕니다. 블로그 문장을 그대로 옮기지 말고 새로 써 주세요.)</span></label>
+            <textarea name="summary" rows="12" class="w-full border rounded-lg px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500"><%= post.summary || '' %></textarea>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">핵심 정리 <span class="text-gray-400 font-normal">(한 줄에 하나씩)</span></label>
+            <textarea name="key_points" rows="5" class="w-full border rounded-lg px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500"><%= post.key_points || '' %></textarea>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">UNIC CHECKPOINT <span class="text-gray-400 font-normal">(한 문장)</span></label>
+            <input type="text" name="checkpoint" value="<%= post.checkpoint || '' %>" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">블로그 발행일</label>
+                <input type="date" name="published_on" value="<%= post.published_on || '' %>" class="w-full border rounded-lg px-3 py-2 text-sm">
+            </div>
+            <label class="flex items-center gap-2 mt-6 text-sm">
+                <input type="checkbox" name="summary_ready" value="1" <%= post.summary_ready ? 'checked' : '' %> <%= postNo ? '' : 'disabled' %> class="h-4 w-4">
+                <span><b>홈페이지에 공개</b> <span class="text-gray-500">— 칼럼 목록이 블로그 대신 이 글 페이지로 연결됩니다</span></span>
+            </label>
+        </div>
+        <div class="flex flex-wrap gap-3 items-center">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg text-sm">저장</button>
+            <a href="/admin/columns/<%= post.id %>/preview" target="_blank" class="text-sm text-blue-600 hover:underline">저장된 내용 미리보기 ↗</a>
+            <% if (post.summary_ready && postNo) { %>
+                <a href="/column/<%= postNo %>" target="_blank" class="text-sm text-green-700 hover:underline">공개 페이지 보기 ↗</a>
+            <% } %>
+        </div>
+    </form>
+</div>
+</body>
+</html>

@@ -4,6 +4,8 @@ const { createAnonClient, createAuthenticatedClient } = require('../lib/supabase
 const { sortByDateDesc } = require('../lib/sort');
 const { getVisitStats } = require('../lib/analytics');
 const mailer = require('../lib/newsletter-mailer');
+const { blogPostNo } = require('../lib/columns');
+const { columnPostLocals } = require('./pages');
 
 // --- Cookie options ---
 const COOKIE_OPTS = {
@@ -194,6 +196,44 @@ router.post('/delete', requireLogin, async (req, res) => {
 
   const tabMap = { column: 'tab-column', newsletter: 'tab-newsletter', govProject: 'tab-gov-support', programType: 'tab-gov-support' };
   res.redirect(`/admin/dashboard#${tabMap[type] || 'tab-column'}`);
+});
+
+// --- 칼럼 요약 (홈페이지 /column/글번호 페이지) ---
+async function loadColumn(req, res, next) {
+  const { data, error } = await req.supabase.from('columns').select('*').eq('id', req.params.id).single();
+  if (error || !data) return res.status(404).send('칼럼을 찾을 수 없습니다.');
+  req.column = data;
+  next();
+}
+
+router.get('/columns/:id/summary', requireLogin, loadColumn, (req, res) => {
+  res.render('admin/column-summary', {
+    title: '칼럼 요약 편집 - 관리자',
+    post: req.column,
+    postNo: blogPostNo(req.column.url),
+    saved: req.query.saved === '1'
+  });
+});
+
+router.post('/columns/:id/summary', requireLogin, loadColumn, async (req, res) => {
+  const { summary, key_points, checkpoint, published_on } = req.body;
+  const { error } = await req.supabase.from('columns').update({
+    summary: (summary || '').trim() || null,
+    key_points: (key_points || '').trim() || null,
+    checkpoint: (checkpoint || '').trim() || null,
+    published_on: published_on || null,
+    summary_ready: req.body.summary_ready === '1' && !!blogPostNo(req.column.url) && !!(summary || '').trim()
+  }).eq('id', req.column.id);
+  if (error) {
+    console.error('Column summary save error:', error);
+    return res.status(500).send(`저장하지 못했습니다: ${error.message}`);
+  }
+  res.redirect(`/admin/columns/${req.column.id}/summary?saved=1`);
+});
+
+// 공개 전에도 볼 수 있는 미리보기
+router.get('/columns/:id/preview', requireLogin, loadColumn, (req, res) => {
+  res.render('column-post', { ...columnPostLocals(req.column, []), preview: true });
 });
 
 // --- Newsletter mailing (뉴스레터 발송 탭) ---

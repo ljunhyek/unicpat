@@ -337,7 +337,7 @@
                     </div>
                 </div>
                 <% } else { %>
-                <a href="<%= post.url %>" target="_blank" rel="noopener noreferrer" class="block">
+                <a href="<%= post.href %>"<%- post.internal ? '' : ' target="_blank" rel="noopener noreferrer"' %> class="block">
                     <div class="new-blog-card">
                         <div class="card-header">
                             <img src="/images/unique-mark.png" alt="Unic" class="card-logo">
