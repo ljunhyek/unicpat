@@ -3,7 +3,7 @@ const router = express.Router();
 const { createAnonClient } = require('../lib/supabase');
 const { translatePostTitles } = require('../lib/translate');
 const { sortByDateDesc, currentByDeadline } = require('../lib/sort');
-const { UUID_RE, TEST_TOKEN, archiveHtml } = require('../lib/newsletter-mailer');
+const { UUID_RE, TEST_TOKEN, archiveHtml, sendSignupNotice } = require('../lib/newsletter-mailer');
 const { withColumnLinks, CATEGORY_NAMES, CATEGORY_NAMES_EN } = require('../lib/columns');
 
 const supabase = createAnonClient();
@@ -216,7 +216,46 @@ router.get('/dispute-transfer', (req, res) => {
 });
 
 router.get('/subscribe', (req, res) => {
-    res.render('subscribe', { title: '뉴스레터 구독 신청' });
+    res.render('subscribe', { title: '뉴스레터 구독 신청', error: null, form: {} });
+});
+
+// 구독 신청 저장 → 관리자 → 뉴스레터 발송 탭에서 확인 후 발송 대상에 추가
+router.post('/subscribe', async (req, res) => {
+    const form = {
+        name: String(req.body.name || '').trim(),
+        company_name: String(req.body.company_name || '').trim(),
+        email: String(req.body.email || '').trim()
+    };
+    // 자동 등록 방지용 숨김 칸(사람은 비워 둠)
+    if (req.body.website) return res.redirect('/thanks-subscribe');
+
+    const invalid = !form.name || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email) || req.body.privacy_consent !== 'Agreed';
+    if (invalid) {
+        return res.status(400).render('subscribe', {
+            title: '뉴스레터 구독 신청',
+            error: '이름, 올바른 이메일, 개인정보 수집 동의를 확인해 주세요.',
+            form
+        });
+    }
+
+    const { error } = await supabase.rpc('newsletter_signup', {
+        p_name: form.name, p_company: form.company_name, p_email: form.email
+    });
+    if (error) {
+        console.error('Newsletter signup error:', error.message);
+        return res.status(500).render('subscribe', {
+            title: '뉴스레터 구독 신청',
+            error: '신청을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+            form
+        });
+    }
+
+    try {
+        await sendSignupNotice({ name: form.name, company: form.company_name, email: form.email });
+    } catch (err) {
+        console.error('Signup notice mail error:', err.message);
+    }
+    res.redirect('/thanks-subscribe');
 });
 
 router.get('/thanks', (req, res) => {

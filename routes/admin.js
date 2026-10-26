@@ -416,6 +416,51 @@ router.get('/mail/campaigns/:id/opens', requireLogin, loadCampaign, async (req, 
   }
 });
 
+// 구독자 관리 화면 (발송 대상 / 수신거부 / 열어본 사람, 이름·이메일 검색)
+router.get('/mail/subscribers', requireLogin, async (req, res) => {
+  const filter = ['all', 'target', 'unsubscribed', 'opened'].includes(req.query.f) ? req.query.f : 'all';
+  const field = req.query.field === 'email' ? 'email' : 'name';
+  const q = String(req.query.q || '').slice(0, 100);
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  try {
+    const result = await mailer.listSubscribers(req.supabase, { filter, field, q, page });
+    res.render('admin/newsletter-subscribers', { title: '구독자 관리 - 관리자', filter, field, q, page, ...result, error: null });
+  } catch (err) {
+    console.error('Subscribers page error:', err);
+    res.render('admin/newsletter-subscribers', {
+      title: '구독자 관리 - 관리자', filter, field, q, page,
+      counts: { total: 0, target: 0, unsubscribed: 0, opened: 0 }, rows: [], count: 0, pages: 1,
+      error: `구독자 목록을 불러오지 못했습니다: ${err.message}`
+    });
+  }
+});
+
+// 홈페이지 구독 신청 처리: 발송 대상에 추가 / 제외
+async function loadSignup(req, res, next) {
+  const { data, error } = await req.supabase.from('newsletter_signups').select('*').eq('id', req.params.id).single();
+  if (error || !data) return res.status(404).send('구독 신청을 찾을 수 없습니다.');
+  req.signup = data;
+  next();
+}
+
+router.post('/mail/signups/:id/add', requireLogin, loadSignup, async (req, res) => {
+  try {
+    await mailer.addSignupToSubscribers(req.supabase, req.signup);
+    await req.supabase.from('newsletter_signups')
+      .update({ status: 'added', handled_at: new Date().toISOString() }).eq('id', req.signup.id);
+  } catch (err) {
+    console.error('Signup add error:', err);
+    return res.status(500).send(`발송 대상에 추가하지 못했습니다: ${err.message}`);
+  }
+  res.redirect(MAIL_TAB);
+});
+
+router.post('/mail/signups/:id/dismiss', requireLogin, loadSignup, async (req, res) => {
+  await req.supabase.from('newsletter_signups')
+    .update({ status: 'dismissed', handled_at: new Date().toISOString() }).eq('id', req.signup.id);
+  res.redirect(MAIL_TAB);
+});
+
 // 회신 등으로 받은 수신거부를 직접 처리
 router.post('/mail/subscribers/status', requireLogin, async (req, res) => {
   const email = String(req.body.email || '').trim().toLowerCase();

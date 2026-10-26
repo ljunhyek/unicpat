@@ -116,26 +116,30 @@
             <strong class="font-bold text-gray-800">아래 정보 입력 후, 꼭 "구독 신청" 버튼을 눌러주세요,</strong> 감사합니다.
         </p>
 
-        <form action="https://api.web3forms.com/submit" method="POST">
-            <input type="hidden" name="access_key" value="dd3c9ad5-1802-4bd1-b7e6-397002308afa">
-            <input type="hidden" name="redirect" value=""https://unicpat.com/thanks"">
-            <input type="hidden" name="subject" value="[유니크] 뉴스레터 구독 신청이 도착했습니다.">
-            <input type="hidden" name="from_site" value="유니크 뉴스레터 구독 페이지">
+        <% if (typeof error !== 'undefined' && error) { %>
+            <p class="mb-6 p-3 rounded bg-red-50 text-red-700 text-sm"><%= error %></p>
+        <% } %>
+        <% const f = typeof form !== 'undefined' && form ? form : {}; %>
+        <form action="/subscribe" method="POST">
+            <!-- 자동 등록 방지용 (사람에게는 보이지 않음) -->
+            <div style="position:absolute; left:-9999px;" aria-hidden="true">
+                <label>웹사이트 <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+            </div>
 
             <div class="space-y-6">
                 <div>
                     <label for="name" class="form-label">이름 <span class="text-red-500">*</span></label>
-                    <input type="text" id="name" name="name" class="form-input" required>
+                    <input type="text" id="name" name="name" class="form-input" maxlength="100" value="<%= f.name || '' %>" required>
                 </div>
 
                 <div>
                     <label for="company" class="form-label">회사명</label>
-                    <input type="text" id="company" name="company_name" class="form-input">
+                    <input type="text" id="company" name="company_name" class="form-input" maxlength="200" value="<%= f.company_name || '' %>">
                 </div>
 
                 <div>
                     <label for="email" class="form-label">이메일 <span class="text-red-500">*</span></label>
-                    <input type="email" id="email" name="email" class="form-input" required>
+                    <input type="email" id="email" name="email" class="form-input" maxlength="254" value="<%= f.email || '' %>" required>
                 </div>
 
                 <div class="border-t pt-6">

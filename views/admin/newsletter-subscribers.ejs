@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Noto Sans KR', sans-serif; }</style>
+</head>
+<body class="bg-gray-100">
+<%
+    const fmt = ts => ts ? new Date(ts).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    // 현재 필터·검색을 유지한 채 일부만 바꾼 주소 (기본값은 주소에서 생략)
+    const link = params => {
+        const p = { f: filter, field, q, ...params };
+        const entries = Object.entries(p).filter(([k, v]) => v && !(k === 'f' && v === 'all') && !(k === 'field' && v === 'name') && !(k === 'page' && v === 1));
+        return '?' + new URLSearchParams(entries.map(([k, v]) => [k, String(v)])).toString();
+    };
+    const tabs = [
+        ['all', '전체', counts.total],
+        ['target', '발송 대상', counts.target],
+        ['unsubscribed', '수신거부', counts.unsubscribed],
+        ['opened', '열어본 사람', counts.opened]
+    ];
+    const STATUS = { active: ['수신 가능', 'bg-green-100 text-green-700'], unsubscribed: ['수신거부', 'bg-red-100 text-red-700'], bounced: ['반송', 'bg-yellow-100 text-yellow-700'] };
+%>
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <a href="/admin/dashboard#tab-mailing" class="text-sm text-blue-600 hover:underline"><i class="fas fa-arrow-left mr-1"></i>뉴스레터 발송으로 돌아가기</a>
+    <h1 class="text-2xl font-bold mt-4">구독자 관리</h1>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+        <% tabs.forEach(([f, label, n]) => { %>
+        <a href="<%= link({ f, page: '' }) %>" class="rounded-lg p-4 shadow-sm <%= filter === f ? 'bg-blue-600 text-white' : 'bg-white hover:bg-gray-50' %>">
+            <div class="text-xs <%= filter === f ? 'text-blue-100' : 'text-gray-500' %>"><%= label %></div>
+            <div class="text-2xl font-bold"><%= n.toLocaleString() %><span class="text-sm font-normal ml-1"><%= f === 'opened' ? '명' : '곳' %></span></div>
+        </a>
+        <% }) %>
+    </div>
+    <p class="text-xs text-gray-500 mt-2">발송 대상 = 수신 가능 상태인 기업인증 기업 + 홈페이지 구독 신청자. 열어본 사람 = 지금까지 보낸 뉴스레터를 한 번이라도 연 사람(열람 기록 기능 추가 이후 발송분 기준).</p>
+
+    <form method="GET" class="flex flex-wrap gap-2 mt-6">
+        <input type="hidden" name="f" value="<%= filter %>">
+        <select name="field" class="border rounded-lg px-3 py-2 text-sm bg-white">
+            <option value="name" <%= field === 'name' ? 'selected' : '' %>>이름·회사명</option>
+            <option value="email" <%= field === 'email' ? 'selected' : '' %>>이메일</option>
+        </select>
+        <input type="text" name="q" value="<%= q %>" placeholder="검색어" class="border rounded-lg px-3 py-2 text-sm flex-1 min-w-0">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-sm"><i class="fas fa-search mr-1"></i>검색</button>
+        <% if (q) { %><a href="<%= link({ q: '', page: '' }) %>" class="px-3 py-2 text-sm text-gray-600 hover:underline">검색 지우기</a><% } %>
+    </form>
+
+    <% if (error) { %>
+        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-lg text-sm mt-4"><%= error %></div>
+    <% } %>
+
+    <p class="text-sm text-gray-600 mt-4"><%= count.toLocaleString() %>건<% if (q) { %> · "<%= q %>" 검색 결과<% } %></p>
+
+    <div class="bg-white rounded-lg shadow-sm mt-2 overflow-x-auto">
+        <table class="w-full text-sm text-left">
+            <thead class="bg-gray-50 text-gray-600 text-xs">
+                <tr>
+                    <th class="px-3 py-3">회사명</th>
+                    <th class="px-3 py-3">이름</th>
+                    <th class="px-3 py-3">이메일</th>
+                    <th class="px-3 py-3">상태</th>
+                    <th class="px-3 py-3">구분</th>
+                    <th class="px-3 py-3">최근 열람</th>
+                    <th class="px-3 py-3 text-right">열람</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y">
+                <% if (!rows.length) { %>
+                    <tr><td colspan="7" class="px-3 py-8 text-center text-gray-400">해당하는 구독자가 없습니다.</td></tr>
+                <% } %>
+                <% rows.forEach(r => { const st = STATUS[r.status] || [r.status, 'bg-gray-100 text-gray-600']; %>
+                <tr class="<%= r.status === 'unsubscribed' ? 'text-gray-400' : '' %>">
+                    <td class="px-3 py-2"><%= r.company_name || '' %></td>
+                    <td class="px-3 py-2"><%= r.contact_name || r.ceo || '' %></td>
+                    <td class="px-3 py-2"><%= r.email %></td>
+                    <td class="px-3 py-2 whitespace-nowrap">
+                        <span class="px-2 py-0.5 rounded text-xs <%= st[1] %>"><%= st[0] %></span>
+                        <% if (r.status === 'unsubscribed' && r.unsubscribed_at) { %><div class="text-xs text-gray-400 mt-1"><%= fmt(r.unsubscribed_at) %></div><% } %>
+                    </td>
+                    <td class="px-3 py-2 text-xs whitespace-nowrap">
+                        <% if (r.source === 'website_signup') { %><span class="px-2 py-0.5 rounded bg-purple-100 text-purple-700">구독 신청</span><% } %>
+                        <% if (r.certification) { %><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700" title="<%= r.certification %>">기업인증</span><% } %>
+                        <% if (r.isTarget) { %><div class="text-green-700 mt-1">발송 대상</div><% } %>
+                    </td>
+                    <td class="px-3 py-2 whitespace-nowrap text-xs"><%= r.open ? fmt(r.open.lastOpenedAt) : '' %></td>
+                    <td class="px-3 py-2 text-right whitespace-nowrap text-xs"><% if (r.open) { %><%= r.open.campaigns %>회차 · <%= r.open.opens %>번<% } %></td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+    <% if (pages > 1) { %>
+    <div class="flex items-center justify-center gap-2 mt-4 text-sm">
+        <% if (page > 1) { %><a href="<%= link({ page: page - 1 }) %>" class="px-3 py-1 bg-white rounded shadow-sm hover:bg-gray-50">이전</a><% } %>
+        <span class="text-gray-600"><%= page %> / <%= pages %></span>
+        <% if (page < pages) { %><a href="<%= link({ page: page + 1 }) %>" class="px-3 py-1 bg-white rounded shadow-sm hover:bg-gray-50">다음</a><% } %>
+    </div>
+    <% } %>
+</div>
+</body>
+</html>
