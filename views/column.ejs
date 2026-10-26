@@ -122,7 +122,7 @@ const postsToShow = 8;
                 filteredPosts.forEach(post => {
             %>
                 <% if (lang === 'en') { %>
-                <div class="block">
+                <%- post.enInternal ? `<a href="${post.href}" class="block">` : '<div class="block">' %>
                     <div class="new-blog-card">
                         <div class="card-header">
                             <img src="/images/unique-mark.png" alt="Unic" class="card-logo">
@@ -132,7 +132,7 @@ const postsToShow = 8;
                             <h3 class="card-title"><%= post.title %></h3>
                         </div>
                     </div>
-                </div>
+                <%- post.enInternal ? '</a>' : '</div>' %>
                 <% } else { %>
                 <a href="<%= post.href %>"<%- post.internal ? '' : ' target="_blank" rel="noopener noreferrer"' %> class="block">
                     <div class="new-blog-card">

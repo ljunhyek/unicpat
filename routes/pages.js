@@ -4,7 +4,7 @@ const { createAnonClient } = require('../lib/supabase');
 const { translatePostTitles } = require('../lib/translate');
 const { sortByDateDesc, currentByDeadline } = require('../lib/sort');
 const { UUID_RE, TEST_TOKEN, archiveHtml } = require('../lib/newsletter-mailer');
-const { withColumnLinks, CATEGORY_NAMES } = require('../lib/columns');
+const { withColumnLinks, CATEGORY_NAMES, CATEGORY_NAMES_EN } = require('../lib/columns');
 
 const supabase = createAnonClient();
 
@@ -99,20 +99,30 @@ router.get('/column/:no(\\d+)', async (req, res, next) => {
     const { data: related } = await supabase.from('columns').select('*')
         .eq('category', post.category).eq('summary_ready', true).neq('id', post.id)
         .order('sort_order').limit(3);
-    res.render('column-post', columnPostLocals(post, withColumnLinks(related || [])));
+    res.render('column-post', columnPostLocals(post, withColumnLinks(related || []), res.locals.lang));
 });
 
 // 칼럼 글 페이지 화면 데이터 (관리자 미리보기와 같이 사용)
-function columnPostLocals(post, related) {
-    const paragraphs = String(post.summary || '').split(/\n\s*\n/).map(t => t.trim()).filter(Boolean);
+// 영어 화면(lang=en)이고 영어 요약이 있으면 영어로, 아니면 한국어로 보여줌
+function columnPostLocals(post, related, lang) {
+    const en = lang === 'en' && !!post.summary_en;
+    const pick = field => (en ? post[`${field}_en`] : post[field]) || '';
+    const title = pick('title') || post.title;
+    const paragraphs = pick('summary').split(/\n\s*\n/).map(t => t.trim()).filter(Boolean);
     return {
-        title: post.title,
-        description: (paragraphs[0] || post.title).replace(/\s+/g, ' ').slice(0, 150),
+        title,
+        description: (paragraphs[0] || title).replace(/\s+/g, ' ').slice(0, 150),
         post,
+        en,
+        postTitle: title,
         paragraphs,
-        keyPoints: String(post.key_points || '').split('\n').map(t => t.trim()).filter(Boolean),
-        categoryName: CATEGORY_NAMES[post.category] || '유니크 칼럼',
-        related,
+        keyPoints: pick('key_points').split('\n').map(t => t.trim()).filter(Boolean),
+        checkpoint: pick('checkpoint'),
+        categoryName: (en ? CATEGORY_NAMES_EN : CATEGORY_NAMES)[post.category] || (en ? 'Unique Column' : '유니크 칼럼'),
+        // 영어 화면에서는 영어 요약이 있는 글만 추천 (블로그로 나가는 링크 없음)
+        related: (related || [])
+            .filter(r => !en || r.enInternal)
+            .map(r => ({ ...r, displayTitle: (en && r.title_en) || r.title })),
         preview: false
     };
 }

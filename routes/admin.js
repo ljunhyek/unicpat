@@ -218,11 +218,16 @@ router.get('/columns/:id/summary', requireLogin, loadColumn, (req, res) => {
 
 router.post('/columns/:id/summary', requireLogin, loadColumn, async (req, res) => {
   const { summary, key_points, checkpoint, published_on, category } = req.body;
+  const text = name => (req.body[name] || '').trim() || null;
   const { error } = await req.supabase.from('columns').update({
     category: ['strategy', 'patent', 'trademark'].includes(category) ? category : req.column.category,
     summary: (summary || '').trim() || null,
     key_points: (key_points || '').trim() || null,
     checkpoint: (checkpoint || '').trim() || null,
+    title_en: text('title_en'),
+    summary_en: text('summary_en'),
+    key_points_en: text('key_points_en'),
+    checkpoint_en: text('checkpoint_en'),
     published_on: published_on || null,
     summary_ready: req.body.summary_ready === '1' && !!blogPostNo(req.column.url) && !!(summary || '').trim()
   }).eq('id', req.column.id);
@@ -293,7 +298,9 @@ router.post('/columns/:id/publish', requireLogin, loadColumn, async (req, res) =
 
 // 공개 전에도 볼 수 있는 미리보기
 router.get('/columns/:id/preview', requireLogin, loadColumn, (req, res) => {
-  res.render('column-post', { ...columnPostLocals(req.column, []), preview: true });
+  // ?lang=en 이면 영어 화면으로 미리보기
+  if (req.query.lang === 'en') res.locals.lang = 'en';
+  res.render('column-post', { ...columnPostLocals(req.column, [], res.locals.lang), preview: true });
 });
 
 // --- Newsletter mailing (뉴스레터 발송 탭) ---

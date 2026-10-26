@@ -25,12 +25,12 @@
 <article>
     <header class="post-header">
         <div class="container mx-auto max-w-3xl">
-            <a href="/column" class="text-sm text-[#3d8a25] hover:underline">유니크 칼럼</a>
+            <a href="/column" class="text-sm text-[#3d8a25] hover:underline"><%= en ? 'Unique Column' : '유니크 칼럼' %></a>
             <span class="text-sm text-gray-400 mx-1">›</span>
             <span class="text-sm text-gray-500"><%= categoryName %></span>
-            <h1 class="text-2xl md:text-3xl font-bold text-[#0F172A] mt-4 leading-snug" style="word-break: keep-all;"><%= post.title %></h1>
+            <h1 class="text-2xl md:text-3xl font-bold text-[#0F172A] mt-4 leading-snug" style="word-break: keep-all;"><%= postTitle %></h1>
             <p class="text-sm text-gray-500 mt-4">
-                유니크 특허사무소 이준혁 변리사
+                <%= en ? 'Junhyek Lee, Patent Attorney, Unic Patent Firm' : '유니크 특허사무소 이준혁 변리사' %>
                 <% if (post.published_on) { %> · <%= String(post.published_on).replace(/-/g, '.') %><% } %>
             </p>
         </div>
@@ -43,35 +43,42 @@
 
         <% if (keyPoints.length) { %>
         <section class="bg-white rounded-lg shadow-sm p-6 mt-8">
-            <h2 class="text-lg font-bold text-[#0F172A] mb-4">핵심 정리</h2>
+            <h2 class="text-lg font-bold text-[#0F172A] mb-4"><%= en ? 'Key Points' : '핵심 정리' %></h2>
             <ul class="post-points space-y-2 text-[#2F3B40]">
                 <% keyPoints.forEach(k => { %><li><%= k %></li><% }) %>
             </ul>
         </section>
         <% } %>
 
-        <% if (post.checkpoint) { %>
+        <% if (checkpoint) { %>
         <section class="border-l-4 border-[#54B435] pl-5 py-1 mt-8">
             <p class="text-xs font-bold tracking-widest text-[#3d8a25] mb-2">UNIC CHECKPOINT</p>
-            <p class="text-[#2F3B40] leading-relaxed" style="word-break: keep-all;"><%= post.checkpoint %></p>
+            <p class="text-[#2F3B40] leading-relaxed" style="word-break: keep-all;"><%= checkpoint %></p>
         </section>
         <% } %>
 
         <div class="flex flex-wrap gap-3 mt-10">
-            <a href="<%= post.url %>" target="_blank" rel="noopener" class="btn-primary">블로그에서 전체 글 읽기 ↗</a>
-            <a href="/contact" class="btn-outline">상담 문의하기</a>
+            <% if (!en) { %>
+                <a href="<%= post.url %>" target="_blank" rel="noopener" class="btn-primary">블로그에서 전체 글 읽기 ↗</a>
+                <a href="/contact" class="btn-outline">상담 문의하기</a>
+            <% } else { %>
+                <a href="/contact" class="btn-primary">Contact Us</a>
+                <a href="/column" class="btn-outline">More Columns</a>
+            <% } %>
         </div>
         <p class="text-xs text-gray-400 mt-4 leading-relaxed">
-            이 글은 일반적인 정보 제공을 위한 요약이며, 구체적인 사안은 사실관계에 따라 판단이 달라질 수 있습니다.
+            <%= en
+                ? 'This summary is for general information only. Specific cases may be assessed differently depending on the facts. It is based on Korean law as of the publication date.'
+                : '이 글은 일반적인 정보 제공을 위한 요약이며, 구체적인 사안은 사실관계에 따라 판단이 달라질 수 있습니다.' %>
         </p>
 
         <% if (related.length) { %>
         <section class="mt-14">
-            <h2 class="text-lg font-bold text-[#0F172A] mb-4">함께 읽으면 좋은 글</h2>
+            <h2 class="text-lg font-bold text-[#0F172A] mb-4"><%= en ? 'Related Columns' : '함께 읽으면 좋은 글' %></h2>
             <div class="space-y-3">
                 <% related.forEach(r => { %>
                 <a href="<%= r.href %>"<%- r.internal ? '' : ' target="_blank" rel="noopener noreferrer"' %> class="block bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow">
-                    <span class="font-medium text-[#0F172A]"><%= r.title %></span>
+                    <span class="font-medium text-[#0F172A]"><%= r.displayTitle %></span>
                 </a>
                 <% }) %>
             </div>

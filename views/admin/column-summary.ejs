@@ -56,9 +56,32 @@
                 <span><b>홈페이지에 공개</b> <span class="text-gray-500">— 칼럼 목록이 블로그 대신 이 글 페이지로 연결됩니다</span></span>
             </label>
         </div>
+        <details class="border rounded-lg p-4" <%= post.summary_en ? '' : 'open' %>>
+            <summary class="text-sm font-semibold cursor-pointer">영어 버전 (English 메뉴에 표시) <%= post.summary_en ? '' : '— 아직 없음' %></summary>
+            <div class="space-y-4 mt-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">영어 제목</label>
+                    <input type="text" name="title_en" value="<%= post.title_en || '' %>" class="w-full border rounded-lg px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">영어 요약 본문 <span class="text-gray-400 font-normal">(빈 줄로 문단 구분)</span></label>
+                    <textarea name="summary_en" rows="10" class="w-full border rounded-lg px-3 py-2 text-sm leading-relaxed"><%= post.summary_en || '' %></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">영어 핵심 정리 <span class="text-gray-400 font-normal">(한 줄에 하나씩)</span></label>
+                    <textarea name="key_points_en" rows="5" class="w-full border rounded-lg px-3 py-2 text-sm leading-relaxed"><%= post.key_points_en || '' %></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">영어 CHECKPOINT</label>
+                    <input type="text" name="checkpoint_en" value="<%= post.checkpoint_en || '' %>" class="w-full border rounded-lg px-3 py-2 text-sm">
+                </div>
+                <p class="text-xs text-gray-500">영어 화면에서는 영어 요약이 있는 글만 열리며, 블로그 링크 없이 요약만 보입니다.</p>
+            </div>
+        </details>
         <div class="flex flex-wrap gap-3 items-center">
             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg text-sm">저장</button>
             <a href="/admin/columns/<%= post.id %>/preview" target="_blank" class="text-sm text-blue-600 hover:underline">저장된 내용 미리보기 ↗</a>
+            <a href="/admin/columns/<%= post.id %>/preview?lang=en" target="_blank" class="text-sm text-blue-600 hover:underline">영어 미리보기 ↗</a>
             <% if (post.summary_ready && postNo) { %>
                 <a href="/column/<%= postNo %>" target="_blank" class="text-sm text-green-700 hover:underline">공개 페이지 보기 ↗</a>
             <% } %>
