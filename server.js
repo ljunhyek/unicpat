@@ -10,6 +10,7 @@ dotenv.config();
 // 라우터 가져오기
 const pageRoutes = require('./routes/pages');
 const adminRoutes = require('./routes/admin');
+const cronRoutes = require('./routes/cron');
 const { trackPageView } = require('./lib/analytics');
 
 const app = express();
@@ -34,6 +35,9 @@ app.use((req, res, next) => {
     res.locals.lang = req.cookies['lang'] || 'ko';
     next();
 });
+
+// 예약 작업 (Vercel Cron) — 방문 통계에 잡히지 않도록 먼저 연결
+app.use('/api/cron', cronRoutes);
 
 // 방문 통계 기록 (관리자 페이지 '방문 통계' 탭에서 확인)
 app.use(trackPageView);
