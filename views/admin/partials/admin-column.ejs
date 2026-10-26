@@ -66,12 +66,13 @@
                         </td>
                         <td class="px-4 py-3 text-gray-500 text-xs"><%= post.image || '-' %></td>
                         <td class="px-4 py-3 text-xs whitespace-nowrap">
-                            <a href="/admin/columns/<%= post.id %>/summary" class="text-blue-600 hover:underline">요약 편집</a>
-                            <% if (post.summary_ready) { %>
-                                <span class="ml-1 px-2 py-0.5 rounded bg-green-100 text-green-700">공개</span>
-                            <% } else if (post.summary) { %>
-                                <span class="ml-1 px-2 py-0.5 rounded bg-yellow-100 text-yellow-700">검토 대기</span>
+                            <% if (post.summary) { %>
+                                <label class="inline-flex items-center gap-1 mr-2 cursor-pointer" title="체크하면 바로 홈페이지에 공개됩니다">
+                                    <input type="checkbox" class="js-column-publish h-4 w-4" data-id="<%= post.id %>" <%= post.summary_ready ? 'checked' : '' %>>
+                                    <span class="js-publish-label px-2 py-0.5 rounded <%= post.summary_ready ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %>"><%= post.summary_ready ? '공개' : '검토 대기' %></span>
+                                </label>
                             <% } %>
+                            <a href="/admin/columns/<%= post.id %>/summary" class="text-blue-600 hover:underline"><%= post.summary ? '편집' : '요약 쓰기' %></a>
                         </td>
                         <td class="px-4 py-3 text-center">
                             <form action="/admin/delete" method="POST" class="inline"
@@ -91,3 +92,30 @@
         </tbody>
     </table>
 </div>
+
+<script>
+// 홈페이지 요약 공개 체크: 체크하는 즉시 저장되고 공개(해제하면 비공개)
+document.querySelectorAll('.js-column-publish').forEach(box => {
+    box.addEventListener('change', async () => {
+        const label = box.nextElementSibling;
+        box.disabled = true;
+        try {
+            const res = await fetch('/admin/columns/' + box.dataset.id + '/publish', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ready: box.checked })
+            });
+            const json = await res.json().catch(() => ({ error: '서버 응답 오류 (HTTP ' + res.status + ')' }));
+            if (!res.ok) throw new Error(json.error || '저장 실패');
+            box.checked = json.ready;
+        } catch (err) {
+            box.checked = !box.checked;
+            alert('저장하지 못했습니다: ' + err.message);
+        } finally {
+            box.disabled = false;
+            label.textContent = box.checked ? '공개' : '검토 대기';
+            label.className = 'js-publish-label px-2 py-0.5 rounded ' + (box.checked ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700');
+        }
+    });
+});
+</script>

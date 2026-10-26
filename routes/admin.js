@@ -231,6 +231,17 @@ router.post('/columns/:id/summary', requireLogin, loadColumn, async (req, res) =
   res.redirect(`/admin/columns/${req.column.id}/summary?saved=1`);
 });
 
+// 칼럼 관리 표의 체크박스: 공개 여부만 바로 저장
+router.post('/columns/:id/publish', requireLogin, loadColumn, async (req, res) => {
+  const ready = req.body.ready === true;
+  if (ready && !(req.column.summary && blogPostNo(req.column.url))) {
+    return res.status(400).json({ error: '요약이 없거나 블로그 주소 형식이 맞지 않아 공개할 수 없습니다.' });
+  }
+  const { error } = await req.supabase.from('columns').update({ summary_ready: ready }).eq('id', req.column.id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ ready });
+});
+
 // 공개 전에도 볼 수 있는 미리보기
 router.get('/columns/:id/preview', requireLogin, loadColumn, (req, res) => {
   res.render('column-post', { ...columnPostLocals(req.column, []), preview: true });
