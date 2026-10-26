@@ -5,6 +5,7 @@ const { sortByDateDesc } = require('../lib/sort');
 const { getVisitStats } = require('../lib/analytics');
 const mailer = require('../lib/newsletter-mailer');
 const { blogPostNo } = require('../lib/columns');
+const blogImport = require('../lib/blog-import');
 const { columnPostLocals } = require('./pages');
 
 // --- Cookie options ---
@@ -216,8 +217,9 @@ router.get('/columns/:id/summary', requireLogin, loadColumn, (req, res) => {
 });
 
 router.post('/columns/:id/summary', requireLogin, loadColumn, async (req, res) => {
-  const { summary, key_points, checkpoint, published_on } = req.body;
+  const { summary, key_points, checkpoint, published_on, category } = req.body;
   const { error } = await req.supabase.from('columns').update({
+    category: ['strategy', 'patent', 'trademark'].includes(category) ? category : req.column.category,
     summary: (summary || '').trim() || null,
     key_points: (key_points || '').trim() || null,
     checkpoint: (checkpoint || '').trim() || null,
@@ -229,6 +231,51 @@ router.post('/columns/:id/summary', requireLogin, loadColumn, async (req, res) =
     return res.status(500).send(`저장하지 못했습니다: ${error.message}`);
   }
   res.redirect(`/admin/columns/${req.column.id}/summary?saved=1`);
+});
+
+// --- 블로그에서 글 가져오기 ---
+// 블로그 RSS 중 아직 칼럼에 없는 글
+router.get('/columns/blog/new', requireLogin, async (req, res) => {
+  try {
+    const [feed, { data, error }] = await Promise.all([
+      blogImport.fetchBlogFeed(),
+      req.supabase.from('columns').select('url')
+    ]);
+    if (error) throw error;
+    const have = new Set(data.map(c => blogPostNo(c.url)).filter(Boolean));
+    res.json({ posts: feed.filter(p => !have.has(p.no)) });
+  } catch (err) {
+    console.error('Blog feed error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 블로그 글 1개를 칼럼에 추가 (제목·주소·카테고리·발행일 자동 입력, 목록 맨 앞에 배치)
+router.post('/columns/blog/import', requireLogin, async (req, res) => {
+  try {
+    const no = String(req.body.no || '');
+    const post = (await blogImport.fetchBlogFeed()).find(p => p.no === no);
+    if (!post) return res.status(404).json({ error: '블로그 RSS에서 해당 글을 찾지 못했습니다.' });
+
+    const { data: existing } = await req.supabase.from('columns').select('id').eq('url', post.url).maybeSingle();
+    if (existing) return res.json({ id: existing.id });
+
+    const { data: first } = await req.supabase.from('columns')
+      .select('sort_order').order('sort_order', { ascending: true }).limit(1);
+    const { data, error } = await req.supabase.from('columns').insert({
+      title: post.title,
+      url: post.url,
+      image: '',
+      category: post.category,
+      published_on: post.published_on,
+      sort_order: first && first.length ? first[0].sort_order - 1 : 0
+    }).select('id').single();
+    if (error) throw error;
+    res.json({ id: data.id });
+  } catch (err) {
+    console.error('Blog import error:', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // 칼럼 관리 표의 체크박스: 공개 여부만 바로 저장

@@ -1,5 +1,21 @@
 <h2 class="text-xl font-bold mb-4">유니크 칼럼 관리</h2>
 
+<!-- 블로그에서 글 가져오기 -->
+<div class="bg-green-50 border border-green-200 p-4 rounded-lg mb-6">
+    <div class="flex flex-wrap items-center gap-3">
+        <button type="button" id="blog-find" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-colors">
+            <i class="fas fa-download mr-1"></i>블로그에서 글 가져오기
+        </button>
+        <span class="text-xs text-gray-600">블로그의 새 글을 찾아 제목·주소·카테고리·발행일을 채워 추가합니다. 요약이 준비되면 '검토 대기'로 바뀌고, 확인 후 체크하면 홈페이지에 게시됩니다.</span>
+    </div>
+    <div id="blog-new" class="hidden mt-4">
+        <p id="blog-new-msg" class="text-sm mb-2"></p>
+        <ul id="blog-new-list" class="text-sm space-y-1 mb-3"></ul>
+        <button type="button" id="blog-import" class="hidden bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg text-sm">선택한 글 가져오기</button>
+        <p id="blog-progress" class="text-sm mt-2"></p>
+    </div>
+</div>
+
 <!-- 추가 폼 -->
 <form action="/admin/add" method="POST" class="bg-gray-50 p-4 rounded-lg mb-6 space-y-3">
     <input type="hidden" name="type" value="column">
@@ -94,6 +110,87 @@
 </div>
 
 <script>
+// 블로그에서 글 가져오기: 새 글 찾기 → 선택한 글을 한 개씩 추가
+(function () {
+    const CATEGORY = { strategy: '전략', patent: '특허', trademark: '상표' };
+    const box = document.getElementById('blog-new');
+    const msg = document.getElementById('blog-new-msg');
+    const list = document.getElementById('blog-new-list');
+    const importBtn = document.getElementById('blog-import');
+    const progress = document.getElementById('blog-progress');
+
+    async function api(method, url, body) {
+        const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: body ? JSON.stringify(body) : undefined
+        });
+        const json = await res.json().catch(() => ({ error: '서버 응답 오류 (HTTP ' + res.status + ')' }));
+        if (!res.ok) throw new Error(json.error || '오류');
+        return json;
+    }
+
+    document.getElementById('blog-find').addEventListener('click', async () => {
+        box.classList.remove('hidden');
+        list.innerHTML = '';
+        progress.textContent = '';
+        importBtn.classList.add('hidden');
+        msg.className = 'text-sm mb-2 text-gray-600';
+        msg.textContent = '블로그 새 글을 찾는 중…';
+        try {
+            const { posts } = await api('GET', '/admin/columns/blog/new');
+            if (!posts.length) {
+                msg.textContent = '새로 가져올 글이 없습니다. 블로그의 최근 글 50개가 모두 등록되어 있습니다.';
+                return;
+            }
+            msg.textContent = '등록되지 않은 블로그 글 ' + posts.length + '개를 찾았습니다. 가져올 글을 선택하세요.';
+            posts.forEach(p => {
+                const li = document.createElement('li');
+                li.innerHTML = '<label class="inline-flex items-start gap-2"><input type="checkbox" class="js-blog-pick mt-1" checked>' +
+                    '<span><span class="text-gray-500"></span> <a target="_blank" class="text-blue-600 hover:underline"></a></span></label>';
+                li.querySelector('input').dataset.no = p.no;
+                li.querySelector('.text-gray-500').textContent = '[' + (p.published_on || '') + ' · ' + CATEGORY[p.category] + ']';
+                const a = li.querySelector('a');
+                a.href = p.url;
+                a.textContent = p.title;
+                list.appendChild(li);
+            });
+            importBtn.classList.remove('hidden');
+        } catch (err) {
+            msg.className = 'text-sm mb-2 text-red-600';
+            msg.textContent = '새 글을 찾지 못했습니다: ' + err.message;
+        }
+    });
+
+    importBtn.addEventListener('click', async () => {
+        const picks = [...document.querySelectorAll('.js-blog-pick:checked')].map(b => b.dataset.no);
+        if (!picks.length) return;
+        importBtn.disabled = true;
+        window.onbeforeunload = () => true;
+        const failed = [];
+        for (let i = 0; i < picks.length; i++) {
+            const step = (i + 1) + '/' + picks.length;
+            try {
+                progress.className = 'text-sm mt-2 text-gray-700';
+                progress.textContent = step + ' 글 추가 중…';
+                await api('POST', '/admin/columns/blog/import', { no: picks[i] });
+            } catch (err) {
+                failed.push(picks[i] + ': ' + err.message);
+            }
+        }
+        window.onbeforeunload = null;
+        if (failed.length) {
+            progress.className = 'text-sm mt-2 text-red-600';
+            progress.textContent = '일부 글을 추가하지 못했습니다: ' + failed.join(' / ');
+            importBtn.disabled = false;
+        } else {
+            location.hash = 'tab-column';
+            location.reload();
+        }
+    });
+
+})();
+
 // 홈페이지 요약 공개 체크: 체크하는 즉시 저장되고 공개(해제하면 비공개)
 document.querySelectorAll('.js-column-publish').forEach(box => {
     box.addEventListener('change', async () => {
