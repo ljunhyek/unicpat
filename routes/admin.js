@@ -416,9 +416,9 @@ router.get('/mail/campaigns/:id/opens', requireLogin, loadCampaign, async (req, 
   }
 });
 
-// 구독자 관리 화면 (발송 대상 / 수신거부 / 반송·신고 / 열어본 사람, 이름·이메일 검색)
+// 구독자 관리 화면 (발송 대상 / 수신거부 / 반송·신고 / 열어본 사람 / 안 열어본 사람, 이름·이메일 검색)
 router.get('/mail/subscribers', requireLogin, async (req, res) => {
-  const filter = ['all', 'target', 'unsent', 'unsubscribed', 'bounced', 'opened'].includes(req.query.f) ? req.query.f : 'all';
+  const filter = ['all', 'target', 'unsent', 'unsubscribed', 'bounced', 'opened', 'unopened'].includes(req.query.f) ? req.query.f : 'all';
   const field = req.query.field === 'email' ? 'email' : 'name';
   const q = String(req.query.q || '').slice(0, 100);
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);
@@ -429,7 +429,7 @@ router.get('/mail/subscribers', requireLogin, async (req, res) => {
     console.error('Subscribers page error:', err);
     res.render('admin/newsletter-subscribers', {
       title: '구독자 관리 - 관리자', filter, field, q, page,
-      counts: { total: 0, target: 0, unsent: 0, sentPeople: 0, unsubscribed: 0, bounced: 0, opened: 0 }, rows: [], count: 0, pages: 1,
+      counts: { total: 0, target: 0, unsent: 0, sentPeople: 0, unsubscribed: 0, bounced: 0, opened: 0, unopened: 0 }, rows: [], count: 0, pages: 1,
       error: `구독자 목록을 불러오지 못했습니다: ${err.message}`
     });
   }

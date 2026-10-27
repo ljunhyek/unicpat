@@ -25,7 +25,8 @@
         ['unsent', '아직 못 받은 발송 대상', counts.unsent, '곳'],
         ['unsubscribed', '수신거부', counts.unsubscribed, '곳'],
         ['bounced', '반송·스팸 신고', counts.bounced, '곳'],
-        ['opened', '열어본 사람', counts.opened, '명']
+        ['opened', '열어본 사람', counts.opened, '명'],
+        ['unopened', '받았지만 안 열어본 사람', counts.unopened, '명']
     ];
     const fmtDate = ts => ts ? new Date(ts).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', year: '2-digit', month: 'numeric', day: 'numeric' }) : '';
     const HISTORY_STATUS = { sent: '발송', pending: '대기', sending: '발송 중', failed: '실패', skipped: '제외' };
@@ -35,7 +36,7 @@
     <a href="/admin/dashboard#tab-mailing" class="text-sm text-blue-600 hover:underline"><i class="fas fa-arrow-left mr-1"></i>뉴스레터 발송으로 돌아가기</a>
     <h1 class="text-2xl font-bold mt-4">구독자 관리</h1>
 
-    <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mt-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mt-6">
         <% tabs.forEach(([f, label, n, unit]) => { %>
         <a href="<%= link({ f, page: '' }) %>" class="rounded-lg p-4 shadow-sm <%= filter === f ? 'bg-blue-600 text-white' : 'bg-white hover:bg-gray-50' %>">
             <div class="text-xs <%= filter === f ? 'text-blue-100' : 'text-gray-500' %>"><%= label %></div>
@@ -46,7 +47,7 @@
     <p class="text-xs text-gray-500 mt-2 leading-relaxed">
         발송 대상 = 수신 가능 상태인 기업인증 기업 + 홈페이지 구독 신청자. 지금까지 한 통 이상 받은 사람은 <%= counts.sentPeople.toLocaleString() %>명입니다.<br>
         반송·스팸 신고 = 없는 주소로 반송됐거나 받은 사람이 스팸 신고해 자동으로 발송 대상에서 빠진 주소(네이버·Gmail 등은 신고 정보를 알려주지 않아 일부만 잡힘).<br>
-        열어본 사람 = 보낸 뉴스레터를 한 번이라도 연 사람(열람 기록 기능 추가 이후 발송분 기준). [기록]을 누르면 회차별 발송일과 열람일을 볼 수 있습니다.
+        열어본 사람 = 보낸 뉴스레터를 한 번이라도 연 사람(열람 기록 기능 추가 이후 발송분 기준), 많이 연 순. 안 열어본 사람도 발송 대상에서 빼지 않습니다(이미지 차단 메일함은 열어도 기록되지 않음). [기록]을 누르면 회차별 발송일과 열람일을 볼 수 있습니다.
     </p>
 
     <form method="GET" class="flex flex-wrap gap-2 mt-6">
@@ -110,6 +111,8 @@
                         <% if (r.stats && r.stats.openedCampaigns) { %>
                             <div>최근 <%= fmt(r.stats.lastOpenedAt) %></div>
                             <div class="text-gray-400"><%= r.stats.openedCampaigns %>회차 · <%= r.stats.opens %>번</div>
+                        <% } else if (r.stats) { %>
+                            <span class="text-gray-400">미열람</span>
                         <% } %>
                         <% if (r.history.length) { %>
                             <button type="button" class="js-history text-blue-600 hover:underline mt-1" data-id="<%= r.id %>">기록</button>
