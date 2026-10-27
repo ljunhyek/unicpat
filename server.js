@@ -11,6 +11,7 @@ dotenv.config();
 const pageRoutes = require('./routes/pages');
 const adminRoutes = require('./routes/admin');
 const cronRoutes = require('./routes/cron');
+const webhookRoutes = require('./routes/webhooks');
 const { trackPageView } = require('./lib/analytics');
 
 const app = express();
@@ -31,6 +32,9 @@ app.use((req, res, next) => {
 
 // 정적 파일 (CSS, JS, 이미지)을 제공하기 위한 미들웨어
 app.use(express.static(path.join(__dirname, 'public')));
+
+// 외부 서비스 웹훅 — 서명 확인에 본문 원본이 필요하므로 본문 파싱 미들웨어보다 먼저 연결
+app.use('/api/webhooks', webhookRoutes);
 
 // URL-encoded 본문을 파싱하기 위한 미들웨어
 app.use(express.urlencoded({ extended: true }));
