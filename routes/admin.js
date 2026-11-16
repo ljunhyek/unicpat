@@ -9,6 +9,7 @@ const { columnPostLocals, loadNewsletters } = require('./pages');
 const { parseNewsletterHtml, toSendHtml } = require('../lib/newsletter-import');
 const crypto = require('crypto');
 const { analyzeSubscribers } = require('../lib/subscriber-analysis');
+const { planTrim, applyTrim, restorePaused } = require('../lib/subscriber-trim');
 
 // --- Cookie options ---
 const COOKIE_OPTS = {
@@ -479,9 +480,54 @@ router.get('/mail/subscribers/analysis', requireLogin, async (req, res) => {
   }
 });
 
+// 발송 대상 정리: 목표 인원만 남기고 나머지는 보류 (미리보기 → 적용)
+function trimTarget(value) {
+  const n = parseInt(value, 10);
+  return n >= 100 && n <= 100000 ? n : 1500;
+}
+
+router.get('/mail/subscribers/trim', requireLogin, async (req, res) => {
+  const target = trimTarget(req.query.target);
+  try {
+    const [plan, paused] = await Promise.all([
+      planTrim(req.supabase, target),
+      req.supabase.from('newsletter_subscribers').select('id', { count: 'exact', head: true }).eq('status', 'paused')
+    ]);
+    res.render('admin/newsletter-trim', {
+      title: '발송 대상 정리 - 관리자', plan, pausedCount: paused.count || 0, done: req.query.done || null, error: null
+    });
+  } catch (err) {
+    console.error('Trim plan error:', err);
+    res.render('admin/newsletter-trim', {
+      title: '발송 대상 정리 - 관리자', plan: null, pausedCount: 0, done: null, error: err.message || String(err)
+    });
+  }
+});
+
+router.post('/mail/subscribers/trim', requireLogin, async (req, res) => {
+  const target = trimTarget(req.body.target);
+  try {
+    const plan = await applyTrim(req.supabase, target);
+    res.redirect(`/admin/mail/subscribers/trim?target=${target}&done=paused-${plan.pauseIds.length}`);
+  } catch (err) {
+    console.error('Trim apply error:', err);
+    res.status(500).send(`정리하지 못했습니다: ${err.message}. supabase/newsletter_paused.sql을 실행했는지 확인하세요.`);
+  }
+});
+
+router.post('/mail/subscribers/restore-paused', requireLogin, async (req, res) => {
+  try {
+    const n = await restorePaused(req.supabase);
+    res.redirect(`/admin/mail/subscribers/trim?done=restored-${n}`);
+  } catch (err) {
+    console.error('Restore paused error:', err);
+    res.status(500).send(`되돌리지 못했습니다: ${err.message}`);
+  }
+});
+
 // 구독자 관리 화면 (발송 대상 / 수신거부 / 반송·신고 / 열어본 사람 / 안 열어본 사람, 이름·이메일 검색)
 router.get('/mail/subscribers', requireLogin, async (req, res) => {
-  const filter = ['all', 'target', 'unsent', 'unsubscribed', 'bounced', 'opened', 'unopened'].includes(req.query.f) ? req.query.f : 'all';
+  const filter = ['all', 'target', 'unsent', 'unsubscribed', 'bounced', 'paused', 'opened', 'unopened'].includes(req.query.f) ? req.query.f : 'all';
   const field = req.query.field === 'email' ? 'email' : 'name';
   const q = String(req.query.q || '').slice(0, 100);
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);
@@ -492,7 +538,7 @@ router.get('/mail/subscribers', requireLogin, async (req, res) => {
     console.error('Subscribers page error:', err);
     res.render('admin/newsletter-subscribers', {
       title: '구독자 관리 - 관리자', filter, field, q, page,
-      counts: { total: 0, target: 0, unsent: 0, sentPeople: 0, unsubscribed: 0, bounced: 0, opened: 0, unopened: 0 }, rows: [], count: 0, pages: 1,
+      counts: { total: 0, target: 0, unsent: 0, sentPeople: 0, unsubscribed: 0, bounced: 0, paused: 0, opened: 0, unopened: 0 }, rows: [], count: 0, pages: 1,
       error: `구독자 목록을 불러오지 못했습니다: ${err.message}`
     });
   }

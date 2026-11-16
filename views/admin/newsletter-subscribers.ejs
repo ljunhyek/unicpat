@@ -25,21 +25,25 @@
         ['unsent', '아직 못 받은 발송 대상', counts.unsent, '곳'],
         ['unsubscribed', '수신거부', counts.unsubscribed, '곳'],
         ['bounced', '반송·스팸 신고', counts.bounced, '곳'],
+        ['paused', '보류', counts.paused, '곳'],
         ['opened', '열어본 사람', counts.opened, '명'],
         ['unopened', '받았지만 안 열어본 사람', counts.unopened, '명']
     ];
     const fmtDate = ts => ts ? new Date(ts).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', year: '2-digit', month: 'numeric', day: 'numeric' }) : '';
     const HISTORY_STATUS = { sent: '발송', pending: '대기', sending: '발송 중', failed: '실패', skipped: '제외' };
-    const STATUS = { active: ['수신 가능', 'bg-green-100 text-green-700'], unsubscribed: ['수신거부', 'bg-red-100 text-red-700'], bounced: ['반송', 'bg-yellow-100 text-yellow-700'], complained: ['스팸 신고', 'bg-red-100 text-red-700'] };
+    const STATUS = { active: ['수신 가능', 'bg-green-100 text-green-700'], unsubscribed: ['수신거부', 'bg-red-100 text-red-700'], bounced: ['반송', 'bg-yellow-100 text-yellow-700'], complained: ['스팸 신고', 'bg-red-100 text-red-700'], paused: ['보류', 'bg-gray-100 text-gray-600'] };
 %>
 <div class="max-w-6xl mx-auto px-4 py-8">
     <a href="/admin/dashboard#tab-mailing" class="text-sm text-blue-600 hover:underline"><i class="fas fa-arrow-left mr-1"></i>뉴스레터 발송으로 돌아가기</a>
     <div class="flex items-center justify-between mt-4">
         <h1 class="text-2xl font-bold">구독자 관리</h1>
-        <a href="/admin/mail/subscribers/analysis" class="bg-white border hover:bg-gray-50 rounded-lg px-3 py-2 text-sm"><i class="fas fa-chart-bar mr-1"></i>현황 분석</a>
+        <div class="flex gap-2">
+            <a href="/admin/mail/subscribers/analysis" class="bg-white border hover:bg-gray-50 rounded-lg px-3 py-2 text-sm"><i class="fas fa-chart-bar mr-1"></i>현황 분석</a>
+            <a href="/admin/mail/subscribers/trim" class="bg-white border hover:bg-gray-50 rounded-lg px-3 py-2 text-sm"><i class="fas fa-filter mr-1"></i>발송 대상 정리</a>
+        </div>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mt-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mt-6">
         <% tabs.forEach(([f, label, n, unit]) => { %>
         <a href="<%= link({ f, page: '' }) %>" class="rounded-lg p-4 shadow-sm <%= filter === f ? 'bg-blue-600 text-white' : 'bg-white hover:bg-gray-50' %>">
             <div class="text-xs <%= filter === f ? 'text-blue-100' : 'text-gray-500' %>"><%= label %></div>

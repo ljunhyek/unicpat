@@ -79,8 +79,8 @@
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">발송 대상</label>
             <select name="target" class="w-full border rounded-lg px-3 py-2 text-sm">
-                <option value="certified">기업인증 기업 + 구독 신청자 (<%= mailing.subscribers.certified %>곳)</option>
-                <option value="all">수신 가능 전체 (<%= mailing.subscribers.active %>곳)</option>
+                <option value="all">수신 가능 전체 · 보류 제외 (<%= mailing.subscribers.active %>곳)</option>
+                <option value="certified">기업인증 기업 + 구독 신청자만 (<%= mailing.subscribers.certified %>곳)</option>
             </select>
         </div>
     </div>
