@@ -8,6 +8,7 @@ const blogImport = require('../lib/blog-import');
 const { columnPostLocals, loadNewsletters } = require('./pages');
 const { parseNewsletterHtml, toSendHtml } = require('../lib/newsletter-import');
 const crypto = require('crypto');
+const { analyzeSubscribers } = require('../lib/subscriber-analysis');
 
 // --- Cookie options ---
 const COOKIE_OPTS = {
@@ -460,6 +461,20 @@ router.get('/mail/campaigns/:id/opens', requireLogin, loadCampaign, async (req, 
     res.render('admin/newsletter-opens', {
       title: '열람 현황 - 관리자', campaign: req.campaign, total: 0, opened: 0, filter: 'all', rows: [],
       error: '열람 기록을 불러오지 못했습니다. Supabase SQL Editor에서 newsletter_mailing.sql의 "열람 확인" 부분을 실행했는지 확인하세요.'
+    });
+  }
+});
+
+// 구독자 현황 분석 (업종·기업인증·지역·규모·열람 여부별 인원, 발송 대상 정리용)
+router.get('/mail/subscribers/analysis', requireLogin, async (req, res) => {
+  try {
+    const result = await analyzeSubscribers(req.supabase);
+    res.render('admin/newsletter-analysis', { title: '구독자 현황 분석 - 관리자', ...result, error: null });
+  } catch (err) {
+    console.error('Subscriber analysis error:', err);
+    res.render('admin/newsletter-analysis', {
+      title: '구독자 현황 분석 - 관리자', total: 0, statusCounts: {}, activeCount: 0, openedCount: 0,
+      duplicateExtra: 0, duplicateCompanies: 0, sections: [], error: err.message || String(err)
     });
   }
 });

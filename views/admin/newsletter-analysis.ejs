@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Noto Sans KR', sans-serif; }</style>
+</head>
+<body class="bg-gray-100">
+<%
+    const num = n => Number(n || 0).toLocaleString();
+    const pct = (a, b) => b ? Math.round(a / b * 100) + '%' : '-';
+%>
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <a href="/admin/mail/subscribers" class="text-sm text-blue-600 hover:underline"><i class="fas fa-arrow-left mr-1"></i>구독자 관리로 돌아가기</a>
+    <h1 class="text-2xl font-bold mt-4">구독자 현황 분석</h1>
+    <p class="text-sm text-gray-500 mt-1">발송 대상을 정리하기 위한 현황입니다. 아래 표는 모두 <b>수신 가능한 주소</b>만 집계합니다. '열어봄'은 지금까지 보낸 회차 중 하나라도 열어 본 사람입니다.</p>
+
+    <% if (error) { %>
+        <div class="bg-red-50 text-red-700 rounded-lg p-4 mt-6 text-sm">현황을 불러오지 못했습니다: <%= error %></div>
+    <% } %>
+
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mt-6">
+        <div class="bg-white rounded-lg shadow p-4"><div class="text-xs text-gray-500">전체 주소</div><div class="text-2xl font-bold"><%= num(total) %></div></div>
+        <div class="bg-white rounded-lg shadow p-4"><div class="text-xs text-gray-500">수신 가능</div><div class="text-2xl font-bold text-blue-700"><%= num(activeCount) %></div></div>
+        <div class="bg-white rounded-lg shadow p-4"><div class="text-xs text-gray-500">수신 가능 중 열어본 사람</div><div class="text-2xl font-bold text-green-700"><%= num(openedCount) %></div></div>
+        <div class="bg-white rounded-lg shadow p-4"><div class="text-xs text-gray-500">수신거부 · 반송 · 스팸 신고</div><div class="text-2xl font-bold"><%= num(statusCounts.unsubscribed) %> · <%= num(statusCounts.bounced) %> · <%= num(statusCounts.complained) %></div></div>
+        <div class="bg-white rounded-lg shadow p-4"><div class="text-xs text-gray-500">같은 회사 중복 주소</div><div class="text-2xl font-bold"><%= num(duplicateExtra) %></div><div class="text-xs text-gray-400"><%= num(duplicateCompanies) %>개 회사에 2개 이상</div></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        <% sections.forEach(section => { %>
+        <div class="bg-white rounded-lg shadow p-5">
+            <h2 class="font-bold mb-3"><%= section.title %></h2>
+            <table class="w-full text-sm">
+                <thead class="text-xs text-gray-500 border-b">
+                    <tr><th class="text-left py-2">구분</th><th class="text-right py-2">인원</th><th class="text-right py-2">비율</th><th class="text-right py-2">열어봄</th></tr>
+                </thead>
+                <tbody class="divide-y">
+                    <% section.rows.forEach(r => { %>
+                    <tr class="<%= r.other ? 'text-gray-400' : '' %>">
+                        <td class="py-2 pr-2">
+                            <div><%= r.label %></div>
+                            <div class="h-1.5 bg-gray-100 rounded mt-1"><div class="h-1.5 bg-blue-400 rounded" style="width: <%= activeCount ? Math.min(100, r.count / activeCount * 100) : 0 %>%"></div></div>
+                        </td>
+                        <td class="py-2 text-right whitespace-nowrap"><%= num(r.count) %></td>
+                        <td class="py-2 text-right whitespace-nowrap text-gray-500"><%= pct(r.count, activeCount) %></td>
+                        <td class="py-2 text-right whitespace-nowrap text-green-700"><%= num(r.opened) %></td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+        <% }) %>
+    </div>
+</div>
+</body>
+</html>

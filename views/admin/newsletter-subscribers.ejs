@@ -34,7 +34,10 @@
 %>
 <div class="max-w-6xl mx-auto px-4 py-8">
     <a href="/admin/dashboard#tab-mailing" class="text-sm text-blue-600 hover:underline"><i class="fas fa-arrow-left mr-1"></i>뉴스레터 발송으로 돌아가기</a>
-    <h1 class="text-2xl font-bold mt-4">구독자 관리</h1>
+    <div class="flex items-center justify-between mt-4">
+        <h1 class="text-2xl font-bold">구독자 관리</h1>
+        <a href="/admin/mail/subscribers/analysis" class="bg-white border hover:bg-gray-50 rounded-lg px-3 py-2 text-sm"><i class="fas fa-chart-bar mr-1"></i>현황 분석</a>
+    </div>
 
     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mt-6">
         <% tabs.forEach(([f, label, n, unit]) => { %>
