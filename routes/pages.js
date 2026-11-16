@@ -5,6 +5,7 @@ const { translatePostTitles } = require('../lib/translate');
 const { sortByDateDesc, currentByDeadline } = require('../lib/sort');
 const { UUID_RE, TEST_TOKEN, archiveHtml, sendSignupNotice } = require('../lib/newsletter-mailer');
 const { withColumnLinks, CATEGORY_NAMES, CATEGORY_NAMES_EN } = require('../lib/columns');
+const { dataImages } = require('../lib/newsletter-import');
 
 const supabase = createAnonClient();
 
@@ -161,6 +162,16 @@ router.get('/newsletter/:id(\\d+)', async (req, res, next) => {
     const item = data && data[0];
     if (!item) return next();
     sendNewsletterHtml(res, item.subject, item.html);
+});
+
+// HTML로 올린 뉴스레터 안의 이미지 (발송용 HTML에서 이 주소로 연결)
+router.get('/newsletter/:id/img/:n(\\d+)', async (req, res, next) => {
+    if (!UUID_RE.test(req.params.id)) return next();
+    const { data } = await supabase.from('newsletters').select('html').eq('id', req.params.id).maybeSingle();
+    const image = data && dataImages(data.html)[Number(req.params.n)];
+    if (!image) return next();
+    res.set('Cache-Control', 'public, max-age=31536000, immutable');
+    res.type(image.mime).send(Buffer.from(image.base64, 'base64'));
 });
 
 // 관리자 화면에서 HTML로 올린 뉴스레터 본문

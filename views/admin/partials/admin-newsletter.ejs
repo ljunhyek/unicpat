@@ -73,7 +73,7 @@
             <tr>
                 <th class="px-4 py-3">제목</th>
                 <th class="px-4 py-3">발행일</th>
-                <th class="px-4 py-3 text-center">삭제</th>
+                <th class="px-4 py-3 text-center">발송 / 삭제</th>
             </tr>
         </thead>
         <tbody class="divide-y">
@@ -88,6 +88,14 @@
                             <% if (nl.sent) { %>
                             <span class="text-xs text-gray-400" title="뉴스레터 발송 탭에서 보낸 회차입니다">발송 회차</span>
                             <% } else { %>
+                            <% if (String(nl.link || '').startsWith('/newsletter/')) { %>
+                            <form action="/admin/newsletter/<%= nl.id %>/to-campaign" method="POST" class="inline mr-3"
+                                  onsubmit="return confirm('이 뉴스레터로 발송 회차를 만들까요? 뉴스레터 발송 탭에 발송 전 상태로 추가됩니다.')">
+                                <button type="submit" class="text-blue-600 hover:text-blue-800" title="발송용 HTML로 바꿔 발송 회차 만들기">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </form>
+                            <% } %>
                             <form action="/admin/delete" method="POST" class="inline"
                                   onsubmit="return confirm('정말 삭제하시겠습니까?')">
                                 <input type="hidden" name="type" value="newsletter">

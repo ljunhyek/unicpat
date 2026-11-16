@@ -6,7 +6,7 @@ const mailer = require('../lib/newsletter-mailer');
 const { blogPostNo } = require('../lib/columns');
 const blogImport = require('../lib/blog-import');
 const { columnPostLocals, loadNewsletters } = require('./pages');
-const { parseNewsletterHtml } = require('../lib/newsletter-import');
+const { parseNewsletterHtml, toSendHtml } = require('../lib/newsletter-import');
 const crypto = require('crypto');
 
 // --- Cookie options ---
@@ -328,6 +328,24 @@ async function loadCampaign(req, res, next) {
   req.campaign = data;
   next();
 }
+
+// 뉴스레터 관리에 올린 HTML로 발송 회차 만들기
+// 파일 안에 들어 있는 이미지는 홈페이지 주소(/newsletter/<id>/img/<번호>)로 바꿔 발송용 HTML로 저장
+router.post('/newsletter/:id/to-campaign', requireLogin, async (req, res) => {
+  const { data: nl, error } = await req.supabase.from('newsletters').select('id, title, html').eq('id', req.params.id).maybeSingle();
+  if (error || !nl || !nl.html) {
+    if (error) console.error('Newsletter to campaign error:', error);
+    return res.redirect('/admin/dashboard#tab-newsletter');
+  }
+  const html = toSendHtml(nl.html, n => `${mailer.siteUrl()}/newsletter/${nl.id}/img/${n}`);
+  const { error: insertError } = await req.supabase.from('newsletter_campaigns').insert({
+    subject: nl.title,
+    html,
+    target: 'certified'
+  });
+  if (insertError) console.error('Campaign create error:', insertError);
+  res.redirect(MAIL_TAB);
+});
 
 router.post('/mail/campaigns', requireLogin, async (req, res) => {
   const { html, target } = req.body;
