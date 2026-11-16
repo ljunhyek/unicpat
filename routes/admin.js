@@ -329,11 +329,6 @@ async function loadCampaign(req, res, next) {
   next();
 }
 
-// 뉴스레터 HTML에서 제목·발행일 읽기 (관리자 화면에서 파일을 고를 때 입력칸 자동 채움)
-router.post('/newsletter/parse', requireLogin, (req, res) => {
-  res.json(parseNewsletterHtml(req.body.html));
-});
-
 router.post('/mail/campaigns', requireLogin, async (req, res) => {
   const { html, target } = req.body;
   // 제목을 비워 두면 HTML에서 읽은 제목을 사용

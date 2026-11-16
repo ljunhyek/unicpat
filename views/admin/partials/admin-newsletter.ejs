@@ -29,21 +29,13 @@
     </button>
 </form>
 <script>
+    <%- include('../../../lib/newsletter-import.js') %>
+
     // 관리자 화면 공용: HTML에서 읽은 제목·발행일로 입력칸 채우기 (발송 탭에서도 사용)
-    window.fillFromHtml = async function (html, fields) {
-        try {
-            const res = await fetch('/admin/newsletter/parse', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ html })
-            });
-            if (!res.ok) return;
-            const parsed = await res.json();
-            if (fields.title && parsed.title) fields.title.value = parsed.title;
-            if (fields.date && parsed.date) fields.date.value = parsed.date;
-        } catch (err) {
-            console.error('Newsletter parse error:', err);
-        }
+    window.fillFromHtml = function (html, fields) {
+        const parsed = parseNewsletterHtml(html);
+        if (fields.title && parsed.title) fields.title.value = parsed.title;
+        if (fields.date && parsed.date) fields.date.value = parsed.date;
     };
 
     document.getElementById('newsletter-file').addEventListener('change', async (e) => {
