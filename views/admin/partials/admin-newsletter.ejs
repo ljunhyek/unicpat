@@ -12,13 +12,13 @@
         </div>
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">제목 (비워 두면 자동)</label>
-            <input type="text" name="title"
+            <input type="text" name="title" id="newsletter-title"
                    class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   placeholder="HTML에서 자동으로 읽어 옵니다">
+                   placeholder="파일을 고르면 자동으로 채워집니다">
         </div>
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">발행일 (비워 두면 자동)</label>
-            <input type="text" name="date"
+            <input type="text" name="date" id="newsletter-date"
                    class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                    placeholder="2026.11.16">
         </div>
@@ -29,6 +29,36 @@
     </button>
 </form>
 <script>
+    // 관리자 화면 공용: HTML에서 읽은 제목·발행일로 입력칸 채우기 (발송 탭에서도 사용)
+    window.fillFromHtml = async function (html, fields) {
+        try {
+            const res = await fetch('/admin/newsletter/parse', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ html })
+            });
+            if (!res.ok) return;
+            const parsed = await res.json();
+            if (fields.title && parsed.title) fields.title.value = parsed.title;
+            if (fields.date && parsed.date) fields.date.value = parsed.date;
+        } catch (err) {
+            console.error('Newsletter parse error:', err);
+        }
+    };
+
+    document.getElementById('newsletter-file').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 3 * 1024 * 1024) {
+            alert('HTML 파일이 너무 큽니다(3MB 이하). 이미지를 파일에 넣지 말고 인터넷 주소로 연결해 주세요.');
+            e.target.value = '';
+            return;
+        }
+        const html = await file.text();
+        document.getElementById('newsletter-html').value = html;
+        fillFromHtml(html, { title: document.getElementById('newsletter-title'), date: document.getElementById('newsletter-date') });
+    });
+
     document.getElementById('newsletter-upload-form').addEventListener('submit', async (e) => {
         const textarea = document.getElementById('newsletter-html');
         if (textarea.value) return;

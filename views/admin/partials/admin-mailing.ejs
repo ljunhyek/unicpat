@@ -71,8 +71,8 @@
     <h3 class="font-semibold">새 발송 만들기</h3>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-1">메일 제목 * <span class="text-gray-400 font-normal">(발송 시 앞에 '(광고)'가 자동으로 붙습니다)</span></label>
-            <input type="text" name="subject" required
+            <label class="block text-sm font-medium text-gray-700 mb-1">메일 제목 <span class="text-gray-400 font-normal">(HTML 파일을 고르면 자동으로 채워집니다. 발송 시 앞에 '(광고)'가 자동으로 붙습니다)</span></label>
+            <input type="text" name="subject" id="mail-subject"
                    class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                    placeholder="[유니크 특허 인사이트 · 10월] 부품만 팔아도 특허침해일까요?">
         </div>
@@ -232,6 +232,7 @@
                 return;
             }
             document.getElementById('mail-html').value = html;
+            fillFromHtml(html, { title: document.getElementById('mail-subject') });
             if (/src=["']cid:/i.test(html)) {
                 alert('이 HTML에는 cid: 이미지가 있어 메일에 이미지가 표시되지 않습니다. 이미지 주소를 https:// 주소로 바꾼 파일을 사용하세요.');
             }
