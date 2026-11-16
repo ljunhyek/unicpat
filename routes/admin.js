@@ -343,7 +343,7 @@ router.post('/newsletter/:id/to-campaign', requireLogin, async (req, res) => {
   const { error: insertError } = await req.supabase.from('newsletter_campaigns').insert({
     subject: nl.title,
     html,
-    target: 'certified'
+    target: 'all'
   });
   if (insertError) console.error('Campaign create error:', insertError);
   res.redirect(MAIL_TAB);
@@ -360,6 +360,16 @@ router.post('/mail/campaigns', requireLogin, async (req, res) => {
       target: target === 'all' ? 'all' : 'certified'
     });
     if (error) console.error('Campaign create error:', error);
+  }
+  res.redirect(MAIL_TAB);
+});
+
+// 발송 전 회차의 발송 대상 변경 (all: 수신 가능 전체·보류 제외 / certified: 기업인증 기업 + 구독 신청자)
+router.post('/mail/campaigns/:id/target', requireLogin, loadCampaign, async (req, res) => {
+  if (req.campaign.status === 'draft') {
+    const target = req.body.target === 'certified' ? 'certified' : 'all';
+    const { error } = await req.supabase.from('newsletter_campaigns').update({ target }).eq('id', req.campaign.id);
+    if (error) console.error('Campaign target error:', error);
   }
   res.redirect(MAIL_TAB);
 });

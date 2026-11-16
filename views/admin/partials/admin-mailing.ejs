@@ -126,7 +126,19 @@
                             <% if (c.finished_at) { %> · <%= new Date(c.finished_at).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }) %> 완료<% } %>
                         </div>
                     </td>
-                    <td class="px-4 py-3 whitespace-nowrap"><%= c.target === 'all' ? '전체' : '기업인증' %></td>
+                    <td class="px-4 py-3 whitespace-nowrap">
+                        <% if (c.status === 'draft') { %>
+                        <%# 발송 전 회차는 대상을 바꿀 수 있음 %>
+                        <form action="/admin/mail/campaigns/<%= c.id %>/target" method="POST">
+                            <select name="target" onchange="this.form.submit()" class="border rounded px-1 py-0.5 text-xs">
+                                <option value="all" <%= c.target === 'all' ? 'selected' : '' %>>전체 · 보류 제외 (<%= mailing.subscribers.active %>곳)</option>
+                                <option value="certified" <%= c.target === 'certified' ? 'selected' : '' %>>기업인증만 (<%= mailing.subscribers.certified %>곳)</option>
+                            </select>
+                        </form>
+                        <% } else { %>
+                        <%= c.target === 'all' ? '전체' : '기업인증' %>
+                        <% } %>
+                    </td>
                     <td class="px-4 py-3 w-64">
                         <% if (c.status === 'draft') { %>
                             <span class="js-status text-gray-500">발송 전</span>
