@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const { createAnonClient, createAuthenticatedClient } = require('../lib/supabase');
-const { sortByDateDesc } = require('../lib/sort');
 const { getVisitStats } = require('../lib/analytics');
 const mailer = require('../lib/newsletter-mailer');
 const { blogPostNo } = require('../lib/columns');
 const blogImport = require('../lib/blog-import');
-const { columnPostLocals } = require('./pages');
+const { columnPostLocals, loadNewsletters } = require('./pages');
+const { parseNewsletterHtml } = require('../lib/newsletter-import');
+const crypto = require('crypto');
 
 // --- Cookie options ---
 const COOKIE_OPTS = {
@@ -97,7 +98,7 @@ router.get('/dashboard', requireLogin, async (req, res) => {
     const days = [7, 30, 90].includes(Number(req.query.days)) ? Number(req.query.days) : 30;
     const [colRes, nlRes, typesRes, projRes, stats, mailing] = await Promise.all([
       supabase.from('columns').select('*').order('sort_order'),
-      supabase.from('newsletters').select('*'),
+      loadNewsletters(),
       supabase.from('gov_support_types').select('*').order('created_at', { ascending: false }),
       supabase.from('gov_projects').select('*').order('created_at', { ascending: false }),
       getVisitStats(supabase, days).catch(err => {
@@ -113,7 +114,7 @@ router.get('/dashboard', requireLogin, async (req, res) => {
     res.render('admin/dashboard', {
       title: '관리자 대시보드',
       posts: colRes.data || [],
-      newsletters: sortByDateDesc(nlRes.data || []),
+      newsletters: nlRes,
       programTypes: typesRes.data || [],
       govProjects: projRes.data || [],
       stats,
@@ -153,9 +154,22 @@ router.post('/add', requireLogin, async (req, res) => {
         });
         break;
       }
-      case 'newsletter':
-        await supabase.from('newsletters').insert({ title, link: url, date });
+      case 'newsletter': {
+        // 다른 곳에서 만든 뉴스레터 HTML 파일을 올리면 제목·발행일을 읽어 목록에 추가 (직접 입력하면 그 값을 사용)
+        const html = String(req.body.html || '');
+        if (!html.trim()) break;
+        const parsed = parseNewsletterHtml(html);
+        const id = crypto.randomUUID();
+        const { error } = await supabase.from('newsletters').insert({
+          id,
+          title: (title || '').trim() || parsed.title || '유니크 뉴스레터',
+          date: (date || '').trim() || parsed.date,
+          link: `/newsletter/${id}`,
+          html
+        });
+        if (error) console.error('Newsletter upload error:', error);
         break;
+      }
       case 'govProject':
         await supabase.from('gov_projects').insert({ title, period, url });
         break;

@@ -37,8 +37,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/webhooks', webhookRoutes);
 
 // URL-encoded 본문을 파싱하기 위한 미들웨어
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.urlencoded({ extended: true, limit: '4mb' })); // 뉴스레터 HTML 업로드
+app.use(express.json({ limit: '4mb' }));
 
 // Signed cookie 미들웨어
 app.use(cookieParser(process.env.COOKIE_SECRET || 'default-cookie-secret'));

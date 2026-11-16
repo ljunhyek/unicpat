@@ -13,19 +13,30 @@ function kstDate(ts) {
     return new Date(new Date(ts).getTime() + 9 * 3600 * 1000).toISOString().slice(0, 10).replace(/-/g, '.');
 }
 
-// 직접 등록한 뉴스레터(스티비 링크) + 관리자 메뉴에서 발송한 뉴스레터
+// 직접 등록한 뉴스레터(HTML 업로드, 예전 스티비 링크) + 관리자 메뉴에서 발송한 뉴스레터
+// 관리자 화면에서도 같은 목록을 쓰며, sent 항목은 발송 기록이라 목록에서 삭제하지 않음
 async function loadNewsletters() {
     const [nlRes, archiveRes] = await Promise.all([
-        supabase.from('newsletters').select('*'),
+        supabase.from('newsletters').select('id, title, link, date'),
         supabase.rpc('newsletter_archive_list')
     ]);
+    if (nlRes.error) console.error('Newsletter list error:', nlRes.error.message);
     if (archiveRes.error) console.error('Newsletter archive error:', archiveRes.error.message);
     const sent = (archiveRes.data || []).map(c => ({
         title: c.subject,
         link: `/newsletter/${c.id}`,
-        date: kstDate(c.sent_on)
+        date: kstDate(c.sent_on),
+        sent: true
     }));
     return sortByDateDesc([...(nlRes.data || []), ...sent]);
+}
+
+// 메일 HTML을 그대로 표시 (조각 HTML이면 문서 머리말을 붙임)
+function sendNewsletterHtml(res, subject, html) {
+    const body = archiveHtml(html);
+    if (/<html[\s>]/i.test(body)) return res.type('html').send(body);
+    const title = subject.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    res.type('html').send(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title} | 유니크 뉴스레터</title>${body}`);
 }
 
 // 홈페이지
@@ -127,6 +138,7 @@ function columnPostLocals(post, related, lang) {
     };
 }
 router.columnPostLocals = columnPostLocals;
+router.loadNewsletters = loadNewsletters;
 
 // 뉴스레터 페이지
 router.get('/newsletter', async (req, res) => {
@@ -148,8 +160,16 @@ router.get('/newsletter/:id(\\d+)', async (req, res, next) => {
     if (error) console.error('Newsletter archive error:', error.message);
     const item = data && data[0];
     if (!item) return next();
-    const title = item.subject.replace(/&/g, '&amp;').replace(/</g, '&lt;');
-    res.type('html').send(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title} | 유니크 뉴스레터</title>${archiveHtml(item.html)}`);
+    sendNewsletterHtml(res, item.subject, item.html);
+});
+
+// 관리자 화면에서 HTML로 올린 뉴스레터 본문
+router.get('/newsletter/:id', async (req, res, next) => {
+    if (!UUID_RE.test(req.params.id)) return next();
+    const { data, error } = await supabase.from('newsletters').select('title, html').eq('id', req.params.id).maybeSingle();
+    if (error) console.error('Newsletter page error:', error.message);
+    if (!data || !data.html) return next();
+    sendNewsletterHtml(res, data.title, data.html);
 });
 
 // 정부지원사업 페이지
