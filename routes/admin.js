@@ -391,6 +391,20 @@ router.post('/mail/campaigns/:id/test', requireLogin, loadCampaign, async (req, 
 
 router.post('/mail/campaigns/:id/send-batch', requireLogin, loadCampaign, async (req, res) => {
   const campaign = req.campaign;
+  // 14시 이후(또는 야간)에 처음 시작하면 수신자만 준비해 두고 다음 날 오전 10시 자동 발송부터 보냄
+  if (campaign.status === 'draft' && mailer.startsTomorrow()) {
+    try {
+      await mailer.prepareRecipients(req.supabase, campaign);
+      await req.supabase.from('newsletter_campaigns')
+        .update({ status: 'sending', started_at: new Date().toISOString() })
+        .eq('id', campaign.id);
+      const counts = await mailer.getCounts(req.supabase, campaign.id);
+      return res.json({ counts, scheduled: true });
+    } catch (err) {
+      console.error('Schedule campaign error:', err);
+      return res.status(500).json({ error: err.message || String(err) });
+    }
+  }
   if (mailer.isQuietHours()) {
     return res.status(400).json({ error: '광고성 메일은 21시~다음날 8시에 보낼 수 없습니다 (정보통신망법). 8시 이후에 이어서 발송하세요.' });
   }

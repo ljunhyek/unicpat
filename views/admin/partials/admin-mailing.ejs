@@ -268,8 +268,11 @@
     document.querySelectorAll('.js-send').forEach(btn => {
         btn.addEventListener('click', async () => {
             const row = btn.closest('tr');
+            const kstHour = new Date(Date.now() + 9 * 3600 * 1000).getUTCHours();
             const msg = btn.dataset.draft === 'true'
-                ? '약 ' + btn.dataset.count + '곳에 실제로 발송합니다. 시작할까요?\n\n발송 중에는 이 창을 닫지 마세요. 닫혀도 [이어서 발송]으로 계속할 수 있습니다.'
+                ? (kstHour >= 14 || kstHour < 8
+                    ? '약 ' + btn.dataset.count + '곳에 발송을 예약합니다.\n\n오후 2시가 지나 오늘은 보내지 않고, 내일 오전 10시부터 하루 97통씩 자동으로 발송합니다. 예약할까요?'
+                    : '약 ' + btn.dataset.count + '곳에 실제로 발송합니다. 시작할까요?\n\n발송 중에는 이 창을 닫지 마세요. 닫혀도 [이어서 발송]으로 계속할 수 있습니다.')
                 : '남은 수신자에게 이어서 발송할까요?';
             if (!confirm(msg)) return;
 
@@ -279,7 +282,14 @@
             window.onbeforeunload = () => true;
             try {
                 while (true) {
-                    const { counts } = await post('/admin/mail/campaigns/' + btn.dataset.id + '/send-batch');
+                    const { counts, scheduled } = await post('/admin/mail/campaigns/' + btn.dataset.id + '/send-batch');
+                    if (scheduled) {
+                        // 14시 이후 시작: 오늘은 보내지 않고 내일 오전 10시 자동 발송부터 시작
+                        render(row, counts, false);
+                        row.querySelector('.js-status').textContent = '발송 예약 (내일 오전 10시부터 자동)';
+                        btn.remove();
+                        break;
+                    }
                     if (render(row, counts, true)) break;
                     await new Promise(r => setTimeout(r, 1000));
                 }
