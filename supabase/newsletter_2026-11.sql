@@ -3,7 +3,7 @@
 -- 이미지: public/newsletter/2026-11/ (hero는 10월 도식 재사용) — 배포 후에 메일에 표시됩니다.
 
 insert into public.newsletter_campaigns (subject, target, html) values (
-$$[유니크 특허 인사이트 · 11월] 우선심사·가출원·우선권, 무엇이 다를까요?$$,
+$$[유니크 특허 인사이트 · 11월] 출원, 사용, 등록. 권리를 지키는 세 가지 점검.$$,
 'certified',
 $$<div style="display:none;max-height:0;overflow:hidden;font-size:0;line-height:0;">출원 제도의 선택, 상표 사용증거의 관리, 등록 전 청구항 점검. 유니크의 실무 인사이트 3편.</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F5F1E8;width:100%;font-family:'Nanum Gothic','Malgun Gothic','Apple SD Gothic Neo',Arial,sans-serif;color:#172E39;"><tr><td align="center" style="padding:30px 10px;">
