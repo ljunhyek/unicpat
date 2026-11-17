@@ -32,6 +32,11 @@ async function loadNewsletters() {
     return sortByDateDesc([...(nlRes.data || []), ...sent]);
 }
 
+// 홈페이지에 보여 줄 뉴스레터: 링크가 없거나 임시 문구(your-link-here)인 회차는 감춤 (관리자 화면에는 그대로 표시)
+function viewableNewsletters(list) {
+    return list.filter(n => n.link && !/your-link-here/i.test(n.link));
+}
+
 // 메일 HTML을 그대로 표시 (조각 HTML이면 문서 머리말을 붙임)
 function sendNewsletterHtml(res, subject, html) {
     const body = archiveHtml(html);
@@ -58,7 +63,7 @@ router.get('/', async (req, res) => {
             title: '유니크 특허법률사무소',
             description: '인천 청라 유니크 특허법률사무소. 20년 경력의 변리사가 특허·상표·디자인 출원부터 정부지원사업, 아이디어 사업화까지 직접 상담합니다.',
             posts,
-            newsletters: newsletters.slice(0, 4),
+            newsletters: viewableNewsletters(newsletters).slice(0, 4),
             govProjects: currentByDeadline(projRes.data || []).slice(0, 4)
         });
     } catch (err) {
@@ -206,7 +211,7 @@ router.get('/newsletter', async (req, res) => {
         res.render('newsletter', {
             title: '유니크 뉴스레터',
             description: '사업에 도움이 되는 특허, 상표, 정부지원사업 등 최신 IP 트렌드와 실무 팁을 담은 유니크 특허사무소의 뉴스레터를 만나보세요.',
-            newsletters: await loadNewsletters()
+            newsletters: viewableNewsletters(await loadNewsletters())
         });
     } catch (err) {
         console.error('Newsletter page error:', err);
