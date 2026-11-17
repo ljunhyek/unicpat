@@ -1,0 +1,27 @@
+<%# 칼럼 카드 1개 (칼럼 메인 화면과 분류별 목록 페이지에서 함께 사용) — post, lang 필요 %>
+<% if (lang === 'en') { %>
+<%- post.enInternal ? `<a href="${post.href}" class="block">` : '<div class="block">' %>
+    <div class="new-blog-card">
+        <div class="card-header">
+            <img src="/images/unique-mark.png" alt="Unic" class="card-logo">
+            <span class="card-brand-name">Unique Column</span>
+        </div>
+        <div class="card-content">
+            <h3 class="card-title"><%= post.title %></h3>
+        </div>
+    </div>
+<%- post.enInternal ? '</a>' : '</div>' %>
+<% } else { %>
+<a href="<%= post.href %>"<%- post.internal ? '' : ' target="_blank" rel="noopener noreferrer"' %> class="block">
+    <div class="new-blog-card">
+        <div class="card-header">
+            <img src="/images/unique-mark.png" alt="유니크 마크" class="card-logo">
+            <span class="card-brand-name">유니크 칼럼</span>
+            <% if (post.published_on) { %><span class="card-date"><%= String(post.published_on).replace(/-/g, '.') %></span><% } %>
+        </div>
+        <div class="card-content">
+            <h3 class="card-title"><%= post.title %></h3>
+        </div>
+    </div>
+</a>
+<% } %>

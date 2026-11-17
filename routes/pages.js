@@ -80,22 +80,65 @@ router.get('/about', (req, res) => {
 });
 
 // 유니크 칼럼 페이지
+// 칼럼 분류 (메인 화면 섹션 순서 = 이 배열 순서)
+const COLUMN_CATEGORIES = [
+    { id: 'strategy',  title: '지식재산 전략',   titleEn: 'IP Strategy',        bgColor: '#f9fafb' },
+    { id: 'patent',    title: '특허 출원',       titleEn: 'Patent Application', bgColor: '#EDFBE2' },
+    { id: 'trademark', title: '상표/디자인 출원', titleEn: 'Trademark / Design', bgColor: '#f9fafb' }
+];
+const COLUMN_PAGE_SIZE = 12;
+
+// 칼럼 전체 목록 (최신순, 영어 화면이면 제목 번역)
+async function loadColumnPosts(lang) {
+    const { data, error } = await supabase.from('columns').select('*').order('sort_order');
+    if (error) throw error;
+    let posts = data || [];
+    if (lang === 'en') posts = await translatePostTitles(posts);
+    return withColumnLinks(posts);
+}
+
 router.get('/column', async (req, res) => {
     try {
-        const { data } = await supabase.from('columns').select('*').order('sort_order');
-        const lang = res.locals.lang;
-        let posts = data || [];
-        if (lang === 'en') posts = await translatePostTitles(posts);
-        posts = withColumnLinks(posts);
-
+        const posts = await loadColumnPosts(res.locals.lang);
         res.render('column', {
             title: '유니크 칼럼',
             description: '지식재산권에 관한 전문적이고 실용적인 정보를 제공합니다. 특허, 상표, 디자인부터 AI 특허, 해외 출원까지 다양한 주제를 다룹니다.',
-            posts
+            posts,
+            categories: COLUMN_CATEGORIES
         });
     } catch (err) {
         console.error('Column page error:', err);
-        res.render('column', { title: '유니크 칼럼', description: '', posts: [] });
+        res.render('column', { title: '유니크 칼럼', description: '', posts: [], categories: COLUMN_CATEGORIES });
+    }
+});
+
+// 분류별 전체 칼럼 목록 (12개씩 페이지로 나눔, 새 글이 앞에 쌓임)
+router.get('/column/:cat(strategy|patent|trademark)', async (req, res, next) => {
+    const category = COLUMN_CATEGORIES.find(c => c.id === req.params.cat);
+    try {
+        const all = (await loadColumnPosts(res.locals.lang)).filter(p => p.category === category.id);
+        const totalPages = Math.max(1, Math.ceil(all.length / COLUMN_PAGE_SIZE));
+        const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+        if (page > totalPages) return next();
+        // 2페이지부터는 페이지마다 다른 주소로 검색엔진에 알림
+        if (page > 1) res.locals.canonicalUrl += `?page=${page}`;
+        const en = res.locals.lang === 'en';
+        const name = en ? category.titleEn : category.title;
+        res.render('column-list', {
+            title: `${name}${page > 1 ? (en ? ` (Page ${page})` : ` (${page}페이지)`) : ''} - ${en ? 'Unique Column' : '유니크 칼럼'}`,
+            description: en
+                ? `All Unique Column posts on ${name}, newest first.`
+                : `유니크 특허사무소 이준혁 변리사의 '${name}' 칼럼 전체 목록입니다. 최신 글부터 차례로 볼 수 있습니다.`,
+            category,
+            categories: COLUMN_CATEGORIES,
+            posts: all.slice((page - 1) * COLUMN_PAGE_SIZE, page * COLUMN_PAGE_SIZE),
+            total: all.length,
+            page,
+            totalPages
+        });
+    } catch (err) {
+        console.error('Column list error:', err);
+        next(err);
     }
 });
 
@@ -361,6 +404,7 @@ router.get('/nl/open.gif', async (req, res) => {
 // 사이트맵: 고정 페이지 + 지난 뉴스레터 페이지 (발송할 때마다 자동으로 추가됨)
 const SITEMAP_PAGES = [
     ['/', 'weekly', '1.0'], ['/about', 'monthly', '0.8'], ['/column', 'weekly', '0.9'],
+    ['/column/strategy', 'weekly', '0.7'], ['/column/patent', 'weekly', '0.7'], ['/column/trademark', 'weekly', '0.7'],
     ['/newsletter', 'weekly', '0.8'], ['/gov-support', 'weekly', '0.9'], ['/contact', 'monthly', '0.7'],
     ['/patent', 'monthly', '0.8'], ['/trademark', 'monthly', '0.8'], ['/design', 'monthly', '0.8'],
     ['/startup', 'monthly', '0.8'], ['/dispute-transfer', 'monthly', '0.8'], ['/subscribe', 'monthly', '0.5']

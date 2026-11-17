@@ -1,0 +1,78 @@
+<%- include('partials/header') %>
+<%- include('partials/column-styles') %>
+<%
+    const en = lang === 'en';
+    const name = en ? category.titleEn : category.title;
+    const pageUrl = p => `/column/${category.id}${p > 1 ? `?page=${p}` : ''}`;
+    // 페이지 번호는 현재 페이지 앞뒤 2개씩 + 처음/끝
+    const pages = [];
+    for (let p = 1; p <= totalPages; p++) {
+        if (p === 1 || p === totalPages || Math.abs(p - page) <= 2) pages.push(p);
+        else if (pages[pages.length - 1] !== '…') pages.push('…');
+    }
+%>
+
+<section class="hero-section">
+    <div class="container mx-auto text-center">
+        <p class="text-sm mb-3">
+            <a href="/column" class="text-[#3d8a25] hover:underline"><%= en ? 'Unique Column' : '유니크 칼럼' %></a>
+            <span class="text-gray-400 mx-1">›</span>
+            <span class="text-gray-600"><%= name %></span>
+        </p>
+        <h1 class="section-title text-4xl md:text-5xl font-bold mb-8 text-[#0F172A]"><%= name %></h1>
+        <p class="text-lg text-[#2F3B40]">
+            <%= en ? `${total} posts · newest first` : `전체 ${total}개 · 최신 글부터` %>
+        </p>
+    </div>
+</section>
+
+<section class="py-16" style="background-color: <%= category.bgColor %>;">
+    <div class="container mx-auto">
+        <!-- 분류 이동 -->
+        <div class="flex flex-wrap justify-center gap-2 mb-12">
+            <% categories.forEach(c => { %>
+                <a href="/column/<%= c.id %>" class="cat-tab <%= c.id === category.id ? 'active' : '' %>"><%= en ? c.titleEn : c.title %></a>
+            <% }) %>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <% if (posts.length) { %>
+                <% posts.forEach(post => { %>
+                    <%- include('partials/column-card', { post, lang }) %>
+                <% }) %>
+            <% } else { %>
+                <p class="col-span-full text-center text-gray-500"><%= en ? 'No posts in this category yet.' : '해당 분류의 글이 아직 없습니다.' %></p>
+            <% } %>
+        </div>
+
+        <% if (totalPages > 1) { %>
+        <nav class="pager flex flex-wrap justify-center items-center gap-2 mt-14" aria-label="<%= en ? 'Pages' : '페이지' %>">
+            <% if (page > 1) { %>
+                <a href="<%= pageUrl(page - 1) %>" rel="prev">‹ <%= en ? 'Newer' : '최신 글' %></a>
+            <% } else { %>
+                <span class="disabled">‹ <%= en ? 'Newer' : '최신 글' %></span>
+            <% } %>
+            <% pages.forEach(p => { %>
+                <% if (p === '…') { %>
+                    <span class="disabled">…</span>
+                <% } else if (p === page) { %>
+                    <span class="current" aria-current="page"><%= p %></span>
+                <% } else { %>
+                    <a href="<%= pageUrl(p) %>"><%= p %></a>
+                <% } %>
+            <% }) %>
+            <% if (page < totalPages) { %>
+                <a href="<%= pageUrl(page + 1) %>" rel="next"><%= en ? 'Older' : '이전 글' %> ›</a>
+            <% } else { %>
+                <span class="disabled"><%= en ? 'Older' : '이전 글' %> ›</span>
+            <% } %>
+        </nav>
+        <% } %>
+
+        <div class="text-center mt-12">
+            <a href="/column" class="text-sm text-[#3d8a25] hover:underline">← <%= en ? 'Back to Unique Column' : '칼럼 메인으로' %></a>
+        </div>
+    </div>
+</section>
+
+<%- include('partials/footer') %>

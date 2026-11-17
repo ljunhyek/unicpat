@@ -1,0 +1,85 @@
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #e9eff1 0%, #d8e1e6 100%);
+        margin-top: -80px;
+        padding: 120px 0 80px 0;
+    }
+    .new-blog-card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e5e7eb;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem;
+        height: 250px;
+    }
+    .new-blog-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.08);
+    }
+    .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 1rem;
+    }
+    .card-logo { height: 24px; margin-right: 8px; }
+    .card-brand-name { font-size: 0.875rem; font-weight: 500; color: #6b7280; }
+    .card-date { margin-left: auto; font-size: 0.75rem; color: #9ca3af; }
+    .card-content {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    .card-title {
+        color: #1f2937;
+        font-weight: 600;
+        font-size: 1.125rem;
+        line-height: 1.6;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .section-title {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+        color: #0F172A;
+    }
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        transform: none;
+        width: 60px;
+        height: 3px;
+        background: #54B435;
+    }
+    .btn-more {
+        display: inline-block;
+        background-color: #fff;
+        color: #54B435;
+        border: 2px solid #54B435;
+        padding: 0.75rem 2rem;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    .btn-more:hover { background-color: #54B435; color: #fff; }
+    .cat-tab { display: inline-block; padding: 0.5rem 1.25rem; border-radius: 9999px; border: 1px solid #d1d5db; color: #374151; background: #fff; font-weight: 500; transition: all 0.2s; }
+    .cat-tab:hover { border-color: #54B435; color: #3d8a25; }
+    .cat-tab.active { background: #54B435; border-color: #54B435; color: #fff; }
+    .pager a, .pager span { display: inline-flex; align-items: center; justify-content: center; min-width: 2.5rem; height: 2.5rem; padding: 0 0.75rem; border-radius: 6px; border: 1px solid #e5e7eb; background: #fff; color: #374151; font-weight: 500; }
+    .pager a:hover { border-color: #54B435; color: #3d8a25; }
+    .pager .current { background: #54B435; border-color: #54B435; color: #fff; }
+    .pager .disabled { color: #d1d5db; }
+</style>
