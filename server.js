@@ -34,7 +34,8 @@ app.use((req, res, next) => {
 });
 
 // 정적 파일 (CSS, JS, 이미지)을 제공하기 위한 미들웨어
-app.use(express.static(path.join(__dirname, 'public')));
+// redirect: false — public/newsletter 폴더가 있어도 /newsletter 주소가 /newsletter/ 로 돌지 않고 바로 페이지로 가도록
+app.use(express.static(path.join(__dirname, 'public'), { redirect: false }));
 
 // 외부 서비스 웹훅 — 서명 확인에 본문 원본이 필요하므로 본문 파싱 미들웨어보다 먼저 연결
 app.use('/api/webhooks', webhookRoutes);

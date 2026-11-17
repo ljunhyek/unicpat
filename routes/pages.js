@@ -411,17 +411,21 @@ const SITEMAP_PAGES = [
 ];
 
 router.get('/sitemap.xml', async (req, res) => {
-    const [{ data, error }, colRes] = await Promise.all([
+    const [{ data, error }, colRes, nlRes] = await Promise.all([
         supabase.rpc('newsletter_archive_list'),
-        supabase.from('columns').select('url, published_on').eq('summary_ready', true)
+        supabase.from('columns').select('url, published_on').eq('summary_ready', true),
+        // 홈페이지 안에 본문을 저장한 뉴스레터 (HTML 업로드, 스티비에서 옮겨 온 회차)
+        supabase.from('newsletters').select('link, date').like('link', '/newsletter/%')
     ]);
     if (error) console.error('Sitemap newsletter error:', error.message);
+    const savedNewsletters = (nlRes.data || []).filter(n => /^\/newsletter\/[0-9a-f-]{36}$/i.test(n.link));
     const columns = withColumnLinks((colRes.data || []).map(c => ({ ...c, summary_ready: true })));
     const url = (loc, extra) => `  <url><loc>${res.locals.siteUrl}${loc}</loc>${extra}</url>`;
     const urls = [
         ...SITEMAP_PAGES.map(([loc, freq, priority]) => url(loc, `<changefreq>${freq}</changefreq><priority>${priority}</priority>`)),
         ...columns.map(c => url(c.href, `${c.published_on ? `<lastmod>${c.published_on}</lastmod>` : ''}<priority>0.7</priority>`)),
-        ...(data || []).map(c => url(`/newsletter/${c.id}`, `<lastmod>${kstDate(c.sent_on).replace(/\./g, '-')}</lastmod><priority>0.6</priority>`))
+        ...(data || []).map(c => url(`/newsletter/${c.id}`, `<lastmod>${kstDate(c.sent_on).replace(/\./g, '-')}</lastmod><priority>0.6</priority>`)),
+        ...savedNewsletters.map(n => url(n.link, `${/^\d{4}\.\d{2}\.\d{2}$/.test(n.date || '') ? `<lastmod>${n.date.replace(/\./g, '-')}</lastmod>` : ''}<priority>0.6</priority>`))
     ];
     res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
