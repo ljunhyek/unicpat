@@ -27,6 +27,9 @@ app.use((req, res, next) => {
     if (req.hostname === 'unicpat.com') return res.redirect(301, `${SITE_URL}${req.originalUrl}`);
     res.locals.canonicalUrl = SITE_URL + req.path.replace(/(.)\/$/, '$1');
     res.locals.siteUrl = SITE_URL;
+    // 구글 서치콘솔 / 네이버 서치어드바이저 'HTML 태그' 소유 확인 값 (Vercel 환경 변수에 넣으면 모든 페이지에 표시)
+    res.locals.googleVerification = process.env.GOOGLE_SITE_VERIFICATION || '';
+    res.locals.naverVerification = process.env.NAVER_SITE_VERIFICATION || '';
     next();
 });
 

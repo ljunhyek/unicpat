@@ -56,7 +56,7 @@ router.get('/', async (req, res) => {
 
         res.render('index', {
             title: '유니크 특허법률사무소',
-            description: '특허, 그 이상의 가치를 만드는 곳. 20년 경력의 전문 변리사가 아이디어의 사업화까지, 스타트업 창업 경험을 바탕으로 실질적인 컨설팅을 제공합니다.',
+            description: '인천 청라 유니크 특허법률사무소. 20년 경력의 변리사가 특허·상표·디자인 출원부터 정부지원사업, 아이디어 사업화까지 직접 상담합니다.',
             posts,
             newsletters: newsletters.slice(0, 4),
             govProjects: currentByDeadline(projRes.data || []).slice(0, 4)
