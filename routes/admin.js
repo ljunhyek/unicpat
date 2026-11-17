@@ -244,6 +244,8 @@ router.post('/columns/:id/summary', requireLogin, loadColumn, async (req, res) =
     summary_en: text('summary_en'),
     key_points_en: text('key_points_en'),
     checkpoint_en: text('checkpoint_en'),
+    // faq 칸은 column_faq_1.sql을 실행한 뒤에만 저장 (칸이 없을 때 저장 오류가 나지 않도록)
+    ...('faq' in req.column ? { faq: text('faq') } : {}),
     published_on: published_on || null,
     summary_ready: req.body.summary_ready === '1' && !!blogPostNo(req.column.url) && !!(summary || '').trim()
   }).eq('id', req.column.id);

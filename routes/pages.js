@@ -4,7 +4,7 @@ const { createAnonClient } = require('../lib/supabase');
 const { translatePostTitles } = require('../lib/translate');
 const { sortByDateDesc, currentByDeadline } = require('../lib/sort');
 const { UUID_RE, TEST_TOKEN, archiveHtml, sendSignupNotice } = require('../lib/newsletter-mailer');
-const { withColumnLinks, CATEGORY_NAMES, CATEGORY_NAMES_EN } = require('../lib/columns');
+const { withColumnLinks, parseFaq, CATEGORY_NAMES, CATEGORY_NAMES_EN } = require('../lib/columns');
 const { dataImages } = require('../lib/newsletter-import');
 
 const supabase = createAnonClient();
@@ -108,10 +108,21 @@ router.get('/column/:no(\\d+)', async (req, res, next) => {
     if (error) console.error('Column post error:', error.message);
     if (!post) return next();
 
-    const { data: related } = await supabase.from('columns').select('*')
-        .eq('category', post.category).eq('summary_ready', true).neq('id', post.id)
-        .order('sort_order').limit(3);
-    res.render('column-post', columnPostLocals(post, withColumnLinks(related || []), res.locals.lang));
+    // 같은 분류의 글을 먼저, 모자라면 다른 분류의 최신 글로 4개까지 채움 (홈페이지 안에서 다음 글로 이어 읽도록)
+    const [{ data: sameCategory }, { data: latest }] = await Promise.all([
+        supabase.from('columns').select('*')
+            .eq('category', post.category).eq('summary_ready', true).neq('id', post.id)
+            .order('sort_order').limit(4),
+        supabase.from('columns').select('*')
+            .eq('summary_ready', true).neq('id', post.id)
+            .order('sort_order').limit(8)
+    ]);
+    const related = [...(sameCategory || [])];
+    for (const p of latest || []) {
+        if (related.length >= 4) break;
+        if (!related.some(r => r.id === p.id)) related.push(p);
+    }
+    res.render('column-post', columnPostLocals(post, withColumnLinks(related), res.locals.lang));
 });
 
 // 칼럼 글 페이지 화면 데이터 (관리자 미리보기와 같이 사용)
@@ -130,6 +141,11 @@ function columnPostLocals(post, related, lang) {
         paragraphs,
         keyPoints: pick('key_points').split('\n').map(t => t.trim()).filter(Boolean),
         checkpoint: pick('checkpoint'),
+        // 자주 묻는 질문은 한국어 화면에만 표시
+        faqs: en ? [] : parseFaq(post.faq),
+        ogType: 'article',
+        CATEGORY_NAMES,
+        CATEGORY_NAMES_EN,
         categoryName: (en ? CATEGORY_NAMES_EN : CATEGORY_NAMES)[post.category] || (en ? 'Unique Column' : '유니크 칼럼'),
         // 영어 화면에서는 영어 요약이 있는 글만 추천 (블로그로 나가는 링크 없음)
         related: (related || [])

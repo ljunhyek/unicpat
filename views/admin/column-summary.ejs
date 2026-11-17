@@ -38,6 +38,16 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">UNIC CHECKPOINT <span class="text-gray-400 font-normal">(한 문장)</span></label>
             <input type="text" name="checkpoint" value="<%= post.checkpoint || '' %>" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
+        <% if ('faq' in post) { %>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">자주 묻는 질문 <span class="text-gray-400 font-normal">('Q. 질문' 다음 줄에 'A. 답변', 질문끼리는 빈 줄로 구분. 비워 두면 표시하지 않습니다.)</span></label>
+            <textarea name="faq" rows="10" placeholder="Q. 질문을 적어 주세요&#10;A. 답변을 적어 주세요&#10;&#10;Q. 두 번째 질문&#10;A. 두 번째 답변" class="w-full border rounded-lg px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500"><%= post.faq || '' %></textarea>
+        </div>
+        <% } else { %>
+        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 p-3 rounded-lg text-sm">
+            '자주 묻는 질문' 칸을 쓰려면 Supabase SQL Editor에서 <code>supabase/column_faq_1.sql</code>을 실행해 주세요.
+        </div>
+        <% } %>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">카테고리</label>

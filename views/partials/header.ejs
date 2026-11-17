@@ -14,7 +14,7 @@
     <link rel="canonical" href="<%= canonicalUrl %>">
     <% if (googleVerification) { %><meta name="google-site-verification" content="<%= googleVerification %>"><% } %>
     <% if (naverVerification) { %><meta name="naver-site-verification" content="<%= naverVerification %>"><% } %>
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="<%= typeof ogType !== 'undefined' && ogType ? ogType : 'website' %>">
     <meta property="og:site_name" content="유니크 특허법률사무소">
     <meta property="og:title" content="<%= title === '유니크 특허법률사무소' ? '유니크 특허법률사무소 | 인천 청라 특허·상표 출원 상담' : title + ' - 유니크 특허법률사무소' %>">
     <meta property="og:description" content="<%= metaDescription %>">

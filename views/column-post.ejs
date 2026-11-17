@@ -14,7 +14,43 @@
     .btn-primary:hover { background: #469b2d; }
     .btn-outline { border: 1px solid #54B435; color: #3d8a25; padding: 0.75rem 1.5rem; border-radius: 5px; font-weight: 500; display: inline-block; transition: background 0.3s; }
     .btn-outline:hover { background: #EDFBE2; }
+    .post-cta { background: #EDFBE2; border: 1px solid #cdeebb; }
+    .post-faq summary { list-style: none; }
+    .post-faq summary::-webkit-details-marker { display: none; }
+    .post-faq .faq-chevron { transition: transform 0.15s; }
+    .post-faq[open] .faq-chevron { transform: rotate(180deg); }
 </style>
+<%
+    // 검색엔진용 구조화 데이터: 글 정보, 이동 경로(칼럼 › 글), 자주 묻는 질문
+    const pageUrl = canonicalUrl;
+    const ld = [{
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: postTitle,
+        description: description,
+        inLanguage: en ? 'en' : 'ko',
+        datePublished: post.published_on || undefined,
+        author: { '@type': 'Person', name: en ? 'Junhyek Lee' : '이준혁', jobTitle: en ? 'Patent Attorney' : '변리사' },
+        publisher: { '@type': 'Organization', name: '유니크 특허법률사무소', logo: { '@type': 'ImageObject', url: siteUrl + '/images/unic_logo.png' } },
+        mainEntityOfPage: pageUrl
+    }, {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            { '@type': 'ListItem', position: 1, name: en ? 'Home' : '홈', item: siteUrl + '/' },
+            { '@type': 'ListItem', position: 2, name: en ? 'Unique Column' : '유니크 칼럼', item: siteUrl + '/column' },
+            { '@type': 'ListItem', position: 3, name: postTitle, item: pageUrl }
+        ]
+    }];
+    if (faqs.length) ld.push({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqs.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } }))
+    });
+%>
+<% if (!preview) { %>
+<script type="application/ld+json"><%- JSON.stringify(ld).replace(/</g, '\\u003c') %></script>
+<% } %>
 
 <% if (preview) { %>
 <div class="bg-yellow-100 text-yellow-800 text-sm text-center py-2 relative z-10" style="margin-top: 0;">
@@ -56,16 +92,55 @@
             <p class="text-[#2F3B40] leading-relaxed" style="word-break: keep-all;"><%= checkpoint %></p>
         </section>
         <% } %>
+        <% if (faqs.length) { %>
+        <section class="mt-12">
+            <h2 class="text-lg font-bold text-[#0F172A] mb-4">자주 묻는 질문</h2>
+            <div class="space-y-3">
+                <% faqs.forEach((f, i) => { %>
+                <details class="post-faq bg-white rounded-lg shadow-sm" <%= i === 0 ? 'open' : '' %>>
+                    <summary class="flex items-start gap-3 p-5 cursor-pointer font-medium text-[#0F172A]" style="word-break: keep-all;">
+                        <span class="text-[#54B435] font-bold">Q</span>
+                        <span class="flex-1"><%= f.q %></span>
+                        <i class="fas fa-chevron-down text-gray-300 text-sm mt-1 faq-chevron"></i>
+                    </summary>
+                    <div class="flex items-start gap-3 px-5 pb-5 text-[#2F3B40] leading-relaxed" style="word-break: keep-all;">
+                        <span class="text-gray-400 font-bold">A</span>
+                        <p class="flex-1"><%= f.a %></p>
+                    </div>
+                </details>
+                <% }) %>
+            </div>
+        </section>
+        <% } %>
 
-        <div class="flex flex-wrap gap-3 mt-10">
+        <!-- 상담 안내 -->
+        <section class="post-cta rounded-lg p-6 md:p-8 mt-12">
             <% if (!en) { %>
-                <a href="<%= post.url %>" target="_blank" rel="noopener" class="btn-primary">블로그에서 전체 글 읽기 ↗</a>
-                <a href="/contact" class="btn-outline">상담 문의하기</a>
+                <h2 class="text-lg md:text-xl font-bold text-[#0F172A] mb-2" style="word-break: keep-all;">우리 회사 상황에도 해당하는지 궁금하신가요?</h2>
+                <p class="text-[#2F3B40] leading-relaxed mb-5" style="word-break: keep-all;">
+                    같은 주제라도 제품 구조, 출원 일정, 계약 관계에 따라 결론이 달라집니다.
+                    이준혁 변리사가 직접 자료를 보고 대응 방향을 말씀드립니다.
+                </p>
+                <div class="flex flex-wrap gap-3">
+                    <a href="/contact" class="btn-primary">상담 문의하기</a>
+                    <a href="tel:010-3131-7960" class="btn-outline"><i class="fas fa-phone mr-1"></i>010-3131-7960</a>
+                </div>
             <% } else { %>
-                <a href="/contact" class="btn-primary">Contact Us</a>
-                <a href="/column" class="btn-outline">More Columns</a>
+                <h2 class="text-lg md:text-xl font-bold text-[#0F172A] mb-2">Does this apply to your business?</h2>
+                <p class="text-[#2F3B40] leading-relaxed mb-5">The answer depends on your product, filing schedule and contracts. Talk to a patent attorney directly.</p>
+                <div class="flex flex-wrap gap-3">
+                    <a href="/contact" class="btn-primary">Contact Us</a>
+                    <a href="/column" class="btn-outline">More Columns</a>
+                </div>
             <% } %>
-        </div>
+        </section>
+
+        <% if (!en) { %>
+        <p class="text-sm text-gray-500 mt-6" style="word-break: keep-all;">
+            판례·사례와 표로 정리한 전체 글은 <a href="<%= post.url %>" target="_blank" rel="noopener" class="text-[#3d8a25] underline hover:no-underline">네이버 블로그 원문 ↗</a>에서 볼 수 있습니다.
+            새 칼럼은 <a href="/subscribe" class="text-[#3d8a25] underline hover:no-underline">월간 뉴스레터</a>로도 받아보실 수 있습니다.
+        </p>
+        <% } %>
         <p class="text-xs text-gray-400 mt-4 leading-relaxed">
             <%= en
                 ? 'This summary is for general information only. Specific cases may be assessed differently depending on the facts. It is based on Korean law as of the publication date.'
@@ -75,12 +150,16 @@
         <% if (related.length) { %>
         <section class="mt-14">
             <h2 class="text-lg font-bold text-[#0F172A] mb-4"><%= en ? 'Related Columns' : '함께 읽으면 좋은 글' %></h2>
-            <div class="space-y-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <% related.forEach(r => { %>
                 <a href="<%= r.href %>"<%- r.internal ? '' : ' target="_blank" rel="noopener noreferrer"' %> class="block bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow">
-                    <span class="font-medium text-[#0F172A]"><%= r.displayTitle %></span>
+                    <span class="block text-xs text-[#3d8a25] mb-1"><%= (en ? CATEGORY_NAMES_EN : CATEGORY_NAMES)[r.category] || '' %></span>
+                    <span class="font-medium text-[#0F172A]" style="word-break: keep-all;"><%= r.displayTitle %></span>
                 </a>
                 <% }) %>
+            </div>
+            <div class="text-right mt-4">
+                <a href="/column" class="text-sm text-[#3d8a25] hover:underline"><%= en ? 'All columns →' : '칼럼 전체 보기 →' %></a>
             </div>
         </section>
         <% } %>
