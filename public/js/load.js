@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function() {
             targetNavId = 'nav-home';
         } else if (currentPage.includes('/about')) {
             targetNavId = 'nav-about';
-        } else if (['/patent', '/trademark', '/design', '/startup', '/dispute-transfer', '/incheon'].some(page => currentPage.includes(page))) {
+        } else if (['/patent', '/trademark', '/design', '/startup', '/dispute-transfer', '/incheon', '/price'].some(page => currentPage.includes(page))) {
             targetNavId = 'nav-service';
         } else if (currentPage.includes('/column')) {
             targetNavId = 'nav-column';
@@ -71,6 +71,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                 <a href="/trademark" class="block text-gray-700 hover:text-green-600">Trademark Registration</a>
                                 <a href="/design" class="block text-gray-700 hover:text-green-600">Design Registration</a>
                                 <a href="/startup" class="block text-gray-700 hover:text-green-600">Startup &amp; IP Services</a>
+                                <a href="/price" class="block text-gray-700 hover:text-green-600">Fees</a>
                                 <a href="/dispute-transfer" class="block text-gray-700 hover:text-green-600">IP Dispute Resolution</a>
                             </div>
                         </div>
@@ -110,6 +111,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                 <a href="/trademark" class="block text-gray-700 hover:text-[#54B435]">상표 출원/등록</a>
                                 <a href="/design" class="block text-gray-700 hover:text-[#54B435]">디자인 출원/등록</a>
                                 <a href="/startup" class="block text-gray-700 hover:text-[#54B435]">창업 및 스타트업 특화 서비스</a>
+                                <a href="/price" class="block text-gray-700 hover:text-[#54B435]">비용 안내</a>
                                 <a href="/incheon" class="block text-gray-700 hover:text-[#54B435]">인천 지역 상담 안내</a>
                                 <a href="/dispute-transfer" class="block text-gray-700 hover:text-[#54B435]">IP 분쟁 대응</a>
                             </div>

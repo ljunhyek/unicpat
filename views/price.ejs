@@ -1,0 +1,183 @@
+<%- include('partials/header') %>
+<%
+    const priceFaqs = [
+        { q: '비용에 부가세가 포함되어 있나요?',
+          a: '아니요. 안내한 대리인 수수료는 부가세(VAT) 별도 금액입니다. 특허청 관납료에는 부가세가 붙지 않습니다.' },
+        { q: '특허청 관납료 감면은 누가 받을 수 있나요?',
+          a: '개인, 중소기업, 스타트업 등은 특허청 관납료를 감면받을 수 있습니다(최대 70%). 감면 대상과 비율은 출원인 유형에 따라 달라 상담할 때 확인해 드리고, 감면 신청도 함께 챙겨 드립니다.' },
+        { q: '상표를 여러 상품류에 출원하면 비용이 어떻게 되나요?',
+          a: '안내한 상표 비용은 1상품류 기준입니다. 상품류가 늘면 그만큼 관납료와 수수료가 추가되므로, 사업에 꼭 필요한 상품류만 골라 출원하도록 도와드립니다.' },
+        { q: '정부지원사업으로 비용을 줄일 수 있나요?',
+          a: 'IP나래, IP디딤돌 등 지원사업에 선정되면 출원 비용과 대리인 수수료 일부를 지원받을 수 있습니다. 신청 시기가 정해져 있어 출원 일정을 미리 맞추는 것이 좋습니다.' }
+    ];
+%>
+<script type="application/ld+json"><%- JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: priceFaqs.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } }))
+}).replace(/</g, '\\u003c') %></script>
+
+<style>
+    .page-header { background-color: #EDFBE2; margin-top: -80px; padding: 8rem 0 4rem 0; }
+    .section-title { position: relative; display: inline-block; margin-bottom: 1.5rem; font-weight: 700; color: #0F172A; }
+    .section-title::after { content: ''; position: absolute; bottom: -8px; left: 50%; width: 60px; height: 3px; background: #54B435; transform: translateX(-50%); }
+    .pr-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; box-shadow: 0 6px 18px rgba(15,23,42,.06); overflow: hidden; }
+    .pr-card h3 { background: #54B435; color: #fff; font-weight: 700; font-size: 1.25rem; padding: 1rem 1.5rem; }
+    .pr-table { width: 100%; border-collapse: collapse; }
+    .pr-table th, .pr-table td { padding: .85rem 1rem; border-top: 1px solid #eef2f0; text-align: left; vertical-align: top; }
+    .pr-table th { background: #f9fafb; color: #0F172A; font-size: .9rem; }
+    .pr-table td.fee { font-weight: 700; color: #0F172A; white-space: nowrap; }
+    .pr-table td.gov { color: #475569; white-space: nowrap; }
+    .pr-note { font-size: .9rem; color: #6b7280; padding: .9rem 1.5rem 1.2rem; }
+    .pr-faq summary { list-style: none; }
+    .pr-faq summary::-webkit-details-marker { display: none; }
+    .pr-faq .faq-chevron { transition: transform 0.15s; }
+    .pr-faq[open] .faq-chevron { transform: rotate(180deg); }
+</style>
+
+<div style="word-break: keep-all;">
+
+<section class="page-header text-center">
+    <div class="container mx-auto px-4">
+        <p class="font-bold mb-3" style="color:#3d8a25;">특허 · 상표 · 디자인</p>
+        <h1 class="text-4xl md:text-5xl font-bold" style="color:#0F172A;">비용 안내</h1>
+        <p class="text-lg mt-4 max-w-2xl mx-auto" style="color:#2F3B40;">출원부터 등록까지 드는 비용을 한곳에 모았습니다. 정확한 금액은 무료 상담에서 기술 내용과 일정을 듣고 진행 전에 항목별로 안내드립니다.</p>
+        <div class="mt-6 flex flex-wrap justify-center gap-2 text-sm font-bold">
+            <span class="px-3 py-1 rounded-full" style="background:#fff;color:#16a34a;border:1px solid #bbf7d0;">대리인 수수료 VAT 별도</span>
+            <span class="px-3 py-1 rounded-full" style="background:#fff;color:#16a34a;border:1px solid #bbf7d0;">관납료 감면 신청 지원</span>
+            <span class="px-3 py-1 rounded-full" style="background:#fff;color:#16a34a;border:1px solid #bbf7d0;">상담 무료</span>
+        </div>
+    </div>
+</section>
+
+<!-- 특허 -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-4 max-w-4xl">
+        <div class="pr-card">
+            <h3><i class="fas fa-lightbulb mr-2"></i>특허 · 실용신안 출원</h3>
+            <div class="overflow-x-auto">
+            <table class="pr-table">
+                <thead><tr><th>구분</th><th>대리인 수수료 (VAT 별도)</th><th>특허청 관납료</th></tr></thead>
+                <tbody>
+                    <tr><td>출원</td><td class="fee">120만 ~ 150만원</td><td class="gov">10만 ~ 15만원</td></tr>
+                    <tr><td>심사청구</td><td class="fee">출원 수수료에 포함</td><td class="gov">15만 ~ 25만원</td></tr>
+                    <tr><td>의견서 · 보정서 <span class="text-sm" style="color:#6b7280;">(거절이유가 나온 경우)</span></td><td class="fee">30만 ~ 50만원</td><td class="gov">4천원</td></tr>
+                    <tr><td>등록</td><td class="fee">100만 ~ 130만원</td><td class="gov">10만 ~ 30만원</td></tr>
+                </tbody>
+            </table>
+            </div>
+            <div class="pr-note">
+                <p class="font-bold mb-1" style="color:#0F172A;">예시: 의견서 없이 바로 등록되는 경우</p>
+                <p>대리인 수수료 220만 ~ 280만원 + 특허청 관납료 35만 ~ 70만원 (관납료 감면 전, VAT 별도)</p>
+                <p class="mt-2">금액이 범위로 정해지는 이유: 기술 난이도, 명세서 분량, <b>청구항과 도면 수</b>에 따라 달라집니다. 청구항이 늘면 심사청구료와 등록료도 함께 늘어납니다.</p>
+            </div>
+        </div>
+        <p class="text-center mt-4"><a href="/patent" class="font-bold" style="color:#16a34a;">특허·실용신안 출원 절차 보기 →</a></p>
+    </div>
+</section>
+
+<!-- 상표 · 디자인 -->
+<section class="py-16" style="background:#EDFBE2;">
+    <div class="container mx-auto px-4 max-w-5xl">
+        <div class="grid md:grid-cols-2 gap-8">
+            <div>
+                <div class="pr-card">
+                    <h3><i class="fas fa-tag mr-2"></i>상표 등록 <span class="text-base font-normal">(1상품류 기준)</span></h3>
+                    <table class="pr-table">
+                        <thead><tr><th>구분</th><th>대리인 수수료</th><th>특허청</th></tr></thead>
+                        <tbody>
+                            <tr><td>출원</td><td class="fee">20만원</td><td class="gov">56,000원</td></tr>
+                            <tr><td>중간사건 대응</td><td class="fee">없음</td><td class="gov">-</td></tr>
+                            <tr><td>등록</td><td class="fee">20만원</td><td class="gov">220,120원<br><span class="text-xs">(10년 등록료)</span></td></tr>
+                        </tbody>
+                    </table>
+                    <div class="pr-note">
+                        <p class="font-bold mb-1" style="color:#0F172A;">예시: 1상품류 출원부터 등록까지</p>
+                        <p>대리인 수수료 40만원 + 특허청 276,120원 (관납료 감면 전, VAT 별도). 상품류가 늘면 그만큼 추가됩니다.</p>
+                    </div>
+                </div>
+                <p class="text-center mt-4"><a href="/trademark" class="font-bold" style="color:#16a34a;">상표 등록 안내 · 내 업종은 몇 류? →</a></p>
+            </div>
+            <div>
+                <div class="pr-card">
+                    <h3><i class="fas fa-pencil-ruler mr-2"></i>디자인 등록</h3>
+                    <table class="pr-table">
+                        <thead><tr><th>구분</th><th>대리인 수수료</th><th>특허청</th></tr></thead>
+                        <tbody>
+                            <tr><td>출원</td><td class="fee">30만원</td><td class="gov">25,200원</td></tr>
+                            <tr><td>중간사건 대응</td><td class="fee">없음</td><td class="gov">-</td></tr>
+                            <tr><td>등록</td><td class="fee">30만원</td><td class="gov">상담 시 안내</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="pr-note">
+                        <p class="font-bold mb-1" style="color:#0F172A;">예시: 디자인 1건 출원부터 등록까지</p>
+                        <p>대리인 수수료 60만원 + 특허청 출원료 25,200원과 등록료 (관납료 감면 전, VAT 별도)</p>
+                    </div>
+                </div>
+                <p class="text-center mt-4"><a href="/design" class="font-bold" style="color:#16a34a;">디자인 등록 안내 →</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 비용 줄이는 방법 -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center"><h2 class="section-title text-3xl">비용을 줄이는 방법</h2></div>
+        <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-8">
+            <div class="p-7 rounded-lg" style="border:1px solid #e5e7eb;">
+                <i class="fas fa-percent text-2xl mb-3" style="color:#54B435;"></i>
+                <h3 class="text-xl font-bold mb-2" style="color:#0F172A;">관납료 감면</h3>
+                <p style="color:#2F3B40;">개인·중소기업·스타트업은 특허청 관납료를 최대 70%까지 감면받을 수 있습니다. 감면 신청까지 챙겨 드립니다.</p>
+            </div>
+            <div class="p-7 rounded-lg" style="border:1px solid #e5e7eb;">
+                <i class="fas fa-hand-holding-usd text-2xl mb-3" style="color:#54B435;"></i>
+                <h3 class="text-xl font-bold mb-2" style="color:#0F172A;">정부지원사업</h3>
+                <p style="color:#2F3B40;">IP나래, IP디딤돌, 인천지식재산센터 사업 등으로 출원 비용과 수수료 일부를 지원받을 수 있습니다.</p>
+                <a href="/gov-support" class="inline-block mt-3 font-bold" style="color:#16a34a;">지금 신청 가능한 사업 →</a>
+            </div>
+            <div class="p-7 rounded-lg" style="border:1px solid #e5e7eb;">
+                <i class="fas fa-route text-2xl mb-3" style="color:#54B435;"></i>
+                <h3 class="text-xl font-bold mb-2" style="color:#0F172A;">맞는 권리 고르기</h3>
+                <p style="color:#2F3B40;">작은 구조 개선은 실용신안, 모양이 핵심이면 디자인처럼 꼭 필요한 권리만 골라 출원하도록 함께 정합니다.</p>
+            </div>
+        </div>
+        <p class="text-center mt-8" style="color:#2F3B40;">해외 출원(PCT·개별국) 비용은 국가와 번역 분량에 따라 달라 상담 후 안내드립니다.</p>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="py-16" style="background:#f9fafb;">
+    <div class="container mx-auto px-4">
+        <div class="text-center"><h2 class="section-title text-3xl">비용 자주 묻는 질문</h2></div>
+        <div class="max-w-3xl mx-auto space-y-3 mt-8">
+            <% priceFaqs.forEach((f, i) => { %>
+            <details class="pr-faq bg-white rounded-lg shadow-sm" <%= i === 0 ? 'open' : '' %>>
+                <summary class="flex items-start gap-3 p-5 cursor-pointer font-medium" style="color:#0F172A;">
+                    <span class="font-bold" style="color:#54B435;">Q</span><span class="flex-1"><%= f.q %></span>
+                    <i class="fas fa-chevron-down text-gray-300 text-sm mt-1 faq-chevron"></i>
+                </summary>
+                <div class="flex items-start gap-3 px-5 pb-5 leading-relaxed" style="color:#2F3B40;">
+                    <span class="text-gray-400 font-bold">A</span><p class="flex-1"><%= f.a %></p>
+                </div>
+            </details>
+            <% }) %>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="py-16" style="background: linear-gradient(90deg, #54B435 0%, #16a34a 100%);">
+    <div class="container mx-auto px-4 text-center text-white">
+        <h2 class="text-3xl font-bold mb-3">내 경우엔 얼마일까요?</h2>
+        <p class="text-lg mb-8 opacity-90">아이디어나 브랜드를 알려 주시면 진행 전에 항목별 견적을 무료로 안내드립니다.</p>
+        <div class="flex flex-wrap justify-center gap-3">
+            <a href="/contact" class="font-bold px-8 py-3 rounded" style="background:#fff;color:#16a34a;">무료 견적 상담 신청</a>
+            <a href="tel:032-288-7960" class="font-bold px-8 py-3 rounded" style="border:2px solid #fff;color:#fff;"><i class="fas fa-phone mr-2"></i>032-288-7960</a>
+        </div>
+    </div>
+</section>
+
+</div>
+
+<%- include('partials/footer') %>

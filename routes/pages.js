@@ -283,6 +283,15 @@ router.get('/contact', (req, res) => {
     });
 });
 
+// 비용 안내
+router.get('/price', (req, res) => {
+    res.render('price', {
+        title: '비용 안내 | 인천 특허·상표·디자인 출원 비용',
+        titleEn: 'Fees',
+        description: '인천 청라 유니크 특허사무소의 특허·실용신안, 상표, 디자인 출원 비용 안내. 출원부터 등록까지 대리인 수수료와 특허청 관납료, 관납료 감면과 정부지원사업으로 비용을 줄이는 방법까지 한곳에 정리했습니다.'
+    });
+});
+
 // 찾아오시는 길
 router.get('/location', (req, res) => {
     res.render('location', {
@@ -442,7 +451,7 @@ const SITEMAP_PAGES = [
     ['/', 'weekly', '1.0'], ['/incheon', 'monthly', '0.9'], ['/about', 'monthly', '0.8'], ['/column', 'weekly', '0.9'],
     ['/column/strategy', 'weekly', '0.7'], ['/column/patent', 'weekly', '0.7'], ['/column/trademark', 'weekly', '0.7'],
     ['/newsletter', 'weekly', '0.8'], ['/gov-support', 'weekly', '0.9'], ['/contact', 'monthly', '0.7'], ['/location', 'monthly', '0.7'],
-    ['/patent', 'monthly', '0.8'], ['/trademark', 'monthly', '0.8'], ['/design', 'monthly', '0.8'],
+    ['/patent', 'monthly', '0.8'], ['/price', 'monthly', '0.8'], ['/trademark', 'monthly', '0.8'], ['/design', 'monthly', '0.8'],
     ['/startup', 'monthly', '0.8'], ['/dispute-transfer', 'monthly', '0.8'], ['/subscribe', 'monthly', '0.5']
 ];
 
