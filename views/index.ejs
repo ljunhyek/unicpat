@@ -232,6 +232,44 @@
     </div>
 </section>
 
+<!-- ipbot1 연차료 조회 배너 -->
+<section class="py-14" style="background:linear-gradient(135deg,#0E3A40 0%,#172E39 100%);">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col lg:flex-row items-center gap-10 max-w-6xl mx-auto" style="word-break:keep-all;">
+            <div class="lg:w-1/2 text-white">
+                <span class="inline-block text-sm font-bold px-3 py-1 rounded-full mb-4" style="background:rgba(255,255,255,.12);color:#7FE0D9;"><%= lang === 'en' ? 'Patent lookup service by Unic' : '유니크가 만든 특허 조회 서비스' %></span>
+                <% if (lang === 'en') { %>
+                <h2 class="text-3xl md:text-4xl font-bold leading-snug mb-4">Check your patent annuities<br><span style="color:#5DD3CB;">instantly, no sign-up</span></h2>
+                <p class="text-lg mb-6" style="color:#c7d6d9;">Enter a business registration number or applicant code to see registered patents, annuity status, due dates and pending applications, based on current KIPO data.</p>
+                <% } else { %>
+                <h2 class="text-3xl md:text-4xl font-bold leading-snug mb-4">내 특허 연차료,<br><span style="color:#5DD3CB;">회원가입 없이</span> 바로 조회</h2>
+                <p class="text-lg mb-6" style="color:#c7d6d9;">사업자번호나 특허고객번호만 입력하면 등록특허의 연차료 납부 여부와 마감일, 출원 중인 특허까지 특허청 최신 데이터로 한 번에 확인할 수 있습니다.</p>
+                <% } %>
+                <a href="https://www.ipbot1.com" target="_blank" rel="noopener" class="inline-flex items-center font-bold px-7 py-3 rounded-lg" style="background:#5DD3CB;color:#0E3A40;"><i class="fas fa-search mr-2"></i><%= lang === 'en' ? 'Go to ipbot1.com' : 'ipbot1.com에서 조회하기' %></a>
+            </div>
+            <div class="lg:w-1/2 w-full">
+                <div class="rounded-2xl p-6" style="background:#fff;box-shadow:0 24px 60px rgba(0,0,0,.35);">
+                    <div class="flex gap-3">
+                        <div class="flex-1 min-w-0 truncate rounded-lg px-4 py-3 text-gray-500" style="border:2px solid #C8D4D1;"><%= lang === 'en' ? 'Business no. / Applicant code' : '사업자번호 / 특허고객번호 입력' %></div>
+                        <a href="https://www.ipbot1.com" target="_blank" rel="noopener" class="rounded-lg px-5 py-3 font-bold text-white" style="background:#007C78;"><%= lang === 'en' ? 'Search' : '조회' %></a>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 text-sm">
+                        <div class="rounded-lg p-3" style="background:#F4F8F7;"><p class="font-bold" style="color:#007C78;"><%= lang === 'en' ? 'Registered' : '등록특허' %></p><p class="font-bold mt-1" style="color:#0F172A;"><%= lang === 'en' ? 'Annuity paid? Due date' : '연차료 납부 · 마감일' %></p></div>
+                        <div class="rounded-lg p-3" style="background:#F4F8F7;"><p class="font-bold" style="color:#007C78;"><%= lang === 'en' ? 'Applications' : '출원특허' %></p><p class="font-bold mt-1" style="color:#0F172A;"><%= lang === 'en' ? 'Granted · Pending' : '등록 · 거절 · 심사 중' %></p></div>
+                        <div class="rounded-lg p-3" style="background:#F4F8F7;"><p class="font-bold" style="color:#007C78;"><%= lang === 'en' ? 'Download' : '다운로드' %></p><p class="font-bold mt-1" style="color:#0F172A;"><%= lang === 'en' ? 'List · Full-text PDF' : '목록 · 전문 PDF' %></p></div>
+                    </div>
+                    <% if (lang !== 'en') { %>
+                    <div class="flex items-center gap-3 mt-4 rounded-lg p-3" style="background:#ecfeff;border:1px solid #a5f3fc;">
+                        <i class="fas fa-bell" style="color:#007C78;"></i>
+                        <p class="text-sm" style="color:#0F172A;"><b>유니크 고객이라면</b>, 연차료 마감 전에 이메일로 미리 알려 드립니다.</p>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- 서비스 섹션 -->
 <section id="services" class="py-16 bg-white">
     <div class="container mx-auto">
