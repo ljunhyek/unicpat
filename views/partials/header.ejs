@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <% if (lang === 'en') { %>
-    <title><%= title %> - Unic Patent Firm</title>
+    <title><%= typeof titleEn !== 'undefined' ? titleEn : title %> - Unic Patent Firm</title>
     <meta name="description" content="<%= typeof description !== 'undefined' ? description : 'A patent attorney with 20 years of experience providing expert solutions in patent, trademark, design applications, IP disputes, and startup consulting.' %>">
     <% } else { %>
     <title><%= title === '유니크 특허사무소' ? '인천 청라 특허사무소 | 특허·상표·디자인 출원 상담 - 유니크 특허사무소' : title + ' - 유니크 특허사무소' %></title>
@@ -42,7 +42,10 @@
             addressRegion: '인천광역시',
             addressCountry: 'KR'
         },
-        areaServed: 'KR',
+        areaServed: [
+            { '@type': 'City', name: '인천광역시' },
+            { '@type': 'Country', name: '대한민국' }
+        ],
         openingHoursSpecification: [{
             '@type': 'OpeningHoursSpecification',
             dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
@@ -51,7 +54,8 @@
         }],
         sameAs: [
             'https://blog.naver.com/unicpat',
-            'https://map.naver.com/p/entry/place/35886703'
+            'https://map.naver.com/p/entry/place/35886703',
+            'https://www.youtube.com/channel/UCL54RRPri0hOAINC61MT6RA'
         ]
     }).replace(/</g, '\\u003c') %>
     </script>
@@ -164,6 +168,7 @@
                             <a href="/trademark" class="dropdown-item">상표 출원/등록</a>
                             <a href="/design" class="dropdown-item">디자인 출원/등록</a>
                             <a href="/startup" class="dropdown-item">창업 및 스타트업 특화 서비스</a>
+                            <a href="/incheon" class="dropdown-item">인천 지역 상담 안내</a>
                             <a href="/dispute-transfer" class="dropdown-item">IP 분쟁 대응</a>
                         </div>
                     </div>

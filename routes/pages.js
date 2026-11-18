@@ -269,37 +269,51 @@ router.get('/gov-support', async (req, res) => {
 // Contact Us 페이지
 router.get('/contact', (req, res) => {
     res.render('contact', {
-        title: 'Contact Us',
-        description: '유니크 특허사무소에 궁금한 점이 있으신가요? 전화, 이메일, 상담 신청 폼을 통해 언제든지 문의해주세요.'
+        title: '상담 신청·오시는 길 | 인천 청라',
+        titleEn: 'Contact Us',
+        description: '인천 청라 유니크 특허사무소 상담 신청과 오시는 길 안내. 전화 032-288-7960, 메일, 상담 신청 폼으로 문의하시고, 예약 후 청라썬앤빌더테라스 사무실로 방문하실 수 있습니다.'
+    });
+});
+
+// 인천 지역 안내
+router.get('/incheon', (req, res) => {
+    res.render('incheon', {
+        title: '인천 특허사무소 | 청라·송도·남동 기업 특허·상표 상담',
+        titleEn: 'Patent Attorney in Incheon',
+        description: '인천 청라에 있는 유니크 특허사무소. 청라·송도·남동·부평·검단 등 인천 지역 기업과 스타트업의 특허·상표·디자인 출원을 20년 경력 변리사가 직접 상담하고, 인천 지역 지원사업 연계까지 도와드립니다.'
     });
 });
 
 // 서비스 안내 페이지들
 router.get('/patent', (req, res) => {
     res.render('patent', {
-        title: '특허/실용신안 출원',
-        description: '아이디어를 지키고 사업에 성공하는 첫걸음. 스타트업 투자 유치, 정부지원 우대를 위한 특허권을 확실하게 확보해 드립니다.'
+        title: '인천 특허출원·실용신안 | 비용 안내',
+        titleEn: 'Patent & Utility Model Applications',
+        description: '인천 청라 유니크 특허사무소의 특허·실용신안 출원 안내. 20년 경력 변리사가 직접 상담하고, 출원부터 등록까지 비용을 미리 안내합니다. 인천 지역 중소기업·스타트업 정부지원사업 연계.'
     });
 });
 
 router.get('/trademark', (req, res) => {
     res.render('trademark', {
-        title: '상표 출원',
-        description: '당신의 브랜드를 지키는 가장 확실한 방법. 온라인 비즈니스 보호와 브랜드 신뢰도 상승을 위한 상표 등록 서비스를 제공합니다.'
+        title: '인천 상표등록 | 상표출원 절차와 비용',
+        titleEn: 'Trademark Registration',
+        description: '인천 청라 유니크 특허사무소의 상표등록 안내. 브랜드 이름과 로고를 지키는 상표출원 절차와 비용(1상품류 기준), 관납료 감면까지 변리사가 직접 챙겨 드립니다.'
     });
 });
 
 router.get('/design', (req, res) => {
     res.render('design', {
-        title: '디자인 출원',
-        description: '제품의 독창적인 디자인을 보호하고 모방 제품을 방지하는 디자인권 출원 등록 서비스.'
+        title: '인천 디자인등록 | 디자인 출원',
+        titleEn: 'Design Registration',
+        description: '인천 청라 유니크 특허사무소의 디자인등록 안내. 제품 외형과 패키지 디자인을 보호하고 모방 제품을 막는 디자인 출원 절차와 비용을 안내합니다.'
     });
 });
 
 router.get('/startup', (req, res) => {
     res.render('startup', {
-        title: '창업 및 스타트업 특화 서비스',
-        description: '스타트업 창업 경험 변리사가 사업 성공을 위한 IP 포트폴리오 전략, 정부지원사업 연계 컨설팅을 제공합니다.'
+        title: '인천 스타트업 특허 | 정부지원사업 연계',
+        titleEn: 'Startup IP Services',
+        description: '직접 창업해 본 변리사가 인천 지역 스타트업과 예비창업자의 특허 전략, IP 포트폴리오, 정부지원사업 연계를 도와드립니다. 인천 청라 유니크 특허사무소.'
     });
 });
 
@@ -408,7 +422,7 @@ router.get('/nl/open.gif', async (req, res) => {
 
 // 사이트맵: 고정 페이지 + 지난 뉴스레터 페이지 (발송할 때마다 자동으로 추가됨)
 const SITEMAP_PAGES = [
-    ['/', 'weekly', '1.0'], ['/about', 'monthly', '0.8'], ['/column', 'weekly', '0.9'],
+    ['/', 'weekly', '1.0'], ['/incheon', 'monthly', '0.9'], ['/about', 'monthly', '0.8'], ['/column', 'weekly', '0.9'],
     ['/column/strategy', 'weekly', '0.7'], ['/column/patent', 'weekly', '0.7'], ['/column/trademark', 'weekly', '0.7'],
     ['/newsletter', 'weekly', '0.8'], ['/gov-support', 'weekly', '0.9'], ['/contact', 'monthly', '0.7'],
     ['/patent', 'monthly', '0.8'], ['/trademark', 'monthly', '0.8'], ['/design', 'monthly', '0.8'],
