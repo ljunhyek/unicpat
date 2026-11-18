@@ -43,7 +43,16 @@
             addressCountry: 'KR'
         },
         areaServed: 'KR',
-        sameAs: ['https://blog.naver.com/unicpat']
+        openingHoursSpecification: [{
+            '@type': 'OpeningHoursSpecification',
+            dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+            opens: '09:00',
+            closes: '18:00'
+        }],
+        sameAs: [
+            'https://blog.naver.com/unicpat',
+            'https://map.naver.com/p/entry/place/35886703'
+        ]
     }).replace(/</g, '\\u003c') %>
     </script>
     <% } %>
