@@ -329,42 +329,72 @@
         <% } else { %>
         <h2 class="section-title text-3xl font-bold text-center">서비스 안내</h2>
         <p class="text-center text-[#2F3B40] mb-12">유니크 특허사무소는 다양한 지식재산권 서비스를 제공합니다</p>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <a href="/patent" class="block h-full">
+        <div class="flex flex-wrap justify-center gap-6">
+            <a href="/patent" class="block" style="flex:0 1 270px;">
                 <div class="service-card p-6 h-full" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb;">
                     <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-lightbulb" style="font-size: 24px; color: #54B435;"></i></div>
-                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">특허/실용신안 출원</h3>
-                    <ul class="text-[#2F3B40] space-y-2 mt-4">
-                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>국내 특허/실용신안 출원 및 등록</span></li>
+                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]" style="word-break:keep-all;">특허/실용신안 출원</h3>
+                    <ul class="text-[#2F3B40] space-y-2 mt-4" style="word-break:keep-all;">
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>국내 특허·실용신안 출원 및 등록</span></li>
                         <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>해외 특허 출원 (PCT, 개별국)</span></li>
                     </ul>
                 </div>
             </a>
-            <a href="/trademark" class="block h-full">
+            <a href="/trademark" class="block" style="flex:0 1 270px;">
                 <div class="service-card p-6 h-full" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb;">
                     <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-trademark" style="font-size: 24px; color: #54B435;"></i></div>
-                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">상표, 디자인 출원</h3>
-                    <ul class="text-[#2F3B40] space-y-2 mt-4">
+                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]" style="word-break:keep-all;">상표 출원/등록</h3>
+                    <ul class="text-[#2F3B40] space-y-2 mt-4" style="word-break:keep-all;">
                         <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>국내외 상표 출원 및 등록</span></li>
-                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>디자인권 출원 및 등록</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>상품류 선택부터 10년 갱신까지</span></li>
                     </ul>
                 </div>
             </a>
-            <a href="/startup" class="block h-full">
+            <a href="/design" class="block" style="flex:0 1 270px;">
+                <div class="service-card p-6 h-full" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb;">
+                    <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-pencil-ruler" style="font-size: 24px; color: #54B435;"></i></div>
+                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]" style="word-break:keep-all;">디자인 출원/등록</h3>
+                    <ul class="text-[#2F3B40] space-y-2 mt-4" style="word-break:keep-all;">
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>제품 외형·패키지 디자인권 확보</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>실용신안·디자인 동시출원</span></li>
+                    </ul>
+                </div>
+            </a>
+            <a href="/startup" class="block" style="flex:0 1 270px;">
                 <div class="service-card p-6 h-full" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb;">
                     <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-rocket" style="font-size: 24px; color: #54B435;"></i></div>
-                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">창업 및 스타트업 특화 서비스</h3>
-                    <ul class="text-[#2F3B40] space-y-2 mt-4">
+                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]" style="word-break:keep-all;">창업 및 스타트업 특화 서비스</h3>
+                    <ul class="text-[#2F3B40] space-y-2 mt-4" style="word-break:keep-all;">
                         <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>IP 포트폴리오 전략 수립</span></li>
                         <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>정부지원사업 연계 컨설팅</span></li>
                     </ul>
                 </div>
             </a>
-            <a href="/dispute-transfer" class="block h-full">
+            <a href="/price" class="block" style="flex:0 1 270px;">
+                <div class="service-card p-6 h-full" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb;">
+                    <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-won-sign" style="font-size: 24px; color: #54B435;"></i></div>
+                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]" style="word-break:keep-all;">비용 안내</h3>
+                    <ul class="text-[#2F3B40] space-y-2 mt-4" style="word-break:keep-all;">
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>특허·상표·디자인 단계별 비용</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>관납료 감면·지원사업 활용</span></li>
+                    </ul>
+                </div>
+            </a>
+            <a href="/incheon" class="block" style="flex:0 1 270px;">
+                <div class="service-card p-6 h-full" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb;">
+                    <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-map-marker-alt" style="font-size: 24px; color: #54B435;"></i></div>
+                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]" style="word-break:keep-all;">인천 지역 상담 안내</h3>
+                    <ul class="text-[#2F3B40] space-y-2 mt-4" style="word-break:keep-all;">
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>청라·송도·남동 등 인천 기업 상담</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>예약 시 청라 사무실 방문 상담</span></li>
+                    </ul>
+                </div>
+            </a>
+            <a href="/dispute-transfer" class="block" style="flex:0 1 270px;">
                 <div class="service-card p-6 h-full" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb;">
                     <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-gavel" style="font-size: 24px; color: #54B435;"></i></div>
-                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">지식재산권 분쟁대응, IP 활용</h3>
-                    <ul class="text-[#2F3B40] space-y-2 mt-4">
+                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]" style="word-break:keep-all;">IP 분쟁 대응</h3>
+                    <ul class="text-[#2F3B40] space-y-2 mt-4" style="word-break:keep-all;">
                         <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>경고장, 답변서 등 분쟁 대응</span></li>
                         <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>기술가치평가 및 기술이전</span></li>
                     </ul>
