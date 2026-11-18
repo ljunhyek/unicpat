@@ -30,7 +30,7 @@
         description: description,
         inLanguage: en ? 'en' : 'ko',
         datePublished: post.published_on || undefined,
-        author: { '@type': 'Person', name: en ? 'Junhyek Lee' : '이준혁', jobTitle: en ? 'Patent Attorney' : '변리사' },
+        author: { '@type': 'Person', name: en ? 'Junhyek Lee' : '이준혁', jobTitle: en ? 'Patent Attorney' : '변리사', url: siteUrl + '/about' },
         publisher: { '@type': 'Organization', name: '유니크 특허사무소', logo: { '@type': 'ImageObject', url: siteUrl + '/images/unic_logo.png' } },
         mainEntityOfPage: pageUrl
     }, {
@@ -109,6 +109,44 @@
                     </div>
                 </details>
                 <% }) %>
+            </div>
+        </section>
+        <% } %>
+
+        <% if (!en) { %>
+        <%
+            // 글 제목·분류로 관련 서비스 페이지를 2개까지 연결
+            const svcRules = [
+                [/상표|브랜드|상호/, '/trademark', '상표 등록 안내'],
+                [/디자인/, '/design', '디자인 등록 안내'],
+                [/침해|경고장|무효|심판|무권리자|분쟁|소송|내용증명/, '/dispute-transfer', 'IP 분쟁 대응'],
+                [/지원사업|바우처|IP나래|디딤돌/, '/gov-support', '정부지원사업 안내'],
+                [/스타트업|창업|투자/, '/startup', '스타트업 IP 전략'],
+                [/특허|실용신안|청구항|출원|PCT/, '/patent', '특허·실용신안 출원 안내']
+            ];
+            const categoryService = { patent: ['/patent', '특허·실용신안 출원 안내'], trademark: ['/trademark', '상표 등록 안내'], strategy: ['/startup', '스타트업 IP 전략'] };
+            const relatedServices = [];
+            for (const [re, href, label] of svcRules) {
+                if (relatedServices.length < 2 && re.test(postTitle) && !relatedServices.some(s => s[0] === href)) relatedServices.push([href, label]);
+            }
+            const fallback = categoryService[post.category];
+            if (relatedServices.length < 2 && fallback && !relatedServices.some(s => s[0] === fallback[0])) relatedServices.push(fallback);
+        %>
+        <!-- 작성자 -->
+        <section class="flex items-start gap-4 rounded-lg p-5 mt-12" style="background:#fff;border:1px solid #e5e7eb;word-break:keep-all;">
+            <img src="/images/representative-patent-attorney.png" alt="이준혁 변리사" class="flex-shrink-0 rounded-full object-cover" style="width:64px;height:64px;" loading="lazy">
+            <div>
+                <p class="text-xs font-bold" style="color:#3d8a25;">이 글을 쓴 사람</p>
+                <p class="font-bold" style="color:#0F172A;">이준혁 변리사 <span class="font-normal text-sm" style="color:#6b7280;">· 유니크 특허사무소 대표</span></p>
+                <p class="text-sm mt-1" style="color:#2F3B40;">2004년 변리사 시험에 합격해 20년 동안 대기업·연구기관·중소기업의 특허와 상표를 맡아 왔습니다. 인천 청라에서 직접 상담합니다.</p>
+                <% if (relatedServices.length) { %>
+                <div class="flex flex-wrap gap-2 mt-3">
+                    <% relatedServices.forEach(([href, label]) => { %>
+                    <a href="<%= href %>" class="text-sm font-bold px-3 py-1 rounded-full" style="background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;"><%= label %> →</a>
+                    <% }) %>
+                    <a href="/about#profile" class="text-sm px-3 py-1 rounded-full" style="color:#6b7280;border:1px solid #e5e7eb;">변리사 소개</a>
+                </div>
+                <% } %>
             </div>
         </section>
         <% } %>

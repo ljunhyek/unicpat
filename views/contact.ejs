@@ -57,7 +57,14 @@
                 <form action="https://api.web3forms.com/submit" method="POST">
                     <input type="hidden" name="access_key" value="dd3c9ad5-1802-4bd1-b7e6-397002308afa">
                     <input type="hidden" name="redirect" value="https://unicpat.com/thanks">
-                    <p class="text-xs text-gray-500 mb-4"></p>
+                    <% if (lang === 'en') { %>
+                    <p class="text-sm mb-5 p-4 rounded" style="background:#f0fdf4;color:#2F3B40;">Helpful to include: a short summary of your idea or brand, product photos or drawings, and your target schedule.</p>
+                    <% } else { %>
+                    <div class="text-sm mb-5 p-4 rounded" style="background:#f0fdf4;color:#2F3B40;word-break:keep-all;">
+                        <p class="font-bold mb-1" style="color:#0F172A;">이런 내용을 함께 적어 주시면 첫 답변이 빨라집니다</p>
+                        <p>· 아이디어나 브랜드 요약 (3~5줄이면 충분합니다)<br>· 제품 사진이나 도면이 있는지<br>· 출시·발표·지원사업 신청 같은 희망 일정</p>
+                    </div>
+                    <% } %>
 
                     <div class="mb-4">
                         <label for="name" class="block text-[#2F3B40] mb-2 font-medium"><%= lang === 'en' ? 'Name *' : '이름 *' %></label>
@@ -82,6 +89,8 @@
                             <option value="patent">Patent / Trademark / Design</option>
                             <option value="startup">Startup / Entrepreneurship</option>
                             <option value="dispute">Dispute / Litigation</option>
+                            <option value="gov">Government Support Programs</option>
+                            <option value="annuity">Annuity / IP Portfolio Management</option>
                             <option value="biz">Technology Commercialization</option>
                             <option value="other">Other</option>
                             <% } else { %>
@@ -89,6 +98,8 @@
                             <option value="patent">특허/상표/디자인</option>
                             <option value="startup">창업/스타트업</option>
                             <option value="dispute">분쟁/소송</option>
+                            <option value="gov">정부지원사업</option>
+                            <option value="annuity">연차료·권리 관리</option>
                             <option value="biz">기술사업화</option>
                             <option value="other">기타 문의</option>
                             <% } %>
