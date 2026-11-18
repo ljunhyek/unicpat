@@ -60,8 +60,8 @@ router.get('/', async (req, res) => {
         posts = withColumnLinks(posts);
 
         res.render('index', {
-            title: '유니크 특허법률사무소',
-            description: '인천 청라 유니크 특허법률사무소. 20년 경력의 변리사가 특허·상표·디자인 출원부터 정부지원사업, 아이디어 사업화까지 직접 상담합니다.',
+            title: '유니크 특허사무소',
+            description: '인천 청라 유니크 특허사무소. 20년 경력의 변리사가 특허·상표·디자인 출원부터 정부지원사업, 아이디어 사업화까지 직접 상담합니다.',
             posts,
             newsletters: viewableNewsletters(newsletters).slice(0, 4),
             govProjects: currentByDeadline(projRes.data || []).slice(0, 4)
@@ -69,7 +69,7 @@ router.get('/', async (req, res) => {
     } catch (err) {
         console.error('Homepage error:', err);
         res.render('index', {
-            title: '유니크 특허법률사무소',
+            title: '유니크 특허사무소',
             description: '',
             posts: [], newsletters: [], govProjects: []
         });
