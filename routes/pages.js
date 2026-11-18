@@ -32,9 +32,17 @@ async function loadNewsletters() {
     return sortByDateDesc([...(nlRes.data || []), ...sent]);
 }
 
+// 같은 회차인지 비교할 제목: (광고) 표기와 공백 차이는 무시
+function newsletterTitleKey(title) {
+    return String(title || '').replace(/^\s*\(광고\)\s*/, '').replace(/\s+/g, '');
+}
+
 // 홈페이지에 보여 줄 뉴스레터: 링크가 없거나 임시 문구(your-link-here)인 회차는 감춤 (관리자 화면에는 그대로 표시)
+// 같은 회차를 HTML로도 저장하고 메일로도 발송했으면 발송본 하나만 보여 줌
 function viewableNewsletters(list) {
-    return list.filter(n => n.link && !/your-link-here/i.test(n.link));
+    const sentTitles = new Set(list.filter(n => n.sent).map(n => newsletterTitleKey(n.title)));
+    return list.filter(n => n.link && !/your-link-here/i.test(n.link)
+        && (n.sent || !sentTitles.has(newsletterTitleKey(n.title))));
 }
 
 // 메일 HTML을 그대로 표시 (조각 HTML이면 문서 머리말을 붙임)
@@ -443,10 +451,12 @@ router.get('/sitemap.xml', async (req, res) => {
         supabase.rpc('newsletter_archive_list'),
         supabase.from('columns').select('url, published_on').eq('summary_ready', true),
         // 홈페이지 안에 본문을 저장한 뉴스레터 (HTML 업로드, 스티비에서 옮겨 온 회차)
-        supabase.from('newsletters').select('link, date').like('link', '/newsletter/%')
+        supabase.from('newsletters').select('title, link, date').like('link', '/newsletter/%')
     ]);
     if (error) console.error('Sitemap newsletter error:', error.message);
-    const savedNewsletters = (nlRes.data || []).filter(n => /^\/newsletter\/[0-9a-f-]{36}$/i.test(n.link));
+    const sentTitles = new Set((data || []).map(c => newsletterTitleKey(c.subject)));
+    const savedNewsletters = (nlRes.data || []).filter(n => /^\/newsletter\/[0-9a-f-]{36}$/i.test(n.link)
+        && !sentTitles.has(newsletterTitleKey(n.title)));
     const columns = withColumnLinks((colRes.data || []).map(c => ({ ...c, summary_ready: true })));
     const url = (loc, extra) => `  <url><loc>${res.locals.siteUrl}${loc}</loc>${extra}</url>`;
     const urls = [
