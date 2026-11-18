@@ -34,7 +34,7 @@
             <p class="text-lg my-6 max-w-3xl mx-auto">The first step to protecting your ideas and succeeding in business.<br>Unic Patent will help you secure your rights firmly.</p>
             <% } else { %>
             <h1 class="text-4xl md:text-5xl font-bold mb-4">특허/실용신안 출원</h1>
-            <p class="text-lg my-6 max-w-3xl mx-auto">아이디어를 지키고 사업에 성공하는 첫걸음<br>유니크 특허가 확실하게 도와드리겠습니다</p>
+            <p class="text-lg my-6 max-w-3xl mx-auto" style="word-break:keep-all;"><b>특허, 등록 가능성부터 확인하고 시작하세요</b><br>선행기술조사로 등록 가능성을 먼저 살피고, 사업에 맞는 청구항을 설계합니다.<br class="hidden md:block"> 비용은 출원 전에 항목별로 안내합니다.</p>
             <% } %>
         </div>
     </div>
@@ -72,14 +72,18 @@
             </div>
             <div class="service-card p-6">
                 <div class="service-icon"><i class="fas fa-rocket"></i></div>
-                <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">투자 유치</h3>
-                <p class="text-[#2F3B40] text-center">특허를 보유한 스타트업은 그렇지 않은 경우보다 성장 가능성이 35배 높으며, 투자 유치에 유리합니다.</p>
+                <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">투자·납품 협상력</h3>
+                <p class="text-[#2F3B40] text-center" style="word-break:keep-all;">투자 심사나 납품 협상에서는 핵심 기술이 특허로 보호되는지 확인하는 경우가 많습니다. 등록 특허는 기술력을 보여 주는 객관적인 근거가 됩니다.</p>
             </div>
             <div class="service-card p-6">
                 <div class="service-icon"><i class="fas fa-trophy"></i></div>
                 <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">정부지원 우대</h3>
                 <p class="text-[#2F3B40] text-center">특허 보유 기업은 각종 정부지원사업 선정 시 가점을 받으며, R&D 지원금 확보에 도움이 됩니다.</p>
             </div>
+        </div>
+        <div class="max-w-3xl mx-auto mt-10 p-6 rounded-lg" style="background:#fff7ed;border-left:4px solid #f59e0b;word-break:keep-all;">
+            <p class="font-bold mb-1" style="color:#0F172A;"><i class="fas fa-exclamation-circle mr-2" style="color:#f59e0b;"></i>공개하기 전에 출원하세요</p>
+            <p style="color:#2F3B40;">전시회, 크라우드펀딩, SNS, 논문으로 먼저 공개하면 신규성 문제로 등록이 어려워질 수 있습니다. 공개 후 12개월 안에는 예외를 인정받을 수 있지만 해외에서는 불리할 수 있으니, 공개 일정이 있다면 먼저 상담하세요.</p>
         </div>
         <% } %>
     </div>
@@ -183,7 +187,7 @@
         </div>
         <% } else { %>
         <h2 class="section-title text-3xl font-bold text-center">비용 안내</h2>
-        <p class="text-center text-[#2F3B40] mb-12">투명하고 합리적인 비용으로 최고의 서비스를 제공합니다</p>
+        <p class="text-center text-[#2F3B40] mb-12">출원부터 등록까지 드는 비용을 미리 안내합니다</p>
         <div class="max-w-4xl mx-auto">
             <div class="cost-table">
                 <table class="w-full">
@@ -203,6 +207,79 @@
         <% } %>
     </div>
 </section>
+
+<% if (lang !== 'en') { %>
+<!-- 특허 vs 실용신안 -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <h2 class="section-title text-3xl font-bold text-center w-full">특허와 실용신안, 무엇이 다를까요?</h2>
+        <p class="text-center mt-2 mb-10" style="color:#2F3B40;word-break:keep-all;">작은 구조 개선이라면 실용신안이 더 빠르고 저렴한 선택일 수 있습니다.</p>
+        <div class="max-w-4xl mx-auto overflow-x-auto">
+            <table class="w-full text-left" style="border-collapse:collapse;word-break:keep-all;">
+                <thead><tr style="background:#EDFBE2;color:#0F172A;"><th class="p-4">구분</th><th class="p-4">특허</th><th class="p-4">실용신안</th></tr></thead>
+                <tbody style="color:#2F3B40;">
+                    <tr style="border-top:1px solid #e5e7eb;"><td class="p-4 font-bold">보호 대상</td><td class="p-4">물건, 방법, 물질 등 모든 발명</td><td class="p-4">물품의 형상·구조·조합 (방법은 안 됨)</td></tr>
+                    <tr style="border-top:1px solid #e5e7eb;"><td class="p-4 font-bold">등록 기준</td><td class="p-4">기존 기술보다 진보한 발명</td><td class="p-4">기준이 조금 완화된 고안</td></tr>
+                    <tr style="border-top:1px solid #e5e7eb;"><td class="p-4 font-bold">존속 기간</td><td class="p-4">출원일부터 20년</td><td class="p-4">출원일부터 10년</td></tr>
+                    <tr style="border-top:1px solid #e5e7eb;"><td class="p-4 font-bold">이런 경우 추천</td><td class="p-4">핵심 기술, 소프트웨어·BM, 장기간 보호가 필요한 기술</td><td class="p-4">생활용품·부품의 구조 개선, 제품 수명이 짧은 경우</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="text-center mt-6" style="color:#2F3B40;">어느 쪽이 유리한지는 무료 상담에서 함께 판단해 드립니다. 기능은 실용신안, 모양은 디자인으로 함께 보호하는 방법도 있습니다.</p>
+    </div>
+</section>
+
+<!-- 해외출원 -->
+<section class="py-16" style="background:#EDFBE2;">
+    <div class="container mx-auto px-4">
+        <h2 class="section-title text-3xl font-bold text-center w-full">해외 특허 출원 (PCT · 개별국)</h2>
+        <p class="text-center mt-2 mb-10" style="color:#2F3B40;word-break:keep-all;">수출이나 해외 판매를 계획하고 있다면, 국내 출원일부터 <b>12개월</b> 안에 해외 출원을 결정해야 우선권을 주장할 수 있습니다.</p>
+        <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto" style="word-break:keep-all;">
+            <div class="p-8" style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 4px 12px rgba(15,23,42,.05);">
+                <h3 class="text-2xl font-bold mb-3" style="color:#0F172A;">PCT 국제출원</h3>
+                <p class="leading-relaxed" style="color:#2F3B40;">한 번의 국제출원으로 여러 나라에 출원한 효과를 얻고, 우선일부터 30개월(국가에 따라 31개월) 안에 실제로 진출할 나라를 정할 수 있습니다. 진출국이 아직 정해지지 않았을 때 시간을 버는 방법입니다.</p>
+            </div>
+            <div class="p-8" style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 4px 12px rgba(15,23,42,.05);">
+                <h3 class="text-2xl font-bold mb-3" style="color:#0F172A;">개별국 출원</h3>
+                <p class="leading-relaxed" style="color:#2F3B40;">미국, 중국, 일본처럼 진출할 나라가 한두 곳으로 정해져 있다면 각 나라에 바로 출원하는 편이 비용과 기간 면에서 유리할 수 있습니다.</p>
+            </div>
+        </div>
+        <p class="text-center mt-6" style="color:#2F3B40;">해외 출원 비용은 국가와 번역 분량에 따라 달라 상담 후 안내드립니다. 해외 출원도 정부지원사업으로 비용 일부를 지원받을 수 있습니다.</p>
+    </div>
+</section>
+
+<%
+    const patentFaqs = [
+        { q: '특허 등록까지 얼마나 걸리나요?', a: '심사 대기 기간은 기술 분야와 특허청 상황에 따라 다릅니다. 제품 출시나 투자 일정 때문에 빨리 결과가 필요하면 우선심사를 신청해 일반 심사보다 훨씬 빨리 결과를 받을 수 있습니다. 상담할 때 지금 기준 예상 기간을 안내드립니다.' },
+        { q: '제품을 이미 판매하거나 공개했는데 출원할 수 있나요?', a: '공개한 날부터 12개월 안이면 공지예외주장을 해서 출원할 수 있는 경우가 있습니다. 다만 해외는 인정 범위가 나라마다 달라 불리할 수 있으니, 공개했다면 가능한 한 빨리 상담받으세요.' },
+        { q: '청구항 수가 늘면 비용이 달라지나요?', a: '네. 특허청에 내는 심사청구료와 등록료는 청구항 수에 따라 늘어납니다. 대리인 수수료는 기술 난이도와 명세서 분량에 따라 달라지며, 출원 전에 항목별로 미리 안내드립니다.' }
+    ];
+%>
+<script type="application/ld+json"><%- JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: patentFaqs.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } }))
+}).replace(/</g, '\\u003c') %></script>
+<style>.svc-faq summary{list-style:none}.svc-faq summary::-webkit-details-marker{display:none}.svc-faq .faq-chevron{transition:transform .15s}.svc-faq[open] .faq-chevron{transform:rotate(180deg)}</style>
+<section class="py-16" style="background:#f9fafb;">
+    <div class="container mx-auto px-4">
+        <h2 class="section-title text-3xl font-bold text-center w-full">특허 출원 자주 묻는 질문</h2>
+        <div class="max-w-3xl mx-auto space-y-3 mt-10" style="word-break:keep-all;">
+            <% patentFaqs.forEach((f, i) => { %>
+            <details class="svc-faq bg-white rounded-lg shadow-sm" <%= i === 0 ? 'open' : '' %>>
+                <summary class="flex items-start gap-3 p-5 cursor-pointer font-medium" style="color:#0F172A;">
+                    <span class="font-bold" style="color:#54B435;">Q</span><span class="flex-1"><%= f.q %></span>
+                    <i class="fas fa-chevron-down text-gray-300 text-sm mt-1 faq-chevron"></i>
+                </summary>
+                <div class="flex items-start gap-3 px-5 pb-5 leading-relaxed" style="color:#2F3B40;">
+                    <span class="text-gray-400 font-bold">A</span><p class="flex-1"><%= f.a %></p>
+                </div>
+            </details>
+            <% }) %>
+        </div>
+    </div>
+</section>
+<% } %>
 
 <%- include('partials/incheon-note', { service: '특허·실용신안 출원' }) %>
 
