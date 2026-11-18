@@ -126,7 +126,7 @@
             <div class="flex justify-between items-center">
 
                 <!-- 로고 -->
-                <a href="/" class="flex items-center space-x-2">
+                <a href="/" class="flex items-center space-x-2 flex-shrink-0 whitespace-nowrap mr-6">
                     <img src="/images/unique-mark.png" alt="<%= lang === 'en' ? 'Unic Patent Firm' : '유니크 특허사무소 로고 마크' %>" class="h-8">
                     <% if (lang === 'en') { %>
                     <span class="text-xl font-bold text-[#0F172A]">Unic Patent Firm</span>
@@ -140,7 +140,7 @@
 
                 <!-- 데스크탑 내비게이션 -->
                 <% if (lang === 'en') { %>
-                <nav class="hidden md:flex space-x-8" id="main-nav">
+                <nav class="hidden lg:flex space-x-6 xl:space-x-8" id="main-nav">
                     <div class="nav-item"><a href="/" class="nav-link" id="nav-home">Home</a></div>
                     <div class="nav-item"><a href="/about" class="nav-link" id="nav-about">About Unique</a></div>
                     <div class="nav-item">
@@ -154,11 +154,17 @@
                         </div>
                     </div>
                     <div class="nav-item"><a href="/column" class="nav-link" id="nav-column">Unique Column</a></div>
-                    <div class="nav-item"><a href="/contact" class="nav-link" id="nav-contact">Contact Us</a></div>
+                    <div class="nav-item">
+                        <a href="/contact" class="nav-link" id="nav-contact">Contact</a>
+                        <div class="dropdown-menu">
+                            <a href="/contact" class="dropdown-item">Consultation</a>
+                            <a href="/location" class="dropdown-item">Location</a>
+                        </div>
+                    </div>
                     <div class="nav-item"><a href="https://www.ipbot1.com" class="nav-link" id="nav-ipbot" target="_blank">Real-time IP Management</a></div>
                 </nav>
                 <% } else { %>
-                <nav class="hidden md:flex space-x-5" id="main-nav">
+                <nav class="hidden lg:flex space-x-3 xl:space-x-5" id="main-nav">
                     <div class="nav-item"><a href="/" class="nav-link" id="nav-home">홈</a></div>
                     <div class="nav-item"><a href="/about" class="nav-link" id="nav-about">유니크 소개</a></div>
                     <div class="nav-item">
@@ -175,13 +181,19 @@
                     <div class="nav-item"><a href="/column" class="nav-link" id="nav-column">유니크 칼럼</a></div>
                     <div class="nav-item"><a href="/newsletter" class="nav-link" id="nav-newsletter">뉴스레터</a></div>
                     <div class="nav-item"><a href="/gov-support" class="nav-link" id="nav-gov">정부지원사업 안내</a></div>
-                    <div class="nav-item"><a href="/contact" class="nav-link" id="nav-contact">Contact Us</a></div>
+                    <div class="nav-item">
+                        <a href="/contact" class="nav-link" id="nav-contact">상담·위치 안내</a>
+                        <div class="dropdown-menu">
+                            <a href="/contact" class="dropdown-item">상담 신청</a>
+                            <a href="/location" class="dropdown-item">찾아오시는 길</a>
+                        </div>
+                    </div>
                     <div class="nav-item"><a href="https://www.ipbot1.com" class="nav-link" id="nav-ipbot" target="_blank">실시간 특허관리</a></div>
                 </nav>
                 <% } %>
 
                 <!-- 모바일 햄버거 버튼 -->
-                <div class="md:hidden">
+                <div class="lg:hidden">
                     <button class="focus:outline-none mobile-menu-button">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>

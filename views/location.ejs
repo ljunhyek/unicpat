@@ -1,0 +1,68 @@
+<%- include('partials/header') %>
+
+<style>
+    .page-header { background-color: #EDFBE2; margin-top: -80px; padding: 8rem 0 4rem 0; }
+</style>
+
+<section class="page-header text-center">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl md:text-5xl font-bold" style="color:#0F172A;"><%= lang === 'en' ? 'Location' : '찾아오시는 길' %></h1>
+        <% if (lang === 'en') { %>
+        <p class="text-lg mt-4" style="color:#2F3B40;">Unic Patent Firm, Cheongna, Incheon</p>
+        <% } else { %>
+        <p class="text-lg mt-4" style="color:#2F3B40;">인천 청라 유니크 특허사무소 · 청라썬앤빌더테라스 103동 2층 279호</p>
+        <% } %>
+    </div>
+</section>
+
+<% if (lang === 'en') { %>
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-4 max-w-3xl" style="color:#2F3B40;">
+        <h2 class="text-xl font-bold mb-2" style="color:#0F172A;">Address</h2>
+        <p>#279, Bldg. 103, 26 Cheongna Canal-ro 288beon-gil, Seohae-gu, Incheon (Cheongna Sun&amp;Ville The Terrace)</p>
+        <h2 class="text-xl font-bold mt-6 mb-2" style="color:#0F172A;">Parking</h2>
+        <p>Underground parking is available in the building. We register your car when you visit for a consultation.</p>
+        <h2 class="text-xl font-bold mt-6 mb-2" style="color:#0F172A;">Appointments</h2>
+        <p>Weekdays 09:00-18:00. Evening and weekend consultations are available by appointment. Please book before visiting.</p>
+        <div class="flex flex-wrap gap-3 mt-8">
+            <a href="https://map.naver.com/p/entry/place/35886703" target="_blank" rel="noopener" class="font-bold px-5 py-3 rounded" style="background:#03C75A;color:#fff;">Naver Map</a>
+            <a href="/contact" class="font-bold px-5 py-3 rounded" style="background:#54B435;color:#fff;">Book a consultation</a>
+        </div>
+    </div>
+</section>
+<% } else { %>
+<section class="py-16 bg-white">
+    <div class="container mx-auto">
+                <div class="grid md:grid-cols-2 gap-10 items-start" style="word-break:keep-all;">
+            <img src="/images/directions.png" alt="유니크 특허사무소 찾아오시는 길: 청라썬앤빌더테라스 103동 2층 279호" class="w-full rounded-lg" style="box-shadow:0 10px 25px rgba(0,0,0,0.08);" loading="lazy" width="1080" height="1080">
+            <div class="space-y-6" style="color:#2F3B40;">
+                <div>
+                    <h3 class="text-xl font-bold mb-2" style="color:#0F172A;">주소</h3>
+                    <p>인천광역시 서해구 청라커낼로 288번길 26, 103동 279호 (청라썬앤빌더테라스)</p>
+                    <p class="text-sm mt-1" style="color:#6b7280;">지도 앱에서 '청라동 157-10' 또는 '청라썬앤빌더테라스'로 검색하세요.</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-2" style="color:#0F172A;">건물 안에서</h3>
+                    <p>건물 중앙의 상가용 엘리베이터 또는 에스컬레이터를 이용해 103동 2층(279호)으로 오시면 됩니다.</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-2" style="color:#0F172A;">주차</h3>
+                    <p>건물 지하주차장을 이용하실 수 있으며, 방문 상담 시 주차 등록을 지원해 드립니다.</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-2" style="color:#0F172A;">대중교통</h3>
+                    <p>버스(702, 2-1 등)를 타고 청라센트럴에일린의뜰 정류장에서 내리시면 도보 약 3~5분 거리입니다.</p>
+                </div>
+                <p class="text-sm p-4 rounded" style="background:#f0fdf4;">※ 1:1 대면 상담은 원활한 진행을 위해 사전 예약 후 방문해 주시면 더욱 편하게 상담받으실 수 있습니다. 평일 09:00~18:00, 예약 시 야간·주말 상담도 가능합니다.</p>
+                <div class="flex flex-wrap gap-3">
+                    <a href="https://map.naver.com/p/entry/place/35886703" target="_blank" rel="noopener" class="font-bold px-5 py-3 rounded" style="background:#03C75A;color:#fff;">네이버 지도에서 보기</a>
+                    <a href="https://map.kakao.com/?q=%EC%B2%AD%EB%9D%BC%EC%8D%AC%EC%95%A4%EB%B9%8C%EB%8D%94%ED%85%8C%EB%9D%BC%EC%8A%A4" target="_blank" rel="noopener" class="font-bold px-5 py-3 rounded" style="background:#FEE500;color:#191919;">카카오맵에서 보기</a>
+                    <a href="/contact" class="font-bold px-5 py-3 rounded" style="background:#54B435;color:#fff;">방문 상담 예약하기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<% } %>
+
+<%- include('partials/footer') %>

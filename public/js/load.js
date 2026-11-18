@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function() {
             targetNavId = 'nav-home';
         } else if (currentPage.includes('/about')) {
             targetNavId = 'nav-about';
-        } else if (['/patent', '/trademark', '/design', '/startup', '/dispute-transfer'].some(page => currentPage.includes(page))) {
+        } else if (['/patent', '/trademark', '/design', '/startup', '/dispute-transfer', '/incheon'].some(page => currentPage.includes(page))) {
             targetNavId = 'nav-service';
         } else if (currentPage.includes('/column')) {
             targetNavId = 'nav-column';
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function() {
             targetNavId = 'nav-newsletter';
         } else if (currentPage.includes('/gov-support')) {
             targetNavId = 'nav-gov';
-        } else if (currentPage.includes('/contact')) {
+        } else if (currentPage.includes('/contact') || currentPage.includes('/location')) {
             targetNavId = 'nav-contact';
         }
 
@@ -75,7 +75,16 @@ document.addEventListener("DOMContentLoaded", function() {
                             </div>
                         </div>
                         <a href="/column" class="block py-3 border-b">Unique Column</a>
-                        <a href="/contact" class="block py-3 border-b">Contact Us</a>
+                        <div class="border-b">
+                            <div class="flex justify-between items-center py-3 cursor-pointer mobile-menu-toggle">
+                                <span>Contact</span>
+                                <i class="fas fa-chevron-down transition-transform duration-300"></i>
+                            </div>
+                            <div class="mobile-submenu hidden pl-4 pt-2 pb-2 space-y-3 text-base bg-gray-50 rounded-b-md">
+                                <a href="/contact" class="block text-gray-700 hover:text-green-600">Consultation</a>
+                                <a href="/location" class="block text-gray-700 hover:text-green-600">Location</a>
+                            </div>
+                        </div>
                         <a href="https://www.ipbot1.com" class="block py-3" target="_blank">Real-time IP Management</a>
                     </nav>
                 `;
@@ -101,13 +110,23 @@ document.addEventListener("DOMContentLoaded", function() {
                                 <a href="/trademark" class="block text-gray-700 hover:text-[#54B435]">상표 출원/등록</a>
                                 <a href="/design" class="block text-gray-700 hover:text-[#54B435]">디자인 출원/등록</a>
                                 <a href="/startup" class="block text-gray-700 hover:text-[#54B435]">창업 및 스타트업 특화 서비스</a>
+                                <a href="/incheon" class="block text-gray-700 hover:text-[#54B435]">인천 지역 상담 안내</a>
                                 <a href="/dispute-transfer" class="block text-gray-700 hover:text-[#54B435]">IP 분쟁 대응</a>
                             </div>
                         </div>
                         <a href="/column" class="block py-3 border-b">유니크 칼럼</a>
                         <a href="/newsletter" class="block py-3 border-b">뉴스레터</a>
                         <a href="/gov-support" class="block py-3 border-b">정부지원사업 안내</a>
-                        <a href="/contact" class="block py-3 border-b">Contact Us</a>
+                        <div class="border-b">
+                            <div class="flex justify-between items-center py-3 cursor-pointer mobile-menu-toggle">
+                                <span>상담·위치 안내</span>
+                                <i class="fas fa-chevron-down transition-transform duration-300"></i>
+                            </div>
+                            <div class="mobile-submenu hidden pl-4 pt-2 pb-2 space-y-3 text-base bg-gray-50 rounded-b-md">
+                                <a href="/contact" class="block text-gray-700 hover:text-[#54B435]">상담 신청</a>
+                                <a href="/location" class="block text-gray-700 hover:text-[#54B435]">찾아오시는 길</a>
+                            </div>
+                        </div>
                         <a href="https://www.ipbot1.com" class="block py-3" target="_blank">실시간 특허관리</a>
                     </nav>
                 `;

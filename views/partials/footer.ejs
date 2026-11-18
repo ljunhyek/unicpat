@@ -31,7 +31,8 @@
                 <div>
                     <h3 class="text-lg font-bold text-white mb-4"><%= lang === 'en' ? 'Contact' : '고객지원' %></h3>
                     <ul class="space-y-2 text-gray-300">
-                        <li><a href="/contact" class="hover:text-white">Contact Us</a></li>
+                        <li><a href="/contact" class="hover:text-white"><%= lang === 'en' ? 'Consultation' : '상담 신청' %></a></li>
+                        <li><a href="/location" class="hover:text-white"><%= lang === 'en' ? 'Location' : '찾아오시는 길' %></a></li>
                         <% if (lang !== 'en') { %>
                         <li><a href="/incheon" class="hover:text-white">인천 특허사무소 안내</a></li>
                         <li><a href="/newsletter" class="hover:text-white">뉴스레터 구독</a></li>

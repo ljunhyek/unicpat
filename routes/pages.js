@@ -269,9 +269,18 @@ router.get('/gov-support', async (req, res) => {
 // Contact Us 페이지
 router.get('/contact', (req, res) => {
     res.render('contact', {
-        title: '상담 신청·오시는 길 | 인천 청라',
+        title: '상담 신청 | 인천 청라',
         titleEn: 'Contact Us',
-        description: '인천 청라 유니크 특허사무소 상담 신청과 오시는 길 안내. 전화 032-288-7960, 메일, 상담 신청 폼으로 문의하시고, 예약 후 청라썬앤빌더테라스 사무실로 방문하실 수 있습니다.'
+        description: '인천 청라 유니크 특허사무소 상담 신청. 전화 032-288-7960, 메일, 상담 신청 폼으로 문의하시면 변리사가 직접 답변드립니다. 첫 상담은 무료이며, 예약 후 청라 사무실에서 방문 상담도 가능합니다.'
+    });
+});
+
+// 찾아오시는 길
+router.get('/location', (req, res) => {
+    res.render('location', {
+        title: '찾아오시는 길 | 인천 청라',
+        titleEn: 'Location',
+        description: '인천 청라 유니크 특허사무소 찾아오시는 길. 청라썬앤빌더테라스 103동 2층 279호, 건물 지하주차장 이용 가능, 청라센트럴에일린의뜰 정류장에서 도보 3~5분. 방문 상담은 예약 후 이용해 주세요.'
     });
 });
 
@@ -424,7 +433,7 @@ router.get('/nl/open.gif', async (req, res) => {
 const SITEMAP_PAGES = [
     ['/', 'weekly', '1.0'], ['/incheon', 'monthly', '0.9'], ['/about', 'monthly', '0.8'], ['/column', 'weekly', '0.9'],
     ['/column/strategy', 'weekly', '0.7'], ['/column/patent', 'weekly', '0.7'], ['/column/trademark', 'weekly', '0.7'],
-    ['/newsletter', 'weekly', '0.8'], ['/gov-support', 'weekly', '0.9'], ['/contact', 'monthly', '0.7'],
+    ['/newsletter', 'weekly', '0.8'], ['/gov-support', 'weekly', '0.9'], ['/contact', 'monthly', '0.7'], ['/location', 'monthly', '0.7'],
     ['/patent', 'monthly', '0.8'], ['/trademark', 'monthly', '0.8'], ['/design', 'monthly', '0.8'],
     ['/startup', 'monthly', '0.8'], ['/dispute-transfer', 'monthly', '0.8'], ['/subscribe', 'monthly', '0.5']
 ];
