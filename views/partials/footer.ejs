@@ -70,33 +70,23 @@
         </div>
     </footer>
 
-    <!-- 오른쪽 상담 바로가기 (카톡상담 · 전화상담 · 블로그) -->
+    <!-- 모바일 상담 바로가기 (카톡상담 · 전화상담) — PC에서는 숨김 -->
     <style>
-        .quick-side{position:fixed;right:0;top:46%;z-index:40;display:flex;flex-direction:column;width:66px;box-shadow:-2px 4px 14px rgba(15,23,42,.18);border-radius:10px 0 0 10px;overflow:hidden}
-        .quick-side a{height:66px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:700;letter-spacing:-.02em;line-height:1;text-decoration:none}
-        .quick-side .qs-kakao{background:#FEE500;color:#191919}
-        .quick-side .qs-tel{background:#0F172A;color:#fff}
-        .quick-side .qs-blog{background:#F1F5F9;color:#1F2933}
-        .quick-side a:hover{filter:brightness(.95)}
-        .quick-side .qs-desk{display:none}
-        @media (min-width:768px){.quick-side{width:76px}.quick-side a{height:76px;font-size:13px}.quick-side .qs-mob{display:none}.quick-side .qs-desk{display:flex}}
+        .quick-fab{position:fixed;right:14px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:40;display:flex;flex-direction:column;gap:10px}
+        .quick-fab a{width:58px;height:58px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;font-weight:700;letter-spacing:-.03em;line-height:1;text-decoration:none;box-shadow:0 6px 16px rgba(15,23,42,.22);border:2px solid #fff}
+        .quick-fab .qf-kakao{background:#FEE500;color:#3C1E1E}
+        .quick-fab .qf-tel{background:#54B435;color:#fff}
+        .quick-fab a:active{transform:scale(.95)}
+        @media (min-width:768px){.quick-fab{display:none}}
     </style>
-    <nav class="quick-side" aria-label="<%= lang === 'en' ? 'Quick contact' : '빠른 상담' %>">
-        <a class="qs-kakao" href="https://pf.kakao.com/_riutxj/chat" target="_blank" rel="noopener">
-            <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path fill="#3C1E1E" d="M12 3C6.48 3 2 6.48 2 10.78c0 2.78 1.86 5.21 4.66 6.59l-.95 3.47c-.08.3.26.54.52.37l4.13-2.73c.54.07 1.09.11 1.64.11 5.52 0 10-3.48 10-7.81S17.52 3 12 3z"/></svg>
+    <nav class="quick-fab" aria-label="<%= lang === 'en' ? 'Quick contact' : '빠른 상담' %>">
+        <a class="qf-kakao" href="https://pf.kakao.com/_riutxj/chat" target="_blank" rel="noopener">
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="#3C1E1E" d="M12 3C6.48 3 2 6.48 2 10.78c0 2.78 1.86 5.21 4.66 6.59l-.95 3.47c-.08.3.26.54.52.37l4.13-2.73c.54.07 1.09.11 1.64.11 5.52 0 10-3.48 10-7.81S17.52 3 12 3z"/></svg>
             <span><%= lang === 'en' ? 'Kakao' : '카톡상담' %></span>
         </a>
-        <a class="qs-tel qs-mob" href="tel:032-288-7960">
-            <i class="fas fa-headset" style="font-size:22px" aria-hidden="true"></i>
+        <a class="qf-tel" href="tel:032-288-7960">
+            <i class="fas fa-phone-alt" style="font-size:18px" aria-hidden="true"></i>
             <span><%= lang === 'en' ? 'Call' : '전화상담' %></span>
-        </a>
-        <a class="qs-tel qs-desk" href="/contact">
-            <i class="fas fa-headset" style="font-size:24px" aria-hidden="true"></i>
-            <span><%= lang === 'en' ? 'Contact' : '상담신청' %></span>
-        </a>
-        <a class="qs-blog" href="https://blog.naver.com/unicpat" target="_blank" rel="noopener">
-            <svg width="30" height="26" viewBox="0 0 30 26" aria-hidden="true"><path fill="#1F2933" d="M5 1h20a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4h-7l-3 5-3-5H5a4 4 0 0 1-4-4V5a4 4 0 0 1 4-4z"/><text x="15" y="13.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="8.5" font-weight="700" fill="#fff">blog</text></svg>
-            <span><%= lang === 'en' ? 'Blog' : '블로그' %></span>
         </a>
     </nav>
 
