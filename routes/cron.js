@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { createServiceClient } = require('../lib/supabase');
 const mailer = require('../lib/newsletter-mailer');
+const automation = require('../lib/automation');
 
 // Vercel Cron이 CRON_SECRET 환경변수 값을 Authorization 헤더에 담아 호출함
 function requireCronSecret(req, res, next) {
@@ -19,6 +20,18 @@ router.get('/newsletter', requireCronSecret, async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error('Newsletter cron error:', err);
+    res.status(500).json({ error: err.message || String(err) });
+  }
+});
+
+// 홈페이지 관리 자동화: 매일 9시(KST)에 오늘 해당하는 작업 실행 (lib/automation.js 참고)
+router.get('/daily', requireCronSecret, async (req, res) => {
+  try {
+    const results = await automation.runDaily(createServiceClient());
+    console.log('Automation cron:', JSON.stringify(results));
+    res.json({ results });
+  } catch (err) {
+    console.error('Automation cron error:', err);
     res.status(500).json({ error: err.message || String(err) });
   }
 });

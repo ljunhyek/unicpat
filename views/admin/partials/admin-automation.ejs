@@ -1,0 +1,240 @@
+<%
+  const a = automation || { setupNeeded: true };
+  const fmt = ts => ts ? new Date(new Date(ts).getTime() + 9 * 3600 * 1000).toISOString().slice(0, 16).replace('T', ' ') : '-';
+  const KIND = {
+    column_draft: ['칼럼 초안', 'bg-purple-100 text-purple-700'],
+    newsletter_draft: ['뉴스레터', 'bg-blue-100 text-blue-700'],
+    social_draft: ['게시글 초안', 'bg-pink-100 text-pink-700'],
+    google_index: ['구글 색인', 'bg-green-100 text-green-700'],
+    seo_issue: ['검색엔진 점검', 'bg-yellow-100 text-yellow-800'],
+    gov_candidates: ['정부지원사업', 'bg-indigo-100 text-indigo-700']
+  };
+  const AI_KINDS = ['column_draft', 'newsletter_draft', 'social_draft'];
+  const CAMP = { draft: '승인 대기 (발송 전)', sending: '발송 중 (매일 10시 97명씩)', paused: '일시정지', sent: '발송 완료' };
+%>
+<h2 class="text-xl font-bold mb-1">홈페이지 관리 자동화</h2>
+<p class="text-sm text-gray-500 mb-5">매일 오전 9시에 날짜에 맞는 작업이 자동으로 돌고, 사람이 처리할 일은 아래 '할 일'에 쌓입니다. 글 초안이 필요한 일은 Claude Code에 <b>"자동화 할 일 처리해줘"</b>라고 요청하면 비용 없이 초안을 써서 올려 둡니다. 자세한 방법은 <b>홈페이지_관리_가이드.pdf</b>를 보세요.</p>
+
+<% if (a.setupNeeded) { %>
+  <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg text-sm">
+    <p class="font-semibold mb-1">자동화 테이블이 아직 없습니다.</p>
+    <p>Supabase 대시보드 → SQL Editor에서 <code>supabase/automation.sql</code> 내용을 한 번 실행한 뒤 이 화면을 새로고침하세요.</p>
+    <% if (a.error) { %><p class="mt-1 text-xs text-red-500">오류: <%= a.error %></p><% } %>
+  </div>
+<% } else { %>
+
+<!-- 자동 작업 -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8">
+  <% Object.entries(a.jobs).forEach(([key, job]) => { const last = a.lastRun[key]; %>
+    <div class="border rounded-lg p-3 bg-gray-50">
+      <div class="flex justify-between items-start gap-2">
+        <div>
+          <p class="font-semibold text-gray-800"><%= job.name %></p>
+          <p class="text-xs text-gray-500"><%= job.when %> 자동</p>
+        </div>
+        <button type="button" class="js-run text-xs bg-white border border-blue-500 text-blue-600 hover:bg-blue-50 rounded px-2 py-1 whitespace-nowrap" data-job="<%= key %>">지금 실행</button>
+      </div>
+      <p class="text-xs mt-2 <%= last && !last.ok ? 'text-red-600' : 'text-gray-600' %> js-run-result" data-job="<%= key %>">
+        <% if (last) { %><%= last.ok ? '✓' : '✗' %> <%= fmt(last.ran_at) %> · <%= last.summary %><% } else { %>아직 실행 기록 없음<% } %>
+      </p>
+    </div>
+  <% }) %>
+</div>
+
+<!-- 승인 대기 현황 -->
+<h3 class="text-lg font-semibold mb-3 text-gray-700"><i class="fas fa-hourglass-half mr-1"></i>승인 대기 현황</h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8 text-sm">
+  <div class="border rounded-lg p-3">
+    <p class="font-semibold mb-1">유니크 칼럼</p>
+    <p>초안 필요 <b class="<%= a.columns.needDraft.length ? 'text-red-600' : '' %>"><%= a.columns.needDraft.length %></b>개 · 승인 대기 <b class="<%= a.columns.awaiting.length ? 'text-orange-600' : '' %>"><%= a.columns.awaiting.length %></b>개</p>
+    <ul class="mt-2 space-y-1 text-xs">
+      <% a.columns.awaiting.slice(0, 5).forEach(c => { %>
+        <li>· <a class="text-blue-600 hover:underline" href="/admin/columns/<%= c.id %>/preview" target="_blank"><%= c.title %></a> <span class="text-gray-400">→ 미리보기 후 칼럼 탭에서 체크하면 공개</span></li>
+      <% }) %>
+    </ul>
+  </div>
+  <div class="border rounded-lg p-3">
+    <p class="font-semibold mb-1">뉴스레터 (<%= a.month %>)</p>
+    <% if (a.campaigns.length) { %>
+      <ul class="space-y-1 text-xs">
+        <% a.campaigns.forEach(c => { %>
+          <li>· <%= c.subject %><br><span class="<%= c.status === 'draft' ? 'text-orange-600 font-semibold' : 'text-gray-500' %>"><%= CAMP[c.status] || c.status %></span> · <%= fmt(c.created_at).slice(0, 10) %></li>
+        <% }) %>
+      </ul>
+      <a href="#tab-mailing" onclick="showTab('tab-mailing')" class="text-xs text-blue-600 hover:underline">뉴스레터 발송 탭 열기 →</a>
+    <% } else { %><p class="text-xs text-gray-500">발송 회차 없음</p><% } %>
+  </div>
+  <div class="border rounded-lg p-3">
+    <p class="font-semibold mb-1">게시글 · 정부지원사업</p>
+    <p>게시글 초안 <b><%= a.socialPosts.length %></b>개 (게시 전)</p>
+    <p>정부지원사업 후보 <b><%= a.govCandidates.length %></b>건 (검토 전)</p>
+  </div>
+</div>
+
+<!-- 할 일 -->
+<h3 class="text-lg font-semibold mb-3 text-gray-700"><i class="fas fa-tasks mr-1"></i>할 일 <span class="text-sm text-gray-500 font-normal">(<%= a.tasks.length %>건)</span></h3>
+<% if (a.tasks.some(t => AI_KINDS.includes(t.kind))) { %>
+  <div class="bg-purple-50 border border-purple-200 p-3 rounded-lg text-sm mb-3">
+    <i class="fas fa-robot mr-1 text-purple-600"></i>초안이 필요한 일이 있습니다. 이 PC에서 Claude Code를 열고 <b>"자동화 할 일 처리해줘"</b>라고 입력하세요. 칼럼 초안은 칼럼 탭에 '승인 대기'로 바로 들어가고, 뉴스레터·게시글 초안은 프로젝트 폴더 <b>초안/</b>에 파일로 저장됩니다.
+  </div>
+<% } %>
+<div class="space-y-2 mb-8">
+  <% if (!a.tasks.length) { %>
+    <p class="text-sm text-gray-400 py-4 text-center border rounded-lg">처리할 일이 없습니다.</p>
+  <% } %>
+  <% a.tasks.forEach(t => { const k = KIND[t.kind] || [t.kind, 'bg-gray-100 text-gray-700']; %>
+    <div class="border rounded-lg p-3 js-task" data-id="<%= t.id %>">
+      <div class="flex flex-wrap justify-between gap-2">
+        <div class="flex-1 min-w-0">
+          <span class="text-xs px-2 py-0.5 rounded <%= k[1] %>"><%= k[0] %></span>
+          <span class="font-medium ml-1"><%= t.title %></span>
+          <span class="text-xs text-gray-400 ml-1"><%= fmt(t.created_at) %></span>
+        </div>
+        <div class="flex gap-2 text-xs">
+          <% if (t.link) { %><a href="<%= t.link %>" target="_blank" class="border rounded px-2 py-1 text-blue-600 hover:bg-blue-50">열기</a><% } %>
+          <button type="button" class="js-task-status border border-green-500 text-green-700 rounded px-2 py-1 hover:bg-green-50" data-status="done">처리 완료</button>
+          <button type="button" class="js-task-status border rounded px-2 py-1 text-gray-500 hover:bg-gray-50" data-status="dismissed">제외</button>
+        </div>
+      </div>
+      <% if (t.detail) { %><p class="text-xs text-gray-600 mt-2 whitespace-pre-line"><%= t.detail %></p><% } %>
+    </div>
+  <% }) %>
+</div>
+
+<!-- 게시글 초안 -->
+<h3 class="text-lg font-semibold mb-1 text-gray-700"><i class="fas fa-bullhorn mr-1"></i>구글 비즈니스 프로필 · 네이버 플레이스 게시글</h3>
+<p class="text-xs text-gray-500 mb-3">두 곳 모두 게시 API를 쓸 수 없어(구글은 별도 승인 필요, 네이버는 미제공) 직접 올립니다. Claude Code가 만든 초안은 <b>초안/게시글_글번호.txt</b> 파일에 있습니다. 여러 번 올릴 글은 아래 '게시글 직접 쓰기'에 저장해 두면 <b>[본문 복사] → [열기] → 붙여넣기·사진 첨부 → 게시 → [게시 완료]</b>로 관리할 수 있습니다. 구글은 본문에 전화번호·주소 링크가 많으면 거부될 수 있어 링크는 버튼에 넣으세요.</p>
+<p class="text-xs mb-3"><a href="https://business.google.com/locations" target="_blank" class="text-blue-600 hover:underline">구글 비즈니스 프로필 열기</a> · <a href="https://new.smartplace.naver.com/" target="_blank" class="text-green-700 hover:underline">네이버 스마트플레이스 열기</a></p>
+<div class="space-y-4 mb-4">
+  <% a.socialPosts.forEach(p => { %>
+    <div class="border rounded-lg p-3 js-social" data-id="<%= p.id %>">
+      <div class="flex flex-wrap justify-between items-center gap-2 mb-2">
+        <p class="font-medium"><%= p.title %>
+          <span class="text-xs px-2 py-0.5 rounded <%= p.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-800' %>"><%= p.status === 'approved' ? '승인됨' : '승인 대기' %></span>
+        </p>
+        <span class="text-xs text-gray-500">구글 <%= p.gbp_posted_at ? '✓ ' + fmt(p.gbp_posted_at).slice(0, 10) : '미게시' %> · 네이버 <%= p.naver_posted_at ? '✓ ' + fmt(p.naver_posted_at).slice(0, 10) : '미게시' %></span>
+      </div>
+      <textarea class="js-body w-full border rounded p-2 text-sm" rows="7" maxlength="1500"><%= p.body %></textarea>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 text-sm">
+        <label class="block">버튼 링크 <input class="js-link w-full border rounded px-2 py-1" value="<%= p.link_url || '' %>" placeholder="https://www.unicpat.com/..."></label>
+        <label class="block">첨부 사진 (PC 경로) <input class="js-image w-full border rounded px-2 py-1" value="<%= p.image_path || '' %>" placeholder="design/naver-place/place_09.png"></label>
+      </div>
+      <div class="flex flex-wrap gap-2 mt-3 text-xs">
+        <button type="button" class="js-social-save border rounded px-2 py-1 hover:bg-gray-50">저장</button>
+        <% if (p.status !== 'approved') { %><button type="button" class="js-social-approve bg-green-600 text-white rounded px-2 py-1 hover:bg-green-700">승인</button><% } %>
+        <button type="button" class="js-copy border rounded px-2 py-1 hover:bg-gray-50"><i class="far fa-copy mr-1"></i>본문 복사</button>
+        <a href="https://business.google.com/locations" target="_blank" class="border rounded px-2 py-1 text-blue-600 hover:bg-blue-50">구글 비즈니스 열기</a>
+        <a href="https://new.smartplace.naver.com/" target="_blank" class="border rounded px-2 py-1 text-green-700 hover:bg-green-50">스마트플레이스 열기</a>
+        <% if (!p.gbp_posted_at) { %><button type="button" class="js-posted border border-blue-500 text-blue-600 rounded px-2 py-1" data-channel="gbp">구글 게시 완료</button><% } %>
+        <% if (!p.naver_posted_at) { %><button type="button" class="js-posted border border-green-600 text-green-700 rounded px-2 py-1" data-channel="naver">네이버 게시 완료</button><% } %>
+        <button type="button" class="js-social-delete text-red-500 rounded px-2 py-1 ml-auto">삭제</button>
+      </div>
+    </div>
+  <% }) %>
+</div>
+<details class="mb-8">
+  <summary class="cursor-pointer text-sm text-blue-600">+ 게시글 직접 쓰기</summary>
+  <form action="/admin/automation/social" method="POST" class="bg-gray-50 p-3 rounded-lg mt-2 space-y-2 text-sm">
+    <input name="title" class="w-full border rounded px-2 py-1" placeholder="관리용 제목 (예: 12월 연말 휴무 안내)">
+    <textarea name="body" rows="5" maxlength="1500" required class="w-full border rounded p-2" placeholder="게시 본문 (1,500자 이내)"></textarea>
+    <input name="link_url" class="w-full border rounded px-2 py-1" placeholder="버튼 링크 https://www.unicpat.com/...">
+    <input name="image_path" class="w-full border rounded px-2 py-1" placeholder="첨부 사진 경로 (선택)">
+    <button class="bg-blue-600 text-white rounded px-3 py-1">초안 저장</button>
+  </form>
+</details>
+
+<!-- 정부지원사업 후보 -->
+<h3 class="text-lg font-semibold mb-1 text-gray-700"><i class="fas fa-search mr-1"></i>정부지원사업 후보 <span class="text-sm text-gray-500 font-normal">(<%= a.govCandidates.length %>건)</span></h3>
+<p class="text-xs text-gray-500 mb-3">매월 1일 K-Startup<%= process.env.BIZINFO_API_KEY ? '·기업마당' : '' %> 공고에서 특허·상표·창업·인천 관련 공고를 골라 옵니다. 점수가 높을수록 관련이 큽니다. 접수기간을 확인해 넣고 [공고로 추가]하면 홈페이지 정부지원사업 페이지에 바로 올라갑니다.<% if (!process.env.BIZINFO_API_KEY) { %> <span class="text-orange-600">기업마당 API 인증키(BIZINFO_API_KEY)를 넣으면 기업마당 공고와 접수기간도 함께 가져옵니다.</span><% } %></p>
+<div class="overflow-x-auto mb-8">
+  <table class="w-full text-sm text-left">
+    <thead class="bg-gray-100 text-gray-600 text-xs">
+      <tr><th class="px-3 py-2">점수</th><th class="px-3 py-2">공고</th><th class="px-3 py-2">등록일</th><th class="px-3 py-2">접수기간</th><th class="px-3 py-2"></th></tr>
+    </thead>
+    <tbody class="divide-y">
+      <% if (!a.govCandidates.length) { %>
+        <tr><td colspan="5" class="px-3 py-4 text-center text-gray-400">검토할 후보가 없습니다. [정부지원사업 후보 수집 → 지금 실행]으로 바로 가져올 수 있습니다.</td></tr>
+      <% } %>
+      <% a.govCandidates.forEach(g => { %>
+        <tr class="js-gov" data-id="<%= g.id %>">
+          <td class="px-3 py-2 font-semibold"><%= g.score %></td>
+          <td class="px-3 py-2">
+            <a href="<%= g.url %>" target="_blank" class="text-blue-600 hover:underline"><%= g.title %></a>
+            <div class="text-xs text-gray-400"><%= g.source === 'bizinfo' ? '기업마당' : 'K-Startup' %><%= g.agency ? ' · ' + g.agency : '' %><%= g.matched ? ' · ' + g.matched : '' %></div>
+          </td>
+          <td class="px-3 py-2 text-xs whitespace-nowrap"><%= g.posted_on || '' %></td>
+          <td class="px-3 py-2"><input class="js-period border rounded px-2 py-1 text-xs w-44" value="<%= g.period || '' %>" placeholder="2026.11.20 ~ 2026.12.10"></td>
+          <td class="px-3 py-2 whitespace-nowrap text-xs">
+            <button type="button" class="js-gov-add bg-blue-600 text-white rounded px-2 py-1">공고로 추가</button>
+            <button type="button" class="js-gov-dismiss border rounded px-2 py-1 text-gray-500">제외</button>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<!-- 실행 기록 -->
+<details>
+  <summary class="cursor-pointer text-sm text-gray-600">실행 기록 (최근 <%= a.runs.length %>건)</summary>
+  <ul class="text-xs mt-2 space-y-1">
+    <% a.runs.forEach(r => { %>
+      <li class="<%= r.ok ? 'text-gray-600' : 'text-red-600' %>"><%= r.ok ? '✓' : '✗' %> <%= fmt(r.ran_at) %> [<%= (a.jobs[r.job] || {}).name || r.job %>] <%= r.summary %></li>
+    <% }) %>
+  </ul>
+</details>
+
+<script>
+(function () {
+  async function api(url, body) {
+    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+    const json = await res.json().catch(() => ({ error: '서버 응답 오류 (HTTP ' + res.status + ')' }));
+    if (!res.ok) throw new Error(json.error || json.summary || '오류');
+    return json;
+  }
+  const reload = () => { location.hash = 'tab-automation'; location.reload(); };
+
+  document.querySelectorAll('.js-run').forEach(btn => btn.addEventListener('click', async () => {
+    const out = document.querySelector('.js-run-result[data-job="' + btn.dataset.job + '"]');
+    btn.disabled = true;
+    out.className = 'text-xs mt-2 text-gray-600 js-run-result';
+    out.textContent = '실행 중… (최대 1분)';
+    try { await api('/admin/automation/run/' + btn.dataset.job); reload(); }
+    catch (err) { out.className = 'text-xs mt-2 text-red-600 js-run-result'; out.textContent = '실패: ' + err.message; btn.disabled = false; }
+  }));
+
+  document.querySelectorAll('.js-task-status').forEach(btn => btn.addEventListener('click', async () => {
+    const box = btn.closest('.js-task');
+    btn.disabled = true;
+    try { await api('/admin/automation/tasks/' + box.dataset.id + '/status', { status: btn.dataset.status }); box.remove(); }
+    catch (err) { alert(err.message); btn.disabled = false; }
+  }));
+
+  document.querySelectorAll('.js-social').forEach(card => {
+    const id = card.dataset.id;
+    const values = () => ({ body: card.querySelector('.js-body').value, link_url: card.querySelector('.js-link').value, image_path: card.querySelector('.js-image').value });
+    const on = (sel, fn) => { const el = card.querySelector(sel); if (el) el.addEventListener('click', () => fn(el)); };
+    on('.js-social-save', async el => { el.disabled = true; try { await api('/admin/automation/social/' + id, values()); el.textContent = '저장됨'; } catch (e) { alert(e.message); } el.disabled = false; });
+    on('.js-social-approve', async () => { try { await api('/admin/automation/social/' + id, { ...values(), approve: true }); reload(); } catch (e) { alert(e.message); } });
+    on('.js-copy', async el => {
+      const text = card.querySelector('.js-body').value;
+      try { await navigator.clipboard.writeText(text); el.textContent = '복사됨'; }
+      catch (e) { card.querySelector('.js-body').select(); document.execCommand('copy'); el.textContent = '복사됨'; }
+    });
+    card.querySelectorAll('.js-posted').forEach(el => el.addEventListener('click', async () => { try { await api('/admin/automation/social/' + id + '/posted', { channel: el.dataset.channel }); reload(); } catch (e) { alert(e.message); } }));
+    on('.js-social-delete', async () => { if (!confirm('이 게시글 초안을 삭제할까요?')) return; try { await api('/admin/automation/social/' + id + '/delete'); card.remove(); } catch (e) { alert(e.message); } });
+  });
+
+  document.querySelectorAll('.js-gov').forEach(row => {
+    const id = row.dataset.id;
+    row.querySelector('.js-gov-add').addEventListener('click', async () => {
+      try { await api('/admin/automation/gov/' + id + '/add', { period: row.querySelector('.js-period').value }); row.remove(); }
+      catch (e) { alert(e.message); }
+    });
+    row.querySelector('.js-gov-dismiss').addEventListener('click', async () => {
+      try { await api('/admin/automation/gov/' + id + '/dismiss'); row.remove(); } catch (e) { alert(e.message); }
+    });
+  });
+})();
+</script>
+<% } %>

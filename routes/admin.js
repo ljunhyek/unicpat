@@ -11,6 +11,7 @@ const crypto = require('crypto');
 const { analyzeSubscribers } = require('../lib/subscriber-analysis');
 const { planTrim, applyTrim, restorePaused } = require('../lib/subscriber-trim');
 const indexNow = require('../lib/indexnow');
+const automation = require('../lib/automation');
 
 // --- Cookie options ---
 const COOKIE_OPTS = {
@@ -99,7 +100,7 @@ router.get('/dashboard', requireLogin, async (req, res) => {
   try {
     const supabase = req.supabase;
     const days = [7, 30, 90].includes(Number(req.query.days)) ? Number(req.query.days) : 30;
-    const [colRes, nlRes, typesRes, projRes, stats, mailing] = await Promise.all([
+    const [colRes, nlRes, typesRes, projRes, stats, mailing, auto] = await Promise.all([
       supabase.from('columns').select('*').order('sort_order'),
       loadNewsletters(),
       supabase.from('gov_support_types').select('*').order('created_at', { ascending: false }),
@@ -111,6 +112,10 @@ router.get('/dashboard', requireLogin, async (req, res) => {
       mailer.getOverview(supabase).catch(err => {
         console.error('Mailing overview error:', err.message || err);
         return null;
+      }),
+      automation.getOverview(supabase).catch(err => {
+        console.error('Automation overview error:', err.message || err);
+        return { setupNeeded: true, error: err.message || String(err) };
       })
     ]);
 
@@ -121,13 +126,15 @@ router.get('/dashboard', requireLogin, async (req, res) => {
       programTypes: typesRes.data || [],
       govProjects: projRes.data || [],
       stats,
-      mailing
+      mailing,
+      automation: auto
     });
   } catch (err) {
     console.error('Dashboard error:', err);
     res.render('admin/dashboard', {
       title: '관리자 대시보드',
-      posts: [], newsletters: [], programTypes: [], govProjects: [], stats: null, mailing: null
+      posts: [], newsletters: [], programTypes: [], govProjects: [], stats: null, mailing: null,
+      automation: { setupNeeded: true, error: err.message || String(err) }
     });
   }
 });
@@ -265,15 +272,8 @@ router.post('/columns/:id/summary', requireLogin, loadColumn, async (req, res) =
 // 블로그 RSS 중 아직 칼럼에 없는 글
 router.get('/columns/blog/new', requireLogin, async (req, res) => {
   try {
-    const [feed, { data, error }] = await Promise.all([
-      blogImport.fetchBlogFeed(),
-      req.supabase.from('columns').select('url')
-    ]);
-    if (error) throw error;
-    // 마지막으로 등록한 글보다 나중에 쓴 글만 (네이버 블로그 글번호는 작성 순서대로 커짐)
-    const latest = data.map(c => blogPostNo(c.url)).filter(Boolean)
-      .reduce((max, no) => (BigInt(no) > max ? BigInt(no) : max), 0n);
-    res.json({ posts: feed.filter(p => BigInt(p.no) > latest) });
+    // 마지막으로 등록한 글보다 나중에 쓴 글만
+    res.json({ posts: await blogImport.findNewPosts(req.supabase) });
   } catch (err) {
     console.error('Blog feed error:', err);
     res.status(500).json({ error: err.message });
@@ -286,22 +286,8 @@ router.post('/columns/blog/import', requireLogin, async (req, res) => {
     const no = String(req.body.no || '');
     const post = (await blogImport.fetchBlogFeed()).find(p => p.no === no);
     if (!post) return res.status(404).json({ error: '블로그 RSS에서 해당 글을 찾지 못했습니다.' });
-
-    const { data: existing } = await req.supabase.from('columns').select('id').eq('url', post.url).maybeSingle();
-    if (existing) return res.json({ id: existing.id });
-
-    const { data: first } = await req.supabase.from('columns')
-      .select('sort_order').order('sort_order', { ascending: true }).limit(1);
-    const { data, error } = await req.supabase.from('columns').insert({
-      title: post.title,
-      url: post.url,
-      image: '',
-      category: post.category,
-      published_on: post.published_on,
-      sort_order: first && first.length ? first[0].sort_order - 1 : 0
-    }).select('id').single();
-    if (error) throw error;
-    res.json({ id: data.id });
+    const { id } = await blogImport.importPost(req.supabase, post);
+    res.json({ id });
   } catch (err) {
     console.error('Blog import error:', err);
     res.status(500).json({ error: err.message });
@@ -599,6 +585,92 @@ router.post('/mail/subscribers/status', requireLogin, async (req, res) => {
   if (error) return res.status(500).json({ error: error.message });
   if (!data.length) return res.status(404).json({ error: `${email} 주소가 고객 DB에 없습니다.` });
   res.json({ ok: true, status });
+});
+
+// --- 자동화 탭 (lib/automation.js) ---
+const AUTO_TAB = '/admin/dashboard#tab-automation';
+
+// [지금 실행]: 날짜 조건 없이 바로 실행
+router.post('/automation/run/:job', requireLogin, async (req, res) => {
+  if (!automation.JOBS[req.params.job]) return res.status(404).json({ error: '알 수 없는 작업입니다.' });
+  const result = await automation.runJob(req.supabase, req.params.job, { force: true });
+  res.status(result.ok ? 200 : 500).json(result);
+});
+
+// 할 일 처리 완료 / 제외
+router.post('/automation/tasks/:id/status', requireLogin, async (req, res) => {
+  const status = req.body.status === 'dismissed' ? 'dismissed' : 'done';
+  const { error } = await req.supabase.from('automation_tasks')
+    .update({ status, handled_at: new Date().toISOString() }).eq('id', req.params.id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ ok: true, status });
+});
+
+// 정부지원사업 후보 → 홈페이지 '사업 공고'로 추가
+router.post('/automation/gov/:id/add', requireLogin, async (req, res) => {
+  const { data: cand, error } = await req.supabase.from('gov_candidates').select('*').eq('id', req.params.id).maybeSingle();
+  if (error || !cand) return res.status(404).json({ error: '후보를 찾을 수 없습니다.' });
+  const title = String(req.body.title || cand.title).trim();
+  const period = String(req.body.period || cand.period || '').trim();
+  if (!period) return res.status(400).json({ error: '접수기간을 입력하세요 (예: 2026.11.20 ~ 2026.12.10). 공고 링크에서 확인할 수 있습니다.' });
+  const { error: insErr } = await req.supabase.from('gov_projects').insert({ title, period, url: cand.url });
+  if (insErr) return res.status(500).json({ error: insErr.message });
+  await req.supabase.from('gov_candidates').update({ status: 'added', period }).eq('id', cand.id);
+  indexNow.notifyInBackground(['/gov-support']);
+  res.json({ ok: true });
+});
+
+router.post('/automation/gov/:id/dismiss', requireLogin, async (req, res) => {
+  const { error } = await req.supabase.from('gov_candidates').update({ status: 'dismissed' }).eq('id', req.params.id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ ok: true });
+});
+
+// 게시글 초안: 직접 새로 쓰기
+router.post('/automation/social', requireLogin, async (req, res) => {
+  const body = String(req.body.body || '').trim();
+  if (!body) return res.redirect(AUTO_TAB);
+  const { error } = await req.supabase.from('social_posts').insert({
+    title: String(req.body.title || '').trim() || body.slice(0, 30),
+    body: body.slice(0, 1500),
+    link_url: String(req.body.link_url || '').trim() || null,
+    image_path: String(req.body.image_path || '').trim() || null
+  });
+  if (error) console.error('Social post create error:', error);
+  res.redirect(AUTO_TAB);
+});
+
+// 게시글 초안: 수정·승인
+router.post('/automation/social/:id', requireLogin, async (req, res) => {
+  const update = {
+    body: String(req.body.body || '').trim().slice(0, 1500),
+    link_url: String(req.body.link_url || '').trim() || null,
+    image_path: String(req.body.image_path || '').trim() || null
+  };
+  if (!update.body) return res.status(400).json({ error: '본문이 비어 있습니다.' });
+  if (req.body.approve === true) update.status = 'approved';
+  const { error } = await req.supabase.from('social_posts').update(update).eq('id', req.params.id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ ok: true });
+});
+
+// 게시글: 채널별 게시 완료 표시 (구글·네이버 둘 다 끝나면 '게시됨')
+router.post('/automation/social/:id/posted', requireLogin, async (req, res) => {
+  const field = req.body.channel === 'naver' ? 'naver_posted_at' : 'gbp_posted_at';
+  const { data: post, error } = await req.supabase.from('social_posts').select('*').eq('id', req.params.id).maybeSingle();
+  if (error || !post) return res.status(404).json({ error: '게시글을 찾을 수 없습니다.' });
+  const update = { [field]: new Date().toISOString() };
+  const other = field === 'gbp_posted_at' ? post.naver_posted_at : post.gbp_posted_at;
+  if (other) update.status = 'posted';
+  const { error: e } = await req.supabase.from('social_posts').update(update).eq('id', post.id);
+  if (e) return res.status(500).json({ error: e.message });
+  res.json({ ok: true, posted: !!update.status });
+});
+
+router.post('/automation/social/:id/delete', requireLogin, async (req, res) => {
+  const { error } = await req.supabase.from('social_posts').delete().eq('id', req.params.id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ ok: true });
 });
 
 module.exports = router;

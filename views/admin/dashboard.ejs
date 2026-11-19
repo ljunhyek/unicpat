@@ -43,7 +43,11 @@
 
         <!-- 탭 버튼 컨테이너 -->
         <div class="bg-white rounded-t-lg shadow">
-            <div class="flex border-b -mb-px">
+            <div class="flex flex-wrap border-b -mb-px">
+                <button class="tab-button py-3 px-6 font-semibold text-gray-600 border-b-2 border-transparent hover:text-blue-600 focus:outline-none" onclick="showTab('tab-automation')">
+                    <i class="fas fa-robot mr-2"></i>자동화
+                    <% const openTasks = automation && automation.tasks ? automation.tasks.length : 0; if (openTasks) { %><span class="ml-1 bg-red-500 text-white text-xs rounded-full px-2"><%= openTasks %></span><% } %>
+                </button>
                 <button class="tab-button py-3 px-6 font-semibold text-gray-600 border-b-2 border-transparent hover:text-blue-600 focus:outline-none" onclick="showTab('tab-column')">
                     <i class="fas fa-newspaper mr-2"></i>유니크 칼럼
                 </button>
@@ -64,6 +68,11 @@
 
         <!-- 탭 컨텐츠 영역 -->
         <div class="bg-white p-6 rounded-b-lg shadow">
+            <!-- 자동화 탭 -->
+            <div id="tab-automation" class="tab-content hidden">
+                <%- include('partials/admin-automation', { automation: automation }) %>
+            </div>
+
             <!-- 유니크 칼럼 탭 -->
             <div id="tab-column" class="tab-content hidden">
                 <%- include('partials/admin-column', { posts: posts }) %>
@@ -95,12 +104,12 @@
         // 페이지 로드 시 URL 해시를 확인하여 해당 탭을 열거나, 없으면 첫 번째 탭을 기본으로 표시
         document.addEventListener('DOMContentLoaded', () => {
             const hash = window.location.hash.substring(1); // 예: '#tab-newsletter' -> 'tab-newsletter'
-            const validTabs = ['tab-column', 'tab-newsletter', 'tab-mailing', 'tab-gov-support', 'tab-stats'];
-            
+            const validTabs = ['tab-automation', 'tab-column', 'tab-newsletter', 'tab-mailing', 'tab-gov-support', 'tab-stats'];
+
             if (hash && validTabs.includes(hash)) {
                 showTab(hash);
             } else {
-                showTab('tab-column');
+                showTab('tab-automation');
             }
         });
     </script>
