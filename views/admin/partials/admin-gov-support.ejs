@@ -1,5 +1,89 @@
 <h2 class="text-xl font-bold mb-4">정부지원사업 관리</h2>
 
+<!-- 새 공고 찾기 + 승인 대기 (매주 월요일 자동 수집, lib/gov-search.js) -->
+<div class="bg-green-50 border border-green-200 p-4 rounded-lg mb-8">
+    <div class="flex flex-wrap items-center gap-3 mb-3">
+        <button type="button" id="gov-find" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-colors">
+            <i class="fas fa-search mr-1"></i>새 공고 찾기
+        </button>
+        <span class="text-xs text-gray-600">K-Startup<%= process.env.BIZINFO_API_KEY ? '·기업마당' : '' %> 공고 중 특허·상표·창업·인천 관련 공고를 찾아 접수기간까지 채워 둡니다(매주 월요일 자동). [승인]하면 아래 '사업 공고'와 홈페이지에 바로 올라가고, 마감일이 지나면 홈페이지에서 저절로 사라집니다.</span>
+    </div>
+    <p id="gov-find-msg" class="text-sm mb-2"></p>
+    <% if (govCandidates === null) { %>
+        <p class="text-sm text-red-600">자동화 테이블(supabase/automation.sql)이 없어 후보를 불러오지 못했습니다.</p>
+    <% } else { %>
+    <h3 class="font-semibold text-gray-700 mb-2">승인 대기 공고 <span class="text-sm font-normal text-gray-500">(<%= govCandidates.length %>건, 관련도 높은 순)</span></h3>
+    <div class="overflow-x-auto bg-white rounded border">
+        <table class="w-full text-sm text-left">
+            <thead class="bg-gray-100 text-gray-600 text-xs">
+                <tr><th class="px-3 py-2">관련도</th><th class="px-3 py-2">공고명 (홈페이지에 보일 이름)</th><th class="px-3 py-2">접수기간</th><th class="px-3 py-2"></th></tr>
+            </thead>
+            <tbody class="divide-y">
+                <% if (!govCandidates.length) { %>
+                    <tr><td colspan="4" class="px-3 py-4 text-center text-gray-400">승인 대기 공고가 없습니다. [새 공고 찾기]를 눌러 보세요.</td></tr>
+                <% } %>
+                <% govCandidates.forEach(g => { %>
+                    <tr class="js-gov" data-id="<%= g.id %>">
+                        <td class="px-3 py-2 font-semibold"><%= g.score %></td>
+                        <td class="px-3 py-2">
+                            <input class="js-title w-full border rounded px-2 py-1 text-sm" value="<%= g.title %>">
+                            <div class="text-xs text-gray-400 mt-1">
+                                <a href="<%= g.url %>" target="_blank" class="text-blue-600 hover:underline">공고 원문</a>
+                                · <%= g.source === 'bizinfo' ? '기업마당' : 'K-Startup' %><%= g.agency ? ' · ' + g.agency : '' %><%= g.posted_on ? ' · 등록 ' + g.posted_on : '' %><%= g.matched ? ' · ' + g.matched : '' %>
+                            </div>
+                        </td>
+                        <td class="px-3 py-2"><input class="js-period border rounded px-2 py-1 text-xs w-44 <%= g.period ? '' : 'border-orange-400' %>" value="<%= g.period || '' %>" placeholder="2026.11.20 ~ 2026.12.10"></td>
+                        <td class="px-3 py-2 whitespace-nowrap text-xs">
+                            <button type="button" class="js-gov-add bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-1">승인</button>
+                            <button type="button" class="js-gov-dismiss border rounded px-2 py-1 text-gray-500">제외</button>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+    <% } %>
+</div>
+<script>
+(function () {
+    async function post(url, body) {
+        const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+        const json = await res.json().catch(() => ({ error: '서버 응답 오류 (HTTP ' + res.status + ')' }));
+        if (!res.ok) throw new Error(json.error || json.summary || '오류');
+        return json;
+    }
+    const msg = document.getElementById('gov-find-msg');
+    document.getElementById('gov-find').addEventListener('click', async e => {
+        e.target.disabled = true;
+        msg.className = 'text-sm mb-2 text-gray-600';
+        msg.textContent = '공고를 찾고 접수기간을 읽는 중… (30초~1분)';
+        try {
+            const r = await post('/admin/automation/run/gov');
+            msg.textContent = r.summary;
+            location.hash = 'tab-gov-support';
+            location.reload();
+        } catch (err) {
+            msg.className = 'text-sm mb-2 text-red-600';
+            msg.textContent = '실패: ' + err.message;
+            e.target.disabled = false;
+        }
+    });
+    document.querySelectorAll('.js-gov').forEach(row => {
+        const id = row.dataset.id;
+        row.querySelector('.js-gov-add').addEventListener('click', async () => {
+            try {
+                await post('/admin/automation/gov/' + id + '/add', { title: row.querySelector('.js-title').value, period: row.querySelector('.js-period').value });
+                location.hash = 'tab-gov-support';
+                location.reload();
+            } catch (e) { alert(e.message); }
+        });
+        row.querySelector('.js-gov-dismiss').addEventListener('click', async () => {
+            try { await post('/admin/automation/gov/' + id + '/dismiss'); row.remove(); } catch (e) { alert(e.message); }
+        });
+    });
+})();
+</script>
+
 <!-- 지원사업 종류 섹션 -->
 <div class="mb-8">
     <h3 class="text-lg font-semibold mb-3 text-gray-700">

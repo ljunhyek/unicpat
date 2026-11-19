@@ -67,7 +67,7 @@
   <div class="border rounded-lg p-3">
     <p class="font-semibold mb-1">게시글 · 정부지원사업</p>
     <p>게시글 초안 <b><%= a.socialPosts.length %></b>개 (게시 전)</p>
-    <p>정부지원사업 후보 <b><%= a.govCandidates.length %></b>건 (검토 전)</p>
+    <p>정부지원사업 공고 <b><%= a.govCandidates.length %></b>건 (승인 대기)</p>
   </div>
 </div>
 
@@ -143,36 +143,9 @@
   </form>
 </details>
 
-<!-- 정부지원사업 후보 -->
-<h3 class="text-lg font-semibold mb-1 text-gray-700"><i class="fas fa-search mr-1"></i>정부지원사업 후보 <span class="text-sm text-gray-500 font-normal">(<%= a.govCandidates.length %>건)</span></h3>
-<p class="text-xs text-gray-500 mb-3">매월 1일 K-Startup<%= process.env.BIZINFO_API_KEY ? '·기업마당' : '' %> 공고에서 특허·상표·창업·인천 관련 공고를 골라 옵니다. 점수가 높을수록 관련이 큽니다. 접수기간을 확인해 넣고 [공고로 추가]하면 홈페이지 정부지원사업 페이지에 바로 올라갑니다.<% if (!process.env.BIZINFO_API_KEY) { %> <span class="text-orange-600">기업마당 API 인증키(BIZINFO_API_KEY)를 넣으면 기업마당 공고와 접수기간도 함께 가져옵니다.</span><% } %></p>
-<div class="overflow-x-auto mb-8">
-  <table class="w-full text-sm text-left">
-    <thead class="bg-gray-100 text-gray-600 text-xs">
-      <tr><th class="px-3 py-2">점수</th><th class="px-3 py-2">공고</th><th class="px-3 py-2">등록일</th><th class="px-3 py-2">접수기간</th><th class="px-3 py-2"></th></tr>
-    </thead>
-    <tbody class="divide-y">
-      <% if (!a.govCandidates.length) { %>
-        <tr><td colspan="5" class="px-3 py-4 text-center text-gray-400">검토할 후보가 없습니다. [정부지원사업 후보 수집 → 지금 실행]으로 바로 가져올 수 있습니다.</td></tr>
-      <% } %>
-      <% a.govCandidates.forEach(g => { %>
-        <tr class="js-gov" data-id="<%= g.id %>">
-          <td class="px-3 py-2 font-semibold"><%= g.score %></td>
-          <td class="px-3 py-2">
-            <a href="<%= g.url %>" target="_blank" class="text-blue-600 hover:underline"><%= g.title %></a>
-            <div class="text-xs text-gray-400"><%= g.source === 'bizinfo' ? '기업마당' : 'K-Startup' %><%= g.agency ? ' · ' + g.agency : '' %><%= g.matched ? ' · ' + g.matched : '' %></div>
-          </td>
-          <td class="px-3 py-2 text-xs whitespace-nowrap"><%= g.posted_on || '' %></td>
-          <td class="px-3 py-2"><input class="js-period border rounded px-2 py-1 text-xs w-44" value="<%= g.period || '' %>" placeholder="2026.11.20 ~ 2026.12.10"></td>
-          <td class="px-3 py-2 whitespace-nowrap text-xs">
-            <button type="button" class="js-gov-add bg-blue-600 text-white rounded px-2 py-1">공고로 추가</button>
-            <button type="button" class="js-gov-dismiss border rounded px-2 py-1 text-gray-500">제외</button>
-          </td>
-        </tr>
-      <% }) %>
-    </tbody>
-  </table>
-</div>
+<!-- 정부지원사업 공고 -->
+<h3 class="text-lg font-semibold mb-1 text-gray-700"><i class="fas fa-search mr-1"></i>정부지원사업 공고</h3>
+<p class="text-sm mb-8">승인 대기 <b><%= a.govCandidates.length %></b>건 — <a href="#tab-gov-support" onclick="showTab('tab-gov-support')" class="text-blue-600 hover:underline">정부지원사업 탭에서 승인하기 →</a></p>
 
 <!-- 실행 기록 -->
 <details>
@@ -225,16 +198,6 @@
     on('.js-social-delete', async () => { if (!confirm('이 게시글 초안을 삭제할까요?')) return; try { await api('/admin/automation/social/' + id + '/delete'); card.remove(); } catch (e) { alert(e.message); } });
   });
 
-  document.querySelectorAll('.js-gov').forEach(row => {
-    const id = row.dataset.id;
-    row.querySelector('.js-gov-add').addEventListener('click', async () => {
-      try { await api('/admin/automation/gov/' + id + '/add', { period: row.querySelector('.js-period').value }); row.remove(); }
-      catch (e) { alert(e.message); }
-    });
-    row.querySelector('.js-gov-dismiss').addEventListener('click', async () => {
-      try { await api('/admin/automation/gov/' + id + '/dismiss'); row.remove(); } catch (e) { alert(e.message); }
-    });
-  });
 })();
 </script>
 <% } %>

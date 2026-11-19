@@ -90,7 +90,7 @@
 
             <!-- 정부지원사업 탭 -->
             <div id="tab-gov-support" class="tab-content hidden">
-                <%- include('partials/admin-gov-support', { programTypes: programTypes, govProjects: govProjects }) %>
+                <%- include('partials/admin-gov-support', { programTypes: programTypes, govProjects: govProjects, govCandidates: (automation && automation.govCandidates) || null }) %>
             </div>
 
             <!-- 방문 통계 탭 -->
