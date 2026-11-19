@@ -10,6 +10,7 @@ const { parseNewsletterHtml, toSendHtml } = require('../lib/newsletter-import');
 const crypto = require('crypto');
 const { analyzeSubscribers } = require('../lib/subscriber-analysis');
 const { planTrim, applyTrim, restorePaused } = require('../lib/subscriber-trim');
+const indexNow = require('../lib/indexnow');
 
 // --- Cookie options ---
 const COOKIE_OPTS = {
@@ -170,6 +171,7 @@ router.post('/add', requireLogin, async (req, res) => {
           html
         });
         if (error) console.error('Newsletter upload error:', error);
+        else indexNow.notifyInBackground([`/newsletter/${id}`, '/newsletter']);
         break;
       }
       case 'govProject':
@@ -235,6 +237,7 @@ router.get('/columns/:id/summary', requireLogin, loadColumn, (req, res) => {
 router.post('/columns/:id/summary', requireLogin, loadColumn, async (req, res) => {
   const { summary, key_points, checkpoint, published_on, category } = req.body;
   const text = name => (req.body[name] || '').trim() || null;
+  const ready = req.body.summary_ready === '1' && !!blogPostNo(req.column.url) && !!(summary || '').trim();
   const { error } = await req.supabase.from('columns').update({
     category: ['strategy', 'patent', 'trademark'].includes(category) ? category : req.column.category,
     summary: (summary || '').trim() || null,
@@ -247,12 +250,14 @@ router.post('/columns/:id/summary', requireLogin, loadColumn, async (req, res) =
     // faq 칸은 column_faq_1.sql을 실행한 뒤에만 저장 (칸이 없을 때 저장 오류가 나지 않도록)
     ...('faq' in req.column ? { faq: text('faq') } : {}),
     published_on: published_on || null,
-    summary_ready: req.body.summary_ready === '1' && !!blogPostNo(req.column.url) && !!(summary || '').trim()
+    summary_ready: ready
   }).eq('id', req.column.id);
   if (error) {
     console.error('Column summary save error:', error);
     return res.status(500).send(`저장하지 못했습니다: ${error.message}`);
   }
+  // 공개된 글을 저장하면(새로 공개하거나 내용을 고친 경우) 네이버·Bing에 알림
+  if (ready) indexNow.notifyInBackground([`/column/${blogPostNo(req.column.url)}`]);
   res.redirect(`/admin/columns/${req.column.id}/summary?saved=1`);
 });
 
@@ -311,6 +316,7 @@ router.post('/columns/:id/publish', requireLogin, loadColumn, async (req, res) =
   }
   const { error } = await req.supabase.from('columns').update({ summary_ready: ready }).eq('id', req.column.id);
   if (error) return res.status(500).json({ error: error.message });
+  if (ready && !req.column.summary_ready) indexNow.notifyInBackground([`/column/${blogPostNo(req.column.url)}`, '/column']);
   res.json({ ready });
 });
 

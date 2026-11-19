@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "migrate": "node scripts/migrate-to-supabase.js"
+    "migrate": "node scripts/migrate-to-supabase.js",
+    "indexnow": "node scripts/indexnow.js"
   },
   "author": "Your Name Here",
   "license": "ISC",
