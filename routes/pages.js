@@ -4,7 +4,7 @@ const { createAnonClient } = require('../lib/supabase');
 const { translatePostTitles } = require('../lib/translate');
 const { sortByDateDesc, currentByDeadline } = require('../lib/sort');
 const { UUID_RE, TEST_TOKEN, archiveHtml, sendSignupNotice } = require('../lib/newsletter-mailer');
-const { withColumnLinks, parseFaq, CATEGORY_NAMES, CATEGORY_NAMES_EN } = require('../lib/columns');
+const { COLUMN_LIST_FIELDS, withColumnLinks, parseFaq, CATEGORY_NAMES, CATEGORY_NAMES_EN } = require('../lib/columns');
 const { dataImages } = require('../lib/newsletter-import');
 
 const supabase = createAnonClient();
@@ -57,7 +57,7 @@ function sendNewsletterHtml(res, subject, html) {
 router.get('/', async (req, res) => {
     try {
         const [colRes, newsletters, projRes] = await Promise.all([
-            supabase.from('columns').select('*').order('sort_order').limit(3),
+            supabase.from('columns').select(COLUMN_LIST_FIELDS).order('sort_order').limit(3),
             loadNewsletters(),
             supabase.from('gov_projects').select('*')
         ]);
@@ -103,7 +103,7 @@ const COLUMN_PAGE_SIZE = 12;
 
 // 칼럼 전체 목록 (최신순, 영어 화면이면 제목 번역)
 async function loadColumnPosts(lang) {
-    const { data, error } = await supabase.from('columns').select('*').order('sort_order');
+    const { data, error } = await supabase.from('columns').select(COLUMN_LIST_FIELDS).order('sort_order');
     if (error) throw error;
     let posts = data || [];
     if (lang === 'en') posts = await translatePostTitles(posts);
@@ -166,10 +166,10 @@ router.get('/column/:no(\\d+)', async (req, res, next) => {
 
     // 같은 분류의 글을 먼저, 모자라면 다른 분류의 최신 글로 4개까지 채움 (홈페이지 안에서 다음 글로 이어 읽도록)
     const [{ data: sameCategory }, { data: latest }] = await Promise.all([
-        supabase.from('columns').select('*')
+        supabase.from('columns').select(COLUMN_LIST_FIELDS)
             .eq('category', post.category).eq('summary_ready', true).neq('id', post.id)
             .order('sort_order').limit(4),
-        supabase.from('columns').select('*')
+        supabase.from('columns').select(COLUMN_LIST_FIELDS)
             .eq('summary_ready', true).neq('id', post.id)
             .order('sort_order').limit(8)
     ]);
