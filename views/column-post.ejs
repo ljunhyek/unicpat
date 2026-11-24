@@ -19,6 +19,25 @@
     .post-faq summary::-webkit-details-marker { display: none; }
     .post-faq .faq-chevron { transition: transform 0.15s; }
     .post-faq[open] .faq-chevron { transform: rotate(180deg); }
+    /* 긴 글 본문 (body_html) — 구글 블로그 글과 같은 구성, 홈페이지 색 */
+    .post-article { color: #2F3B40; line-height: 1.85; word-break: keep-all; }
+    .post-article .post-thumb { margin: 0 0 2rem; }
+    .post-article .post-thumb img { width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .post-article p { margin-bottom: 1rem; }
+    .post-article p.lead { font-size: 1.1em; margin-bottom: 1.5rem; }
+    .post-article strong { color: #2f7a1c; font-weight: 700; }
+    .post-article h2 { color: #0F172A; font-size: 1.45em; font-weight: 700; line-height: 1.4; margin: 3rem 0 1.25rem; padding-bottom: 0.6rem; border-bottom: 2px solid #54B435; }
+    .post-article h3 { color: #2f7a1c; font-size: 1.15em; font-weight: 700; line-height: 1.4; margin: 2rem 0 0.75rem; }
+    .post-article ul, .post-article ol { padding-left: 1.4rem; margin: 0 0 1.25rem; }
+    .post-article ul { list-style: disc; }
+    .post-article ol { list-style: decimal; }
+    .post-article li { margin-bottom: 0.5rem; }
+    .post-article li::marker { color: #54B435; }
+    .post-article table { width: 100%; border-collapse: collapse; margin: 1.25rem 0 1.5rem; font-size: 0.95em; box-shadow: 0 2px 4px rgba(0,0,0,0.06); background: #fff; }
+    .post-article th, .post-article td { border: 1px solid #dfe5dc; padding: 0.7rem 0.8rem; text-align: center; vertical-align: middle; }
+    .post-article th { background: #EDFBE2; color: #0F172A; font-weight: 700; }
+    .post-article blockquote { background: #f7f9f6; border-left: 5px solid #54B435; margin: 1.25rem 0; padding: 1rem 1.25rem; font-style: italic; }
+    @media (max-width: 640px) { .post-article table { font-size: 0.85em; } .post-article th, .post-article td { padding: 0.5rem; } }
 </style>
 <%
     // 검색엔진용 구조화 데이터: 글 정보, 이동 경로(칼럼 › 글), 자주 묻는 질문
@@ -32,6 +51,7 @@
         datePublished: post.published_on || undefined,
         author: { '@type': 'Person', name: en ? 'Junhyek Lee' : '이준혁', jobTitle: en ? 'Patent Attorney' : '변리사', url: siteUrl + '/about' },
         publisher: { '@type': 'Organization', name: '유니크 특허사무소', logo: { '@type': 'ImageObject', url: siteUrl + '/images/unic_logo.png' } },
+        image: ogImage ? siteUrl + ogImage : undefined,
         mainEntityOfPage: pageUrl
     }, {
         '@context': 'https://schema.org',
@@ -73,11 +93,15 @@
     </header>
 
     <div class="container mx-auto max-w-3xl py-12">
+        <% if (bodyHtml) { %>
+        <div class="post-article text-base md:text-lg"><%- bodyHtml %></div>
+        <% } else { %>
         <div class="post-body text-[#2F3B40] text-base md:text-lg">
             <% paragraphs.forEach(p => { %><p><%= p %></p><% }) %>
         </div>
+        <% } %>
 
-        <% if (keyPoints.length) { %>
+        <% if (!bodyHtml && keyPoints.length) { %>
         <section class="bg-white rounded-lg shadow-sm p-6 mt-8">
             <h2 class="text-lg font-bold text-[#0F172A] mb-4"><%= en ? 'Key Points' : '핵심 정리' %></h2>
             <ul class="post-points space-y-2 text-[#2F3B40]">
@@ -86,7 +110,7 @@
         </section>
         <% } %>
 
-        <% if (checkpoint) { %>
+        <% if (!bodyHtml && checkpoint) { %>
         <section class="border-l-4 border-[#54B435] pl-5 py-1 mt-8">
             <p class="text-xs font-bold tracking-widest text-[#3d8a25] mb-2">UNIC CHECKPOINT</p>
             <p class="text-[#2F3B40] leading-relaxed" style="word-break: keep-all;"><%= checkpoint %></p>
@@ -175,14 +199,18 @@
 
         <% if (!en) { %>
         <p class="text-sm text-gray-500 mt-6" style="word-break: keep-all;">
+            <% if (bodyHtml) { %>
+            이 글은 <a href="<%= post.url %>" target="_blank" rel="noopener" class="text-[#3d8a25] underline hover:no-underline">네이버 블로그 글 ↗</a>을 바탕으로 다시 정리했습니다.
+            <% } else { %>
             판례·사례와 표로 정리한 전체 글은 <a href="<%= post.url %>" target="_blank" rel="noopener" class="text-[#3d8a25] underline hover:no-underline">네이버 블로그 원문 ↗</a>에서 볼 수 있습니다.
+            <% } %>
             새 칼럼은 <a href="/subscribe" class="text-[#3d8a25] underline hover:no-underline">월간 뉴스레터</a>로도 받아보실 수 있습니다.
         </p>
         <% } %>
         <p class="text-xs text-gray-400 mt-4 leading-relaxed">
             <%= en
                 ? 'This summary is for general information only. Specific cases may be assessed differently depending on the facts. It is based on Korean law as of the publication date.'
-                : '이 글은 일반적인 정보 제공을 위한 요약이며, 구체적인 사안은 사실관계에 따라 판단이 달라질 수 있습니다.' %>
+                : (bodyHtml ? '이 글은 일반적인 정보 제공을 위한 것이며' : '이 글은 일반적인 정보 제공을 위한 요약이며') + ', 구체적인 사안은 사실관계에 따라 판단이 달라질 수 있습니다.' %>
         </p>
 
         <% if (related.length) { %>

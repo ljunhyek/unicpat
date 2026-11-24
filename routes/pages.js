@@ -4,7 +4,7 @@ const { createAnonClient } = require('../lib/supabase');
 const { translatePostTitles } = require('../lib/translate');
 const { sortByDateDesc, currentByDeadline } = require('../lib/sort');
 const { UUID_RE, TEST_TOKEN, archiveHtml, sendSignupNotice } = require('../lib/newsletter-mailer');
-const { COLUMN_LIST_FIELDS, withColumnLinks, parseFaq, CATEGORY_NAMES, CATEGORY_NAMES_EN } = require('../lib/columns');
+const { COLUMN_LIST_FIELDS, COLUMN_POST_FIELDS, renderBodyHtml, bodyLeadText, decodeDataUri, withColumnLinks, parseFaq, CATEGORY_NAMES, CATEGORY_NAMES_EN } = require('../lib/columns');
 const { dataImages } = require('../lib/newsletter-import');
 
 const supabase = createAnonClient();
@@ -157,10 +157,13 @@ router.get('/column/:cat(strategy|patent|trademark)', async (req, res, next) => 
 
 // 칼럼 글 페이지: 블로그 글의 요약 + 블로그 전체 글 링크 (관리자가 요약을 '공개'한 글만)
 router.get('/column/:no(\\d+)', async (req, res, next) => {
-    const { data: post, error } = await supabase.from('columns').select('*')
+    const find = fields => supabase.from('columns').select(fields)
         .eq('url', `https://blog.naver.com/unicpat/${req.params.no}`)
         .eq('summary_ready', true)
         .maybeSingle();
+    let { data: post, error } = await find(COLUMN_POST_FIELDS);
+    // body_html 칸이 아직 없으면(supabase/column_article.sql 실행 전) 전체 칸으로 다시 읽음
+    if (error) ({ data: post, error } = await find('*'));
     if (error) console.error('Column post error:', error.message);
     if (!post) return next();
 
@@ -178,19 +181,39 @@ router.get('/column/:no(\\d+)', async (req, res, next) => {
         if (related.length >= 4) break;
         if (!related.some(r => r.id === p.id)) related.push(p);
     }
-    res.render('column-post', columnPostLocals(post, withColumnLinks(related), res.locals.lang));
+    res.render('column-post', columnPostLocals(post, withColumnLinks(related), res.locals.lang,
+        `/column/${req.params.no}/thumbnail.jpg`));
+});
+
+// 칼럼 썸네일 (DB thumbnail 칸의 이미지)
+router.get('/column/:no(\\d+)/thumbnail.jpg', async (req, res, next) => {
+    const { data } = await supabase.from('columns').select('thumbnail')
+        .eq('url', `https://blog.naver.com/unicpat/${req.params.no}`)
+        .eq('summary_ready', true)
+        .maybeSingle();
+    const image = data && decodeDataUri(data.thumbnail);
+    if (!image) return next();
+    res.set('Cache-Control', 'public, max-age=86400');
+    res.type(image.mime).send(image.buffer);
 });
 
 // 칼럼 글 페이지 화면 데이터 (관리자 미리보기와 같이 사용)
 // 영어 화면(lang=en)이고 영어 요약이 있으면 영어로, 아니면 한국어로 보여줌
-function columnPostLocals(post, related, lang) {
+// thumbUrl: 본문의 {{thumbnail}} 자리에 넣을 썸네일 주소 (공개 페이지와 관리자 미리보기가 다름)
+function columnPostLocals(post, related, lang, thumbUrl) {
     const en = lang === 'en' && !!post.summary_en;
     const pick = field => (en ? post[`${field}_en`] : post[field]) || '';
     const title = pick('title') || post.title;
     const paragraphs = pick('summary').split(/\n\s*\n/).map(t => t.trim()).filter(Boolean);
+    // 긴 글 본문(body_html)이 있으면 요약 대신 본문을 보여줌 (한국어 화면)
+    const bodyHtml = !en && post.body_html ? renderBodyHtml(post.body_html, thumbUrl || '') : '';
+    const hasThumb = !!bodyHtml && /\{\{\s*thumbnail\s*\}\}/.test(post.body_html);
     return {
         title,
-        description: (paragraphs[0] || title).replace(/\s+/g, ' ').slice(0, 150),
+        description: ((bodyHtml && bodyLeadText(bodyHtml)) || paragraphs[0] || title).replace(/\s+/g, ' ').slice(0, 150),
+        bodyHtml,
+        // 공유 미리보기 이미지 (공개 페이지에서만)
+        ogImage: hasThumb && thumbUrl && thumbUrl.startsWith('/column/') ? thumbUrl : null,
         post,
         en,
         postTitle: title,

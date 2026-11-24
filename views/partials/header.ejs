@@ -19,9 +19,10 @@
     <meta property="og:title" content="<%= title === '유니크 특허사무소' ? '유니크 특허사무소 | 인천 청라 특허·상표 출원 상담' : title + ' - 유니크 특허사무소' %>">
     <meta property="og:description" content="<%= metaDescription %>">
     <meta property="og:url" content="<%= canonicalUrl %>">
-    <meta property="og:image" content="<%= siteUrl %>/images/unic_logo.png">
+    <% const pageOgImage = typeof ogImage !== 'undefined' && ogImage ? ogImage : null; %>
+    <meta property="og:image" content="<%= siteUrl %><%= pageOgImage || '/images/unic_logo.png' %>">
     <meta property="og:locale" content="ko_KR">
-    <meta name="twitter:card" content="summary">
+    <meta name="twitter:card" content="<%= pageOgImage ? 'summary_large_image' : 'summary' %>">
     <% if (canonicalUrl === siteUrl + '/') { %>
     <script type="application/ld+json">
     <%- JSON.stringify({

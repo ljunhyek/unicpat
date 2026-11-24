@@ -3,7 +3,7 @@ const router = express.Router();
 const { createAnonClient, createAuthenticatedClient } = require('../lib/supabase');
 const { getVisitStats } = require('../lib/analytics');
 const mailer = require('../lib/newsletter-mailer');
-const { blogPostNo } = require('../lib/columns');
+const { blogPostNo, decodeDataUri } = require('../lib/columns');
 const blogImport = require('../lib/blog-import');
 const { columnPostLocals, loadNewsletters } = require('./pages');
 const { parseNewsletterHtml, toSendHtml } = require('../lib/newsletter-import');
@@ -101,7 +101,8 @@ router.get('/dashboard', requireLogin, async (req, res) => {
     const supabase = req.supabase;
     const days = [7, 30, 90].includes(Number(req.query.days)) ? Number(req.query.days) : 30;
     const [colRes, nlRes, typesRes, projRes, stats, mailing, auto] = await Promise.all([
-      supabase.from('columns').select('*').order('sort_order'),
+      // 본문·썸네일 같은 긴 칸은 빼고 표에 필요한 칸만
+      supabase.from('columns').select('id, title, url, image, category, sort_order, published_on, summary, summary_ready').order('sort_order'),
       loadNewsletters(),
       supabase.from('gov_support_types').select('*').order('created_at', { ascending: false }),
       supabase.from('gov_projects').select('*').order('created_at', { ascending: false }),
@@ -244,8 +245,17 @@ router.get('/columns/:id/summary', requireLogin, loadColumn, (req, res) => {
 router.post('/columns/:id/summary', requireLogin, loadColumn, async (req, res) => {
   const { summary, key_points, checkpoint, published_on, category } = req.body;
   const text = name => (req.body[name] || '').trim() || null;
-  const ready = req.body.summary_ready === '1' && !!blogPostNo(req.column.url) && !!(summary || '').trim();
+  const hasArticle = 'body_html' in req.column; // supabase/column_article.sql 실행 후
+  const bodyHtml = hasArticle ? text('body_html') : null;
+  const ready = req.body.summary_ready === '1' && !!blogPostNo(req.column.url) && !!((summary || '').trim() || bodyHtml);
+  // 썸네일: 새 파일을 올렸으면(data URI) 교체, '삭제'를 체크하면 비움, 아니면 그대로
+  const thumbUpdate = !hasArticle ? {}
+    : req.body.thumbnail_remove === '1' ? { thumbnail: null }
+    : /^data:image\/(jpeg|png|webp);base64,/.test(req.body.thumbnail || '') ? { thumbnail: req.body.thumbnail } : {};
   const { error } = await req.supabase.from('columns').update({
+    ...((req.body.title || '').trim() ? { title: req.body.title.trim() } : {}),
+    ...(hasArticle ? { body_html: bodyHtml } : {}),
+    ...thumbUpdate,
     category: ['strategy', 'patent', 'trademark'].includes(category) ? category : req.column.category,
     summary: (summary || '').trim() || null,
     key_points: (key_points || '').trim() || null,
@@ -297,8 +307,8 @@ router.post('/columns/blog/import', requireLogin, async (req, res) => {
 // 칼럼 관리 표의 체크박스: 공개 여부만 바로 저장
 router.post('/columns/:id/publish', requireLogin, loadColumn, async (req, res) => {
   const ready = req.body.ready === true;
-  if (ready && !(req.column.summary && blogPostNo(req.column.url))) {
-    return res.status(400).json({ error: '요약이 없거나 블로그 주소 형식이 맞지 않아 공개할 수 없습니다.' });
+  if (ready && !((req.column.summary || req.column.body_html) && blogPostNo(req.column.url))) {
+    return res.status(400).json({ error: '본문·요약이 없거나 블로그 주소 형식이 맞지 않아 공개할 수 없습니다.' });
   }
   const { error } = await req.supabase.from('columns').update({ summary_ready: ready }).eq('id', req.column.id);
   if (error) return res.status(500).json({ error: error.message });
@@ -310,7 +320,17 @@ router.post('/columns/:id/publish', requireLogin, loadColumn, async (req, res) =
 router.get('/columns/:id/preview', requireLogin, loadColumn, (req, res) => {
   // ?lang=en 이면 영어 화면으로 미리보기
   if (req.query.lang === 'en') res.locals.lang = 'en';
-  res.render('column-post', { ...columnPostLocals(req.column, [], res.locals.lang), preview: true });
+  res.render('column-post', {
+    ...columnPostLocals(req.column, [], res.locals.lang, `/admin/columns/${req.column.id}/thumbnail`),
+    preview: true
+  });
+});
+
+// 미리보기용 썸네일 (공개 전에도 보임)
+router.get('/columns/:id/thumbnail', requireLogin, loadColumn, (req, res) => {
+  const image = decodeDataUri(req.column.thumbnail);
+  if (!image) return res.status(404).send('썸네일이 없습니다.');
+  res.type(image.mime).send(image.buffer);
 });
 
 // --- Newsletter mailing (뉴스레터 발송 탭) ---

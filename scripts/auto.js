@@ -4,7 +4,8 @@
 //
 //   node scripts/auto.js tasks                         할 일 목록 (요약이 빈 칼럼, 이번 달 뉴스레터, 게시글 초안이 없는 칼럼)
 //   node scripts/auto.js blog <글번호>                  네이버 블로그 원문 텍스트 (초안 참고용, 그대로 옮기지 않음)
-//   node scripts/auto.js column <칼럼id> <json파일>      칼럼 요약·FAQ·영문 초안을 DB에 저장 (승인 대기, 공개는 관리자가 체크)
+//   node scripts/auto.js preview <json파일>              검토용 HTML을 초안/칼럼_<글번호>.html 로 만듦 (브라우저로 열어 확인)
+//   node scripts/auto.js column <칼럼id> <json파일>      칼럼 글(제목·본문·썸네일·요약·FAQ)을 DB에 저장 (새 글은 승인 대기)
 //   node scripts/auto.js template [저장경로]             최근 발송 회차 HTML을 파일로 저장 (새 뉴스레터의 틀)
 
 const fs = require('fs');
@@ -16,7 +17,7 @@ const { createAnonClient } = require('../lib/supabase');
 const { blogPostNo } = require('../lib/columns');
 
 const DRAFT_DIR = path.join(ROOT, '초안');
-const COLUMN_FIELDS = ['summary', 'key_points', 'checkpoint', 'faq', 'title_en', 'summary_en', 'key_points_en', 'checkpoint_en', 'category', 'published_on'];
+const COLUMN_FIELDS = ['title', 'body_html', 'thumbnail', 'summary', 'key_points', 'checkpoint', 'faq', 'title_en', 'summary_en', 'key_points_en', 'checkpoint_en', 'category', 'published_on'];
 const kstDay = (d = new Date()) => new Date(d.getTime() + 9 * 3600 * 1000).toISOString().slice(0, 10);
 const draftExists = name => fs.existsSync(path.join(DRAFT_DIR, name));
 
@@ -68,15 +69,61 @@ async function cmdBlog(no) {
 }
 
 async function cmdColumn(sb, id, file) {
-  const input = JSON.parse(fs.readFileSync(file, 'utf8').replace(/^﻿/, ''));
+  const input = readColumnInput(file);
   const update = {};
   for (const k of COLUMN_FIELDS) if (input[k] !== undefined) update[k] = typeof input[k] === 'string' ? input[k].trim() || null : input[k];
-  if (!update.summary) throw new Error('summary가 비어 있습니다.');
-  update.summary_ready = false; // 공개는 관리자가 미리보기 후 체크
+  if (!update.summary && !update.body_html) throw new Error('body_html(또는 summary)이 비어 있습니다.');
+  const { data: cur, error: e1 } = await sb.from('columns').select('id, summary_ready').eq('id', id).maybeSingle();
+  if (e1) throw e1;
+  if (!cur) throw new Error(`칼럼 id ${id}가 없습니다.`);
+  // 새 글은 승인 대기로. 이미 공개된 글은 공개 상태를 그대로 둠(내리면 공개 페이지가 사라짐)
+  if (!cur.summary_ready) update.summary_ready = false;
   const { data, error } = await sb.from('columns').update(update).eq('id', id).select('id, title');
   if (error) throw error;
-  if (!data.length) throw new Error(`칼럼 id ${id}를 저장하지 못했습니다 (없는 id이거나 권한 없음).`);
-  console.log(`저장: ${data[0].title} (승인 대기 — 관리자 칼럼 탭에서 미리보기 후 체크하면 공개)`);
+  if (!data.length) throw new Error(`칼럼 id ${id}를 저장하지 못했습니다 (권한 없음).`);
+  console.log(cur.summary_ready
+    ? `저장: ${data[0].title} (이미 공개된 글 — 저장한 내용이 공개 페이지에 바로 반영됩니다)`
+    : `저장: ${data[0].title} (승인 대기 — 관리자 칼럼 탭에서 미리보기 후 체크하면 공개)`);
+}
+
+// JSON 입력: body_file(본문 HTML 파일), thumbnail_file(JPG/PNG)은 JSON 파일 기준 상대경로
+function readColumnInput(file) {
+  const input = JSON.parse(fs.readFileSync(file, 'utf8').replace(/^﻿/, ''));
+  const rel = f => path.resolve(path.dirname(file), f);
+  if (input.body_file) input.body_html = fs.readFileSync(rel(input.body_file), 'utf8');
+  if (input.thumbnail_file) {
+    const mime = /\.png$/i.test(input.thumbnail_file) ? 'image/png' : 'image/jpeg';
+    input.thumbnail = `data:${mime};base64,${fs.readFileSync(rel(input.thumbnail_file)).toString('base64')}`;
+  }
+  return input;
+}
+
+// 저장 전 검토용 HTML (홈페이지 글 페이지와 같은 본문 스타일, 썸네일·FAQ 포함)
+function cmdPreview(file) {
+  const input = readColumnInput(file);
+  const esc = t => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const view = fs.readFileSync(path.join(ROOT, 'views', 'column-post.ejs'), 'utf8');
+  const css = (view.match(/\/\* 긴 글 본문[\s\S]*?(?=<\/style>)/) || [''])[0];
+  const body = String(input.body_html || '').replace(/\{\{\s*thumbnail\s*\}\}/g, input.thumbnail || '');
+  const faq = require('../lib/columns').parseFaq(input.faq)
+    .map(f => `<details open><summary><b>Q.</b> ${esc(f.q)}</summary><p><b>A.</b> ${esc(f.a)}</p></details>`).join('\n');
+  const no = input.no || 'draft';
+  const out = path.join(DRAFT_DIR, `칼럼_${no}.html`);
+  fs.writeFileSync(out, `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>[초안] ${esc(input.title)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#f6f7f5;font-family:'Noto Sans KR',sans-serif}.wrap{max-width:760px;margin:0 auto;padding:40px 20px 80px;font-size:17px}
+h1.t{font-size:1.9em;line-height:1.35;color:#0F172A;word-break:keep-all}.meta{color:#6b7280;font-size:14px;margin-bottom:32px}
+.box{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px 20px;margin-top:12px;font-size:15px;line-height:1.7}
+details{background:#fff;border-radius:8px;padding:14px 18px;margin-top:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)}summary{cursor:pointer}
+${css}</style></head><body><div class="wrap">
+<p class="meta">검토용 초안 · 홈페이지 칼럼 /column/${esc(no)} · 블로그 원제: ${esc(input.blog_title)}</p>
+<h1 class="t">${esc(input.title)}</h1>
+<div class="post-article">${body}</div>
+${faq ? `<h2 style="margin-top:48px;font-size:1.2em">자주 묻는 질문</h2>${faq}` : ''}
+${input.summary ? `<h2 style="margin-top:48px;font-size:1.2em">요약 (화면 비표시 · 뉴스레터·관리용)</h2><div class="box">${esc(input.summary).replace(/\n/g, '<br>')}</div>` : ''}
+</div></body></html>`);
+  console.log(`검토용 초안 → ${out}`);
 }
 
 // 최근 발송 회차 (공개 함수라 기본 키로 읽을 수 있음)
@@ -98,12 +145,13 @@ async function cmdTemplate(sb, out) {
 (async () => {
   const [cmd, a1, a2] = process.argv.slice(2);
   if (cmd === 'blog') return cmdBlog(a1);
+  if (cmd === 'preview') return cmdPreview(a1);
   const sb = createAnonClient();
   switch (cmd) {
     case 'tasks': return cmdTasks(sb);
     case 'column': return cmdColumn(sb, a1, a2);
     case 'template': return cmdTemplate(sb, a1);
     default:
-      console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(0, 9).join('\n'));
+      console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(0, 10).join('\n'));
   }
 })().catch(err => { console.error('오류:', err.message || err); process.exitCode = 1; });
