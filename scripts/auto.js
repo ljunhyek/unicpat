@@ -2,10 +2,10 @@
 // 비밀키 없이 .env의 기본 키로 동작합니다. 뉴스레터·게시글 초안은 프로젝트 폴더 '초안/'에 파일로 저장하고,
 // 관리자가 파일을 확인한 뒤 관리자 화면에 올립니다(뉴스레터: 발송 탭에 HTML 파일 올리기 / 게시글: 복사해 붙여넣기).
 //
-//   node scripts/auto.js tasks                         할 일 목록 (요약이 빈 칼럼, 이번 달 뉴스레터, 게시글 초안이 없는 칼럼)
-//   node scripts/auto.js blog <글번호>                  네이버 블로그 원문 텍스트 (초안 참고용, 그대로 옮기지 않음)
-//   node scripts/auto.js preview <json파일>              검토용 HTML을 초안/칼럼_<글번호>.html 로 만듦 (브라우저로 열어 확인)
-//   node scripts/auto.js column <칼럼id> <json파일>      칼럼 글(제목·본문·썸네일·요약·FAQ)을 DB에 저장 (새 글은 승인 대기)
+//   node scripts/auto.js tasks                         할 일 목록 (글이 빈 칼럼, 이번 달 뉴스레터, 게시글 초안이 없는 칼럼)
+//   node scripts/auto.js blog <글번호>                  네이버 블로그 원문 텍스트 (초안의 근거, 그대로 옮기지 않음)
+//   node scripts/auto.js preview <json파일>              검토용 HTML을 초안/칼럼_<글번호>.html (영문은 _en.html) 로 만듦
+//   node scripts/auto.js column <칼럼id> <json파일>      칼럼 글(제목·본문·썸네일·FAQ·영문)을 DB에 저장 (새 글은 승인 대기)
 //   node scripts/auto.js template [저장경로]             최근 발송 회차 HTML을 파일로 저장 (새 뉴스레터의 틀)
 
 const fs = require('fs');
@@ -14,20 +14,24 @@ const ROOT = path.join(__dirname, '..');
 try { process.loadEnvFile(path.join(ROOT, '.env')); } catch (e) { /* 환경변수로 직접 줄 수도 있음 */ }
 
 const { createAnonClient } = require('../lib/supabase');
-const { blogPostNo } = require('../lib/columns');
+const { blogPostNo, filledColumnIds, parseFaq } = require('../lib/columns');
 
 const DRAFT_DIR = path.join(ROOT, '초안');
-const COLUMN_FIELDS = ['title', 'body_html', 'thumbnail', 'summary', 'key_points', 'checkpoint', 'faq', 'title_en', 'summary_en', 'key_points_en', 'checkpoint_en', 'category', 'published_on'];
+// 긴 글 방식: title, body_html, thumbnail, faq + 영문 title_en, body_html_en, thumbnail_en
+// (summary·key_points·checkpoint와 *_en은 예전 요약 방식 칸 — 긴 글이 있으면 화면에 쓰지 않음)
+const COLUMN_FIELDS = ['title', 'body_html', 'thumbnail', 'faq', 'title_en', 'body_html_en', 'thumbnail_en',
+  'summary', 'key_points', 'checkpoint', 'summary_en', 'key_points_en', 'checkpoint_en', 'category', 'published_on'];
 const kstDay = (d = new Date()) => new Date(d.getTime() + 9 * 3600 * 1000).toISOString().slice(0, 10);
 const draftExists = name => fs.existsSync(path.join(DRAFT_DIR, name));
 
 async function cmdTasks(sb) {
   const { data: cols, error } = await sb.from('columns')
-    .select('id, title, url, published_on, summary, summary_ready, category').order('sort_order');
+    .select('id, title, title_en, url, published_on, summary_ready, category').order('sort_order');
   if (error) throw error;
+  const filled = await filledColumnIds(sb);
 
-  const need = cols.filter(c => !c.summary && blogPostNo(c.url));
-  console.log(`# 1. 칼럼 요약·FAQ 초안 필요 ${need.length}개`);
+  const need = cols.filter(c => !filled.has(c.id) && blogPostNo(c.url));
+  console.log(`# 1. 칼럼 글(긴 글·썸네일·영문) 초안 필요 ${need.length}개`);
   for (const c of need) console.log(`  id=${c.id} no=${blogPostNo(c.url)} ${c.published_on || ''} [${c.category}] ${c.title}`);
 
   const today = kstDay();
@@ -72,7 +76,8 @@ async function cmdColumn(sb, id, file) {
   const input = readColumnInput(file);
   const update = {};
   for (const k of COLUMN_FIELDS) if (input[k] !== undefined) update[k] = typeof input[k] === 'string' ? input[k].trim() || null : input[k];
-  if (!update.summary && !update.body_html) throw new Error('body_html(또는 summary)이 비어 있습니다.');
+  if (!update.body_html && !update.body_html_en && !update.summary) throw new Error('body_html이 비어 있습니다.');
+  if (update.body_html_en && !update.title_en) throw new Error('영문 본문을 저장할 때는 title_en도 필요합니다(영어 목록 연결에 사용).');
   const { data: cur, error: e1 } = await sb.from('columns').select('id, summary_ready').eq('id', id).maybeSingle();
   if (e1) throw e1;
   if (!cur) throw new Error(`칼럼 id ${id}가 없습니다.`);
@@ -86,42 +91,52 @@ async function cmdColumn(sb, id, file) {
     : `저장: ${data[0].title} (승인 대기 — 관리자 칼럼 탭에서 미리보기 후 체크하면 공개)`);
 }
 
-// JSON 입력: body_file(본문 HTML 파일), thumbnail_file(JPG/PNG)은 JSON 파일 기준 상대경로
+// JSON 입력: body_file / body_file_en(본문 HTML 파일), thumbnail_file / thumbnail_file_en(JPG/PNG)은 JSON 파일 기준 상대경로
 function readColumnInput(file) {
   const input = JSON.parse(fs.readFileSync(file, 'utf8').replace(/^﻿/, ''));
   const rel = f => path.resolve(path.dirname(file), f);
-  if (input.body_file) input.body_html = fs.readFileSync(rel(input.body_file), 'utf8');
-  if (input.thumbnail_file) {
-    const mime = /\.png$/i.test(input.thumbnail_file) ? 'image/png' : 'image/jpeg';
-    input.thumbnail = `data:${mime};base64,${fs.readFileSync(rel(input.thumbnail_file)).toString('base64')}`;
+  for (const sfx of ['', '_en']) {
+    const body = input[`body_file${sfx}`];
+    if (body) input[`body_html${sfx}`] = fs.readFileSync(rel(body), 'utf8');
+    const thumb = input[`thumbnail_file${sfx}`];
+    if (thumb) {
+      const mime = /\.png$/i.test(thumb) ? 'image/png' : 'image/jpeg';
+      input[`thumbnail${sfx}`] = `data:${mime};base64,${fs.readFileSync(rel(thumb)).toString('base64')}`;
+    }
   }
   return input;
 }
 
-// 저장 전 검토용 HTML (홈페이지 글 페이지와 같은 본문 스타일, 썸네일·FAQ 포함)
+// 저장 전 검토용 HTML (홈페이지 글 페이지와 같은 본문 스타일). 한국어 + 영문(있으면 _en.html)
 function cmdPreview(file) {
   const input = readColumnInput(file);
+  writePreview(input, '');
+  if (input.body_html_en) writePreview(input, '_en');
+}
+
+function writePreview(input, sfx) {
+  const en = sfx === '_en';
   const esc = t => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const view = fs.readFileSync(path.join(ROOT, 'views', 'column-post.ejs'), 'utf8');
   const css = (view.match(/\/\* 긴 글 본문[\s\S]*?(?=<\/style>)/) || [''])[0];
-  const body = String(input.body_html || '').replace(/\{\{\s*thumbnail\s*\}\}/g, input.thumbnail || '');
-  const faq = require('../lib/columns').parseFaq(input.faq)
+  const title = input[`title${sfx}`];
+  const body = String(input[`body_html${sfx}`] || '').replace(/\{\{\s*thumbnail\s*\}\}/g, input[`thumbnail${sfx}`] || '');
+  // FAQ는 한국어 화면에만 (JSON에 없으면 DB에 있는 기존 FAQ가 그대로 쓰임)
+  const faq = en ? '' : parseFaq(input.faq)
     .map(f => `<details open><summary><b>Q.</b> ${esc(f.q)}</summary><p><b>A.</b> ${esc(f.a)}</p></details>`).join('\n');
   const no = input.no || 'draft';
-  const out = path.join(DRAFT_DIR, `칼럼_${no}.html`);
-  fs.writeFileSync(out, `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>[초안] ${esc(input.title)}</title>
+  const out = path.join(DRAFT_DIR, `칼럼_${no}${sfx}.html`);
+  fs.writeFileSync(out, `<!doctype html><html lang="${en ? 'en' : 'ko'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>[초안] ${esc(title)}</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>body{margin:0;background:#f6f7f5;font-family:'Noto Sans KR',sans-serif}.wrap{max-width:760px;margin:0 auto;padding:40px 20px 80px;font-size:17px}
 h1.t{font-size:1.9em;line-height:1.35;color:#0F172A;word-break:keep-all}.meta{color:#6b7280;font-size:14px;margin-bottom:32px}
-.box{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px 20px;margin-top:12px;font-size:15px;line-height:1.7}
 details{background:#fff;border-radius:8px;padding:14px 18px;margin-top:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)}summary{cursor:pointer}
 ${css}</style></head><body><div class="wrap">
-<p class="meta">검토용 초안 · 홈페이지 칼럼 /column/${esc(no)} · 블로그 원제: ${esc(input.blog_title)}</p>
-<h1 class="t">${esc(input.title)}</h1>
+<p class="meta">검토용 초안${en ? ' (영문)' : ''} · 홈페이지 칼럼 /column/${esc(no)} · 블로그 원제: ${esc(input.blog_title)}</p>
+<h1 class="t">${esc(title)}</h1>
 <div class="post-article">${body}</div>
 ${faq ? `<h2 style="margin-top:48px;font-size:1.2em">자주 묻는 질문</h2>${faq}` : ''}
-${input.summary ? `<h2 style="margin-top:48px;font-size:1.2em">요약 (화면 비표시 · 뉴스레터·관리용)</h2><div class="box">${esc(input.summary).replace(/\n/g, '<br>')}</div>` : ''}
 </div></body></html>`);
   console.log(`검토용 초안 → ${out}`);
 }

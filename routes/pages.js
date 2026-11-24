@@ -181,33 +181,38 @@ router.get('/column/:no(\\d+)', async (req, res, next) => {
         if (related.length >= 4) break;
         if (!related.some(r => r.id === p.id)) related.push(p);
     }
-    res.render('column-post', columnPostLocals(post, withColumnLinks(related), res.locals.lang,
-        `/column/${req.params.no}/thumbnail.jpg`));
+    res.render('column-post', columnPostLocals(post, withColumnLinks(related), res.locals.lang, {
+        ko: `/column/${req.params.no}/thumbnail.jpg`,
+        en: `/column/${req.params.no}/thumbnail-en.jpg`
+    }));
 });
 
-// 칼럼 썸네일 (DB thumbnail 칸의 이미지)
-router.get('/column/:no(\\d+)/thumbnail.jpg', async (req, res, next) => {
-    const { data } = await supabase.from('columns').select('thumbnail')
+// 칼럼 썸네일 (한국어: thumbnail 칸, 영어: thumbnail_en 칸의 이미지)
+router.get('/column/:no(\\d+)/:file(thumbnail|thumbnail-en).jpg', async (req, res, next) => {
+    const field = req.params.file === 'thumbnail-en' ? 'thumbnail_en' : 'thumbnail';
+    const { data } = await supabase.from('columns').select(field)
         .eq('url', `https://blog.naver.com/unicpat/${req.params.no}`)
         .eq('summary_ready', true)
         .maybeSingle();
-    const image = data && decodeDataUri(data.thumbnail);
+    const image = data && decodeDataUri(data[field]);
     if (!image) return next();
     res.set('Cache-Control', 'public, max-age=86400');
     res.type(image.mime).send(image.buffer);
 });
 
 // 칼럼 글 페이지 화면 데이터 (관리자 미리보기와 같이 사용)
-// 영어 화면(lang=en)이고 영어 요약이 있으면 영어로, 아니면 한국어로 보여줌
-// thumbUrl: 본문의 {{thumbnail}} 자리에 넣을 썸네일 주소 (공개 페이지와 관리자 미리보기가 다름)
-function columnPostLocals(post, related, lang, thumbUrl) {
-    const en = lang === 'en' && !!post.summary_en;
+// 영어 화면(lang=en)이고 영어 글(영문 긴 글 또는 예전 영어 요약)이 있으면 영어로, 아니면 한국어로 보여줌
+// 긴 글 본문(body_html / body_html_en)이 있으면 그것만 보여주고, 없을 때만 예전 요약·핵심 정리를 보여줌
+// thumbUrls: 본문의 {{thumbnail}} 자리에 넣을 썸네일 주소 { ko, en } (공개 페이지와 관리자 미리보기가 다름)
+function columnPostLocals(post, related, lang, thumbUrls = {}) {
+    const en = lang === 'en' && !!(post.body_html_en || post.summary_en);
     const pick = field => (en ? post[`${field}_en`] : post[field]) || '';
     const title = pick('title') || post.title;
-    const paragraphs = pick('summary').split(/\n\s*\n/).map(t => t.trim()).filter(Boolean);
-    // 긴 글 본문(body_html)이 있으면 요약 대신 본문을 보여줌 (한국어 화면)
-    const bodyHtml = !en && post.body_html ? renderBodyHtml(post.body_html, thumbUrl || '') : '';
-    const hasThumb = !!bodyHtml && /\{\{\s*thumbnail\s*\}\}/.test(post.body_html);
+    const rawBody = pick('body_html');
+    const thumbUrl = (en ? thumbUrls.en : thumbUrls.ko) || '';
+    const bodyHtml = rawBody ? renderBodyHtml(rawBody, thumbUrl) : '';
+    const hasThumb = !!bodyHtml && /\{\{\s*thumbnail\s*\}\}/.test(rawBody);
+    const paragraphs = bodyHtml ? [] : pick('summary').split(/\n\s*\n/).map(t => t.trim()).filter(Boolean);
     return {
         title,
         description: ((bodyHtml && bodyLeadText(bodyHtml)) || paragraphs[0] || title).replace(/\s+/g, ' ').slice(0, 150),
@@ -218,8 +223,8 @@ function columnPostLocals(post, related, lang, thumbUrl) {
         en,
         postTitle: title,
         paragraphs,
-        keyPoints: pick('key_points').split('\n').map(t => t.trim()).filter(Boolean),
-        checkpoint: pick('checkpoint'),
+        keyPoints: bodyHtml ? [] : pick('key_points').split('\n').map(t => t.trim()).filter(Boolean),
+        checkpoint: bodyHtml ? '' : pick('checkpoint'),
         // 자주 묻는 질문은 한국어 화면에만 표시
         faqs: en ? [] : parseFaq(post.faq),
         ogType: 'article',

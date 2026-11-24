@@ -6,7 +6,7 @@
         <button type="button" id="blog-find" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg text-sm transition-colors">
             <i class="fas fa-download mr-1"></i>블로그에서 글 가져오기
         </button>
-        <span class="text-xs text-gray-600">블로그의 새 글을 찾아 제목·주소·카테고리·발행일을 채워 추가합니다. 요약이 준비되면 '검토 대기'로 바뀌고, 확인 후 체크하면 홈페이지에 게시됩니다.</span>
+        <span class="text-xs text-gray-600">블로그의 새 글을 찾아 제목·주소·카테고리·발행일을 채워 추가합니다. 글 초안이 준비되면 '검토 대기'로 바뀌고, 확인 후 체크하면 홈페이지에 게시됩니다.</span>
     </div>
     <div id="blog-new" class="hidden mt-4">
         <p id="blog-new-msg" class="text-sm mb-2"></p>
@@ -61,7 +61,7 @@
                 <th class="px-4 py-3">제목</th>
                 <th class="px-4 py-3">카테고리</th>
                 <th class="px-4 py-3">이미지</th>
-                <th class="px-4 py-3">홈페이지 요약</th>
+                <th class="px-4 py-3">홈페이지 글</th>
                 <th class="px-4 py-3 text-center">삭제</th>
             </tr>
         </thead>
@@ -82,13 +82,13 @@
                         </td>
                         <td class="px-4 py-3 text-gray-500 text-xs"><%= post.image || '-' %></td>
                         <td class="px-4 py-3 text-xs whitespace-nowrap">
-                            <% if (post.summary) { %>
+                            <% if (post.has_content) { %>
                                 <label class="inline-flex items-center gap-1 mr-2 cursor-pointer" title="체크하면 바로 홈페이지에 공개됩니다">
                                     <input type="checkbox" class="js-column-publish h-4 w-4" data-id="<%= post.id %>" <%= post.summary_ready ? 'checked' : '' %>>
                                     <span class="js-publish-label px-2 py-0.5 rounded <%= post.summary_ready ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %>"><%= post.summary_ready ? '공개' : '검토 대기' %></span>
                                 </label>
                             <% } %>
-                            <a href="/admin/columns/<%= post.id %>/summary" class="text-blue-600 hover:underline"><%= post.summary ? '편집' : '요약 쓰기' %></a>
+                            <a href="/admin/columns/<%= post.id %>/summary" class="text-blue-600 hover:underline"><%= post.has_content ? '편집' : '글 쓰기' %></a>
                         </td>
                         <td class="px-4 py-3 text-center">
                             <form action="/admin/delete" method="POST" class="inline"

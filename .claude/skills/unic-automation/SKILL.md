@@ -18,22 +18,30 @@ API 비용을 쓰지 않기 위해(사용자 결정) 서버에서 AI를 부르�
 `node scripts/auto.js tasks` — 요약이 빈 칼럼, 이번 달 뉴스레터 필요 여부, 게시글 초안 파일이 없는 최근 칼럼.
 (자동화 탭의 할 일 목록과 같은 기준. 블로그 새 글이 아직 칼럼에 안 들어왔으면 관리자 칼럼 탭 [블로그에서 글 가져오기]나 자동화 탭 [지금 실행])
 
-## 1. 칼럼 글 초안 (요약 X → 블로그 원문을 바탕으로 새로 쓴 긴 글, 2026-11-24 사용자 결정)
+## 1. 칼럼 글 초안 — 블로그 원문 기반 긴 글 + 썸네일 + 영문 (2026-11-24 사용자 결정)
+요약·핵심정리·CHECKPOINT는 더 쓰지 않는다(긴 글이 있으면 화면에도 안 나옴). FAQ와 '함께 읽으면 좋은 글'은 유지.
+
+**내용 원칙 (사용자 요청)**
+- 근거는 블로그 원문이다. 원문 내용·구성에 맞게 새 문장으로 다시 쓴다(그대로 옮기지 않음 — 유사문서 방지).
+- 원문에 없는 내용을 더할 때는 신뢰할 수 있는 출처(법령: 국가법령정보센터, 판례: 대법원·특허법원, 특허청·특허심판원 공식 자료)로 확인된 것만, 본문에 출처(조문·판결번호)를 밝혀 넣는다. 확인 못 한 일반론·통계·지역 실태 주장은 넣지 않는다.
+- 원문의 오류(예: 날짜 뒤바뀜)는 고치고 사용자에게 알린다. 추가한 부분은 끝날 때 사용자에게 목록으로 알린다.
+
+**절차**
 1. `node scripts/auto.js blog <글번호>`로 원문을 읽는다.
-2. **새 제목**: 읽기 쉽게 다시 짓는다. 핵심 검색어를 앞쪽에, 가능하면 '인천' 지역 키워드 포함.
-3. **본문** `초안/칼럼_<글번호>_본문.html` — 구조는 루트의 `구글블로그.html`과 같게(인라인 스타일 없이 태그만, 스타일은 column-post.ejs `.post-article`):
+2. **새 제목**: 읽기 쉽게, 핵심 검색어를 앞쪽에, 가능하면 '인천' 지역 키워드.
+3. **한국어 본문** `초안/칼럼_<글번호>_본문.html` — 루트 `구글블로그.html` 구성과 같게(인라인 스타일 없이 태그만, 스타일은 column-post.ejs `.post-article`):
    - 맨 위 `<figure class="post-thumb"><img src="{{thumbnail}}" alt="키워드 포함 설명" width="1200" height="630"></figure>`
-   - `<p class="lead">` 도입(독자의 질문/고민) → 이 글에서 다룰 것 `<ul>` → `<h2>1. …</h2>`(번호), `<h3>1.1. …</h3>`, `<table>`, `<blockquote>`(조문·판결), `<strong>` 강조 → `<h2>결론: …</h2>`
-   - h1·연락처 상자는 넣지 않는다(페이지가 제목·상담 안내를 붙임). FAQ는 기존 `faq` 칸 그대로(본문에 넣지 않음)
-   - 원문 문장을 그대로 옮기지 말고 새로 쓴다. 원문 내용을 넘어서는 법률 사실은 확실한 것만. 원문 오류(예: 날짜 뒤바뀜)는 고치고 사용자에게 알린다
-   - SEO: 네이버·구글 세부 검색어(예: '불사용취소심판 대응', '상표 사용증거')를 h2와 본문에 자연스럽게. '인천 특허', '청라 변리사', '인천 상표' 같은 지역 키워드를 도입·실무 섹션·마무리에 넣되 억지로 반복하지 않는다
-4. **썸네일** 1200×630: `초안/thumb/<글번호>.html`(브랜드 녹색 #0F2A1D~#54B435, 큰 제목 2줄, 핵심 도식, 하단 유니크 로고 `unique-mark.png`)을 Chrome 헤드리스로 찍고 PIL로 JPG(quality 86) 변환 → 이미지를 직접 Read로 확인
-   `"/c/Program Files/Google/Chrome/Application/chrome.exe" --headless=new --hide-scrollbars --window-size=1200,630 --virtual-time-budget=5000 --screenshot=<png> file:///<html>`
-5. `초안/칼럼_<글번호>.json`: `no`, `blog_title`, `title`, `body_file`, `thumbnail_file`, `summary`(2문단, 화면 비표시·뉴스레터/관리용), 새 글이면 `faq`(Q./A. 3쌍) — 경로는 JSON 기준 상대경로
-6. `node scripts/auto.js preview 초안/칼럼_<글번호>.json` → `초안/칼럼_<글번호>.html` 검토용 파일. 사용자가 확인한 뒤
-   `node scripts/auto.js column <칼럼id> 초안/칼럼_<글번호>.json`로 DB 저장(body_html·thumbnail 칸은 `supabase/column_article.sql` 실행 필요).
-   새 글은 승인 대기, **이미 공개된 글은 저장 즉시 공개 페이지에 반영**되므로 사용자 확인 후 저장한다.
-7. 블로그 성격이 아닌 글(예: 드라마 후기)은 쓰지 말고 사용자에게 칼럼에서 뺄지 묻는다. 영어(`*_en`)는 요청 시에만.
+   - `<p class="lead">` 도입(독자의 질문/고민) → 다룰 것 `<ul>` → `<h2>1. …</h2>`, `<h3>1.1. …</h3>`, `<table>`, `<blockquote>`(조문·판결), `<strong>` → `<h2>결론: …</h2>`
+   - h1·연락처 상자·FAQ는 넣지 않는다(페이지가 붙임). FAQ는 `faq` 칸('Q.'/'A.' 3쌍) — 새 글만 쓰고 기존 FAQ는 유지
+   - SEO: 네이버·구글 세부 검색어(예: '불사용취소심판 대응', '상표 사용증거')를 h2·본문에 자연스럽게, '인천 특허', '청라 변리사', '인천 상표' 같은 지역 키워드는 도입·마무리에(억지 반복 금지)
+4. **영문 본문** `초안/칼럼_<글번호>_본문_en.html`: 한국어 본문을 같은 구조 그대로 영어로 번역(내용 추가·삭제 없음). 법령은 'Korean Trademark Act Article 119(1)(iii)', 판결은 'Supreme Court Decision 95Hu651, December 26, 1995' 식. 지역은 'Cheongna, Incheon'.
+5. **썸네일** 1200×630 — 한국어 `초안/thumb/<글번호>.html`, 영문 `<글번호>_en.html`(같은 디자인, 문구만 영어). 브랜드 녹색 #0F2A1D~#54B435, 큰 제목 2줄, 핵심 도식, 하단 로고 `unique-mark.png`.
+   `"/c/Program Files/Google/Chrome/Application/chrome.exe" --headless=new --hide-scrollbars --window-size=1200,630 --virtual-time-budget=5000 --screenshot=<png> file:///<html>` → PIL로 JPG(quality 86) → Read로 눈으로 확인
+6. `초안/칼럼_<글번호>.json`: `no`, `blog_title`, `title`, `body_file`, `thumbnail_file`, `title_en`, `body_file_en`, `thumbnail_file_en`, (새 글이면) `faq` — 경로는 JSON 기준 상대경로
+7. `node scripts/auto.js preview 초안/칼럼_<글번호>.json` → `초안/칼럼_<글번호>.html`, `_en.html` 검토용. **사용자가 확인한 뒤**
+   `node scripts/auto.js column <칼럼id> 초안/칼럼_<글번호>.json`로 DB 저장 (칸: supabase/column_article.sql, column_article_en.sql).
+   새 글은 승인 대기, **이미 공개된 글은 저장 즉시 공개 페이지에 반영**.
+8. 블로그 성격이 아닌 글(예: 드라마 후기)은 쓰지 말고 사용자에게 칼럼에서 뺄지 묻는다.
 
 ## 2. 뉴스레터 초안 → `초안/뉴스레터_YYYY-MM.html`
 1. tasks에 나온 이번 달 블로그 글(최대 3개)을 `auto.js blog`로 읽는다.
