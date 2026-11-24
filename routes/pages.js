@@ -196,7 +196,8 @@ router.get('/column/:no(\\d+)/:file(thumbnail|thumbnail-en).jpg', async (req, re
         .maybeSingle();
     const image = data && decodeDataUri(data[field]);
     if (!image) return next();
-    res.set('Cache-Control', 'public, max-age=86400');
+    // Vercel CDN이 하루 동안 보관 → 같은 썸네일을 방문자마다 DB에서 다시 읽지 않음 (Supabase 전송량 절약). 교체하면 최대 하루 뒤 반영
+    res.set('Cache-Control', 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800');
     res.type(image.mime).send(image.buffer);
 });
 
