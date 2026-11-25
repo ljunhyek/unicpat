@@ -6,7 +6,7 @@
 create table if not exists public.automation_tasks (
   id bigint generated always as identity primary key,
   created_at timestamptz not null default now(),
-  kind text not null,                -- column_draft / newsletter_draft / social_draft / google_index / seo_issue / gov_candidates
+  kind text not null,                -- column_draft / newsletter_draft / social_draft / google_index / naver_index / seo_issue / gov_candidates
   ref text not null unique,          -- 같은 일을 두 번 만들지 않기 위한 키 (예: column:224012345678)
   title text not null,
   detail text,
