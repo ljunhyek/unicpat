@@ -48,17 +48,32 @@ function viewableNewsletters(list) {
 
 // 메일 HTML을 그대로 표시 (조각 HTML이면 문서 머리말을 붙임)
 // 스티비에서 옮겨 온 HTML에 들어 있는 noindex 표시는 지우고, 대표 주소(canonical)를 넣어 검색엔진에 색인되게 함
+// 뉴스레터 본문에서 검색 결과용 설명(약 150자) 만들기 — 메일 HTML에는 설명이 비어 있거나(" ") 없음
+function newsletterDescription(subject, html) {
+    const text = String(html || '')
+        .replace(/<(head|style|script|title)[\s\S]*?<\/\1>/gi, ' ')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&nbsp;|&#160;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+        .replace(/&quot;|&#34;/g, '"').replace(/&#39;/g, "'").replace(/&[a-z#0-9]+;/gi, ' ')
+        .replace(/구독하기|웹에서 보기|수신거부|‧/g, ' ')
+        .replace(/\s+/g, ' ').trim();
+    return `유니크 특허사무소 뉴스레터. ${text || subject}`.slice(0, 150);
+}
+
 function sendNewsletterHtml(res, subject, html) {
-    const canonical = `<link rel="canonical" href="${res.locals.canonicalUrl}">`;
+    const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+    const head = `<title>${esc(subject)} | 유니크 특허사무소 뉴스레터</title>`
+        + `<meta name="description" content="${esc(newsletterDescription(subject, html))}">`
+        + `<link rel="canonical" href="${res.locals.canonicalUrl}">`;
     let body = archiveHtml(html)
-        .replace(/<meta[^>]+name=["']?(robots|googlebot)["']?[^>]*>/gi, '')
-        .replace(/<link[^>]+rel=["']?canonical["']?[^>]*>/gi, '');
+        .replace(/<meta[^>]+name=["']?(robots|googlebot|description)["']?[^>]*>/gi, '')
+        .replace(/<link[^>]+rel=["']?canonical["']?[^>]*>/gi, '')
+        .replace(/<title>[\s\S]*?<\/title>/gi, '');
     if (/<html[\s>]/i.test(body)) {
-        body = /<\/head>/i.test(body) ? body.replace(/<\/head>/i, `${canonical}</head>`) : body.replace(/<html[^>]*>/i, m => `${m}<head>${canonical}</head>`);
+        body = /<\/head>/i.test(body) ? body.replace(/<\/head>/i, `${head}</head>`) : body.replace(/<html[^>]*>/i, m => `${m}<head>${head}</head>`);
         return res.type('html').send(body);
     }
-    const title = subject.replace(/&/g, '&amp;').replace(/</g, '&lt;');
-    res.type('html').send(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title} | 유니크 뉴스레터</title>${canonical}${body}`);
+    res.type('html').send(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">${head}${body}`);
 }
 
 // 홈페이지
@@ -82,8 +97,8 @@ router.get('/', async (req, res) => {
         res.render('index', {
             title: '유니크 특허사무소',
             titleEn: 'Patent & Trademark Attorney in Incheon, Korea',
-            descriptionEn: 'Unic Patent Firm in Cheongna, Incheon, Korea. A patent attorney with 20 years of experience personally advises on patent, trademark and design applications, government support programs and commercializing ideas.',
-            description: '인천 청라 유니크 특허사무소. 20년 경력의 변리사가 특허·상표·디자인 출원부터 정부지원사업, 아이디어 사업화까지 직접 상담합니다.',
+            descriptionEn: 'Unic Patent Firm in Cheongna, Incheon, Korea. A patent attorney with 20 years of experience handles patent, trademark and design filings and support programs.',
+            description: '인천 청라 유니크 특허사무소. 20년 경력 이준혁 변리사가 인천 서구·청라·송도·검단 기업과 스타트업의 특허·상표·디자인 출원부터 정부지원사업 연계, 아이디어 사업화까지 처음부터 끝까지 직접 상담합니다.',
             posts,
             newsletters: homeNewsletters,
             govProjects: homeProjects
@@ -101,10 +116,10 @@ router.get('/', async (req, res) => {
 // 유니크 소개
 router.get('/about', (req, res) => {
     res.render('about', {
-        title: '유니크 소개',
-        titleEn: 'About Unique',
+        title: '유니크 소개 | 인천 청라 20년 경력 변리사 이준혁',
+        titleEn: 'About Unique Patent Firm in Incheon, Korea',
         descriptionEn: 'Differentiated services built on 20 years of expertise and real-world startup experience. Meet the team at Unic Patent Firm and see what sets us apart.',
-        description: '20년 경력의 전문성과 실전 창업 경험이 만든 차별화된 서비스. 유니크 특허사무소만의 강점과 구성원들을 소개합니다.'
+        description: '2014년 개업한 인천 청라 유니크 특허사무소를 소개합니다. 20년 경력 이준혁 변리사의 경력과 실전 창업 경험, 인천 지역 기업을 위한 특허·상표·디자인 서비스와 함께하는 구성원을 만나 보세요.',
     });
 });
 
@@ -130,10 +145,10 @@ router.get('/column', async (req, res) => {
     try {
         const posts = await loadColumnPosts(res.locals.lang);
         res.render('column', {
-            title: '유니크 칼럼',
-            titleEn: 'Unique Column',
+            title: '유니크 칼럼 | 변리사가 쓰는 특허·상표·디자인 실무 정보',
+            titleEn: 'Unique Column: Korean Patent & Trademark Insights',
             descriptionEn: 'Practical, expert articles on intellectual property in Korea: patents, trademarks and designs, AI patents, overseas filing and more.',
-            description: '지식재산권에 관한 전문적이고 실용적인 정보를 제공합니다. 특허, 상표, 디자인부터 AI 특허, 해외 출원까지 다양한 주제를 다룹니다.',
+            description: '이준혁 변리사가 쓰는 유니크 칼럼. 특허 출원, 상표·디자인 등록, 지식재산 전략, AI 특허, 해외 출원, 정부지원사업까지 인천 지역 기업과 창업자에게 필요한 지식재산 실무 정보를 쉽게 정리합니다.',
             posts,
             categories: COLUMN_CATEGORIES
         });
@@ -156,10 +171,10 @@ router.get('/column/:cat(strategy|patent|trademark)', async (req, res, next) => 
         const en = res.locals.lang === 'en';
         const name = en ? category.titleEn : category.title;
         res.render('column-list', {
-            title: `${name}${page > 1 ? (en ? ` (Page ${page})` : ` (${page}페이지)`) : ''} - ${en ? 'Unique Column' : '유니크 칼럼'}`,
+            title: `${name}${page > 1 ? (en ? ` (Page ${page})` : ` (${page}페이지)`) : ''} - ${en ? 'Unique Column by a Korean Patent Attorney' : '변리사가 쓰는 유니크 칼럼'}`,
             description: en
-                ? `All Unique Column posts on ${name}, newest first.`
-                : `유니크 특허사무소 이준혁 변리사의 '${name}' 칼럼 전체 목록입니다. 최신 글부터 차례로 볼 수 있습니다.`,
+                ? `All Unique Column posts on ${name}, newest first: practical articles on Korean IP by a patent attorney at Unic Patent Firm, Incheon.`
+                : `유니크 특허사무소 이준혁 변리사의 '${name}' 칼럼 전체 목록입니다. 인천 청라 유니크 특허사무소 변리사가 인천 지역 기업과 창업자에게 필요한 실무 정보를 최신 글부터 차례로 정리했습니다.`,
             category,
             categories: COLUMN_CATEGORIES,
             posts: all.slice((page - 1) * COLUMN_PAGE_SIZE, page * COLUMN_PAGE_SIZE),
@@ -239,7 +254,7 @@ function columnPostLocals(post, related, lang, thumbUrls = {}) {
     const paragraphs = bodyHtml ? [] : pick('summary').split(/\n\s*\n/).map(t => t.trim()).filter(Boolean);
     return {
         title,
-        description: ((bodyHtml && bodyLeadText(bodyHtml)) || paragraphs[0] || title).replace(/\s+/g, ' ').slice(0, 150),
+        description: ((bodyHtml && bodyLeadText(bodyHtml)) || paragraphs.slice(0, 2).join(' ') || title).replace(/\s+/g, ' ').slice(0, 150),
         bodyHtml,
         // 공유 미리보기 이미지 (공개 페이지에서만)
         ogImage: hasThumb && thumbUrl && thumbUrl.startsWith('/column/') ? thumbUrl : null,
@@ -269,8 +284,8 @@ router.loadNewsletters = loadNewsletters;
 router.get('/newsletter', async (req, res) => {
     try {
         res.render('newsletter', {
-            title: '유니크 뉴스레터',
-            description: '사업에 도움이 되는 특허, 상표, 정부지원사업 등 최신 IP 트렌드와 실무 팁을 담은 유니크 특허사무소의 뉴스레터를 만나보세요.',
+            title: '유니크 뉴스레터 | 특허·상표·정부지원사업 월간 소식',
+            description: '인천 청라 유니크 특허사무소 이준혁 변리사가 매달 보내 드리는 뉴스레터. 사업에 도움이 되는 특허·상표 실무 팁과 지금 신청할 수 있는 정부지원사업 소식, 지난 뉴스레터를 모두 볼 수 있습니다.',
             newsletters: viewableNewsletters(await loadNewsletters())
         });
     } catch (err) {
@@ -315,8 +330,8 @@ router.get('/gov-support', async (req, res) => {
             supabase.from('gov_projects').select('*')
         ]);
         res.render('gov-support', {
-            title: '정부지원사업 안내',
-            description: '국가 R&D 지원사업 신청에 필요한 특허 컨설팅. 과제 준비부터 제안서 작성, 선정까지 유니크 특허사무소가 함께합니다.',
+            title: '정부지원사업 안내 | 인천 특허 지원사업·국가 R&D 특허 컨설팅',
+            description: '인천 기업이 활용할 수 있는 특허·상표 정부지원사업과 국가 R&D 과제 특허 컨설팅 안내. 출원비용 지원사업 정보부터 과제 준비, 제안서 작성, 선정과 결과보고서까지 인천 청라 유니크 특허사무소 변리사가 함께합니다.',
             programTypes: typesRes.data || [],
             govProjects: currentByDeadline(projRes.data || [])
         });
@@ -329,9 +344,9 @@ router.get('/gov-support', async (req, res) => {
 // Contact Us 페이지
 router.get('/contact', (req, res) => {
     res.render('contact', {
-        title: '상담 신청 | 인천 청라',
-        titleEn: 'Contact Us',
-        descriptionEn: 'Contact Unic Patent Firm in Cheongna, Incheon, Korea. Call +82-32-288-7960, email us or use the consultation form, and a patent attorney will reply personally. Your first consultation is free, and in-person meetings at our office are available by appointment.',
+        title: '상담 신청 | 인천 변리사 특허·상표 무료 상담',
+        titleEn: 'Contact a Patent Attorney in Incheon, Korea',
+        descriptionEn: 'Contact Unic Patent Firm in Cheongna, Incheon, Korea by phone, email or form. A patent attorney replies personally, and your first consultation is free.',
         description: '인천 청라 유니크 특허사무소 상담 신청. 전화 032-288-7960, 메일, 상담 신청 폼으로 문의하시면 변리사가 직접 답변드립니다. 첫 상담은 무료이며, 예약 후 청라 사무실에서 방문 상담도 가능합니다.'
     });
 });
@@ -339,9 +354,9 @@ router.get('/contact', (req, res) => {
 // 비용 안내
 router.get('/price', (req, res) => {
     res.render('price', {
-        title: '비용 안내 | 인천 특허·상표·디자인 출원 비용',
-        titleEn: 'Fees',
-        descriptionEn: 'Patent, utility model, trademark and design filing fees in Korea at Unic Patent Firm, Incheon: attorney fees and official KIPO fees from filing to registration, plus how to cut costs with fee reductions and government support programs.',
+        title: '비용 안내 | 인천 특허출원·상표등록·디자인등록 비용',
+        titleEn: 'Patent, Trademark & Design Fees in Korea',
+        descriptionEn: 'Patent, trademark and design filing fees in Korea at Unic Patent Firm, Incheon: attorney fees, official KIPO fees and ways to cut costs with fee reductions.',
         description: '인천 청라 유니크 특허사무소의 특허·실용신안, 상표, 디자인 출원 비용 안내. 출원부터 등록까지 대리인 수수료와 특허청 관납료, 관납료 감면과 정부지원사업으로 비용을 줄이는 방법까지 한곳에 정리했습니다.'
     });
 });
@@ -349,9 +364,9 @@ router.get('/price', (req, res) => {
 // 찾아오시는 길
 router.get('/location', (req, res) => {
     res.render('location', {
-        title: '찾아오시는 길 | 인천 청라',
-        titleEn: 'Location',
-        descriptionEn: 'Directions to Unic Patent Firm: Room 279, 2F, Building 103, Cheongna Sun & Builder Terrace, Cheongna, Incheon, Korea. Underground parking is available, and the office is a 3–5 minute walk from the nearest bus stop. Please book before visiting.',
+        title: '찾아오시는 길 | 인천 청라 특허사무소 위치·주차 안내',
+        titleEn: 'Location & Directions in Cheongna, Incheon',
+        descriptionEn: 'Directions to Unic Patent Firm: Bldg 103 Rm 279, Cheongna Sun & Builder Terrace, Cheongna, Incheon. Underground parking available; please book before visiting.',
         description: '인천 청라 유니크 특허사무소 찾아오시는 길. 청라썬앤빌더테라스 103동 2층 279호, 건물 지하주차장 이용 가능, 청라센트럴에일린의뜰 정류장에서 도보 3~5분. 방문 상담은 예약 후 이용해 주세요.'
     });
 });
@@ -368,46 +383,46 @@ router.get('/incheon', (req, res) => {
 // 서비스 안내 페이지들
 router.get('/patent', (req, res) => {
     res.render('patent', {
-        title: '인천 특허출원·실용신안 | 비용 안내',
+        title: '인천 특허출원·실용신안 | 특허 출원 절차와 비용',
         titleEn: 'Patent & Utility Model Applications',
-        descriptionEn: 'Patent and utility model applications in Korea with Unic Patent Firm, Incheon. A patent attorney with 20 years of experience advises you personally and tells you the costs from filing to registration up front.',
-        description: '인천 청라 유니크 특허사무소의 특허·실용신안 출원 안내. 20년 경력 변리사가 직접 상담하고, 출원부터 등록까지 비용을 미리 안내합니다. 인천 지역 중소기업·스타트업 정부지원사업 연계.'
+        descriptionEn: 'Patent and utility model applications in Korea with Unic Patent Firm, Incheon. A patent attorney with 20 years of experience quotes costs up front.',
+        description: '인천 청라 유니크 특허사무소의 특허·실용신안 출원 안내. 20년 경력 변리사가 선행기술조사로 등록 가능성을 먼저 확인하고, 출원부터 등록까지 비용을 미리 안내합니다. 인천 서구·송도·남동 중소기업·스타트업 정부지원사업 연계.',
     });
 });
 
 router.get('/trademark', (req, res) => {
     res.render('trademark', {
-        title: '인천 상표등록 | 상표출원 절차와 비용',
+        title: '인천 상표등록 | 상표출원 절차와 비용, 등록 가능성 무료 검토',
         titleEn: 'Trademark Registration',
-        descriptionEn: 'Trademark registration in Korea with Unic Patent Firm, Incheon. Protect your brand name and logo: the filing process, costs per class and official fee reductions, handled personally by a patent attorney.',
-        description: '인천 청라 유니크 특허사무소의 상표등록 안내. 브랜드 이름과 로고를 지키는 상표출원 절차와 비용(1상품류 기준), 관납료 감면까지 변리사가 직접 챙겨 드립니다.'
+        descriptionEn: 'Trademark registration in Korea with Unic Patent Firm, Incheon: protect your brand name and logo, with the filing process, costs per class and fee reductions.',
+        description: '인천 청라 유니크 특허사무소의 상표등록 안내. 상호·브랜드·로고 등록 가능성 검토는 무료이며, 상표출원 절차와 비용(1상품류 기준), 관납료 감면, 10년 갱신까지 인천 변리사가 직접 챙겨 드립니다.',
     });
 });
 
 router.get('/design', (req, res) => {
     res.render('design', {
-        title: '인천 디자인등록 | 디자인 출원',
+        title: '인천 디자인등록 | 디자인 출원 절차와 비용',
         titleEn: 'Design Registration',
-        descriptionEn: 'Design registration in Korea with Unic Patent Firm, Incheon. Protect the look of your products and packaging and stop copycats: the design filing process and costs explained.',
-        description: '인천 청라 유니크 특허사무소의 디자인등록 안내. 제품 외형과 패키지 디자인을 보호하고 모방 제품을 막는 디자인 출원 절차와 비용을 안내합니다.'
+        descriptionEn: 'Design registration in Korea with Unic Patent Firm, Incheon. Protect the look of your products and packaging and stop copycats: process and costs explained.',
+        description: '인천 청라 유니크 특허사무소의 디자인등록 안내. 제품 외형과 패키지 디자인을 디자인권으로 보호해 모방 제품을 막습니다. 디자인 출원 절차와 비용, 등록 가능성 무료 검토까지 인천 변리사가 직접 상담합니다.',
     });
 });
 
 router.get('/startup', (req, res) => {
     res.render('startup', {
-        title: '인천 스타트업 특허 | 정부지원사업 연계',
+        title: '인천 스타트업 특허 | 창업 특허 전략과 정부지원사업 연계',
         titleEn: 'Startup IP Services',
-        descriptionEn: 'A patent attorney who has founded a startup helps startups and aspiring founders with patent strategy, IP portfolios and links to Korean government support programs. Unic Patent Firm, Incheon.',
+        descriptionEn: 'A patent attorney who has founded a startup helps founders with patent strategy, IP portfolios and government support programs. Unic Patent Firm, Incheon.',
         description: '직접 창업해 본 변리사가 인천 지역 스타트업과 예비창업자의 특허 전략, IP 포트폴리오, 정부지원사업 연계를 도와드립니다. 인천 청라 유니크 특허사무소.'
     });
 });
 
 router.get('/dispute-transfer', (req, res) => {
     res.render('dispute-transfer', {
-        title: 'IP 분쟁 대응',
-        titleEn: 'IP Dispute Resolution',
-        descriptionEn: 'From responding to warning letters to patent infringement litigation, we set out a clear strategy for complex IP disputes.',
-        description: '경고장 대응부터 특허 침해 소송까지, 복잡한 IP 분쟁에 대한 명쾌한 전략을 제시합니다.'
+        title: '인천 특허 분쟁 대응 | 경고장·침해 소송·심판 전략',
+        titleEn: 'IP Dispute Resolution: Warning Letters & Infringement',
+        descriptionEn: 'From warning letters to patent and trademark infringement litigation, a patent attorney at Unic Patent Firm, Incheon sets out a clear IP dispute strategy.',
+        description: '경고장을 받았거나 보냈을 때, 특허·상표·디자인 침해가 의심될 때. 인천 청라 유니크 특허사무소 변리사가 경고장 대응부터 침해 소송, 심판까지 IP 분쟁의 명쾌한 대응 전략을 제시합니다.'
     });
 });
 
