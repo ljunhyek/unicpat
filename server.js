@@ -13,6 +13,7 @@ const adminRoutes = require('./routes/admin');
 const cronRoutes = require('./routes/cron');
 const webhookRoutes = require('./routes/webhooks');
 const { trackPageView } = require('./lib/analytics');
+const { hasEnPage, enPath, localizeLinks } = require('./lib/i18n');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,7 +26,34 @@ app.set('views', path.join(__dirname, 'views'));
 const SITE_URL = (process.env.SITE_URL || 'https://www.unicpat.com').replace(/\/$/, '');
 app.use((req, res, next) => {
     if (req.hostname === 'unicpat.com') return res.redirect(301, `${SITE_URL}${req.originalUrl}`);
-    res.locals.canonicalUrl = SITE_URL + req.path.replace(/(.)\/$/, '$1');
+
+    // 언어: /en/... 주소는 영어, 그 밖은 한국어 (lib/i18n.js)
+    // 영어 주소는 /en을 떼고 같은 라우트로 처리. 영어 번역이 없는 페이지는 한국어 주소로 보냄
+    const qAt = req.url.indexOf('?');
+    const query = qAt >= 0 ? req.url.slice(qAt) : '';
+    const enMatch = req.path.match(/^\/en(\/.*)?$/);
+    let lang = 'ko';
+    if (enMatch) {
+        const koPath = (enMatch[1] || '/').replace(/(.)\/$/, '$1');
+        if (!hasEnPage(koPath)) return res.redirect(302, koPath + query);
+        req.url = koPath + query;
+        lang = 'en';
+        // 영어 화면의 사이트 안 링크를 영어 주소로
+        const render = res.render.bind(res);
+        res.render = (view, opts, cb) => {
+            if (typeof opts === 'function') { cb = opts; opts = {}; }
+            render(view, opts, (err, html) => {
+                if (err) return cb ? cb(err) : next(err);
+                html = localizeLinks(html);
+                cb ? cb(null, html) : res.send(html);
+            });
+        };
+    }
+    const pagePath = req.path.replace(/(.)\/$/, '$1');
+    res.locals.lang = lang;
+    res.locals.canonicalUrl = SITE_URL + (lang === 'en' ? enPath(pagePath) : pagePath);
+    // 한국어·영어 주소 짝 (hreflang 표시와 언어 전환 버튼). 칼럼 글에 영어 글이 없으면 글 페이지에서 en을 지움
+    res.locals.langUrls = { ko: pagePath, en: hasEnPage(pagePath) ? enPath(pagePath) : null };
     res.locals.siteUrl = SITE_URL;
     // 구글 서치콘솔 / 네이버 서치어드바이저 'HTML 태그' 소유 확인 값 (Vercel 환경 변수에 넣으면 모든 페이지에 표시)
     res.locals.googleVerification = process.env.GOOGLE_SITE_VERIFICATION || '';
@@ -47,11 +75,6 @@ app.use(express.json({ limit: '4mb' }));
 // Signed cookie 미들웨어
 app.use(cookieParser(process.env.COOKIE_SECRET || 'default-cookie-secret'));
 
-// 언어 미들웨어 - 모든 EJS 템플릿에 lang 변수 전달
-app.use((req, res, next) => {
-    res.locals.lang = req.cookies['lang'] || 'ko';
-    next();
-});
 
 // 예약 작업 (Vercel Cron) — 방문 통계에 잡히지 않도록 먼저 연결
 app.use('/api/cron', cronRoutes);

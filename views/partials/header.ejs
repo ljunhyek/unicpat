@@ -5,23 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <% if (lang === 'en') { %>
     <title><%= typeof titleEn !== 'undefined' ? titleEn : title %> - Unic Patent Firm</title>
-    <meta name="description" content="<%= typeof description !== 'undefined' ? description : 'A patent attorney with 20 years of experience providing expert solutions in patent, trademark, design applications, IP disputes, and startup consulting.' %>">
+    <meta name="description" content="<%= typeof descriptionEn !== 'undefined' ? descriptionEn : typeof description !== 'undefined' && description ? description : 'A patent attorney with 20 years of experience providing expert solutions in patent, trademark, design applications, IP disputes, and startup consulting.' %>">
     <% } else { %>
     <title><%= title === '유니크 특허사무소' ? '인천 청라 특허사무소 | 특허·상표·디자인 출원 상담 - 유니크 특허사무소' : title + ' - 유니크 특허사무소' %></title>
     <meta name="description" content="<%= typeof description !== 'undefined' ? description : '20년 경력의 전문 변리사가 특허, 상표, 디자인 출원부터 IP 분쟁 대응, 스타트업 컨설팅까지 최고의 솔루션을 제공합니다.' %>">
     <% } %>
-    <% const metaDescription = typeof description !== 'undefined' && description ? description : '20년 경력의 전문 변리사가 특허, 상표, 디자인 출원부터 IP 분쟁 대응, 스타트업 컨설팅까지 최고의 솔루션을 제공합니다.'; %>
+    <% const metaDescription = lang === 'en' && typeof descriptionEn !== 'undefined' ? descriptionEn : typeof description !== 'undefined' && description ? description : '20년 경력의 전문 변리사가 특허, 상표, 디자인 출원부터 IP 분쟁 대응, 스타트업 컨설팅까지 최고의 솔루션을 제공합니다.'; %>
     <link rel="canonical" href="<%= canonicalUrl %>">
+    <% if (typeof langUrls !== 'undefined' && langUrls.en) { %>
+    <link rel="alternate" hreflang="ko" href="<%= siteUrl + langUrls.ko %>">
+    <link rel="alternate" hreflang="en" href="<%= siteUrl + langUrls.en %>">
+    <link rel="alternate" hreflang="x-default" href="<%= siteUrl + langUrls.ko %>">
+    <% } %>
     <% if (googleVerification) { %><meta name="google-site-verification" content="<%= googleVerification %>"><% } %>
     <% if (naverVerification) { %><meta name="naver-site-verification" content="<%= naverVerification %>"><% } %>
     <meta property="og:type" content="<%= typeof ogType !== 'undefined' && ogType ? ogType : 'website' %>">
     <meta property="og:site_name" content="유니크 특허사무소">
+    <% if (lang === 'en') { %>
+    <meta property="og:title" content="<%= typeof titleEn !== 'undefined' ? titleEn : title %> - Unic Patent Firm">
+    <% } else { %>
     <meta property="og:title" content="<%= title === '유니크 특허사무소' ? '유니크 특허사무소 | 인천 청라 특허·상표 출원 상담' : title + ' - 유니크 특허사무소' %>">
+    <% } %>
     <meta property="og:description" content="<%= metaDescription %>">
     <meta property="og:url" content="<%= canonicalUrl %>">
     <% const pageOgImage = typeof ogImage !== 'undefined' && ogImage ? ogImage : null; %>
     <meta property="og:image" content="<%= siteUrl %><%= pageOgImage || '/images/unic_logo.png' %>">
-    <meta property="og:locale" content="ko_KR">
+    <meta property="og:locale" content="<%= lang === 'en' ? 'en_US' : 'ko_KR' %>">
     <meta name="twitter:card" content="<%= pageOgImage ? 'summary_large_image' : 'summary' %>">
     <% if (canonicalUrl === siteUrl + '/') { %>
     <script type="application/ld+json">
@@ -116,9 +125,10 @@
         <!-- 언어 선택 바 -->
         <div class="lang-bar">
             <div class="container mx-auto flex justify-end items-center">
-                <a href="/set-lang?lang=ko" class="<%= lang !== 'en' ? 'lang-active' : '' %>">한국어</a>
+                <%# 같은 글의 다른 언어 주소로 이동 (영어 페이지가 없으면 영어 홈으로) %>
+                <a href="<%= langUrls.ko %>" hreflang="ko" lang="ko" class="<%= lang !== 'en' ? 'lang-active' : '' %>">한국어</a>
                 <span class="lang-sep">|</span>
-                <a href="/set-lang?lang=en" class="<%= lang === 'en' ? 'lang-active' : '' %>">English</a>
+                <a href="<%= langUrls.en || '/en' %>" hreflang="en" lang="en" class="<%= lang === 'en' ? 'lang-active' : '' %>">English</a>
             </div>
         </div>
 

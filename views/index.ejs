@@ -79,15 +79,31 @@
     <div class="container mx-auto z-10">
         <div class="hero-content">
             <% if (lang === 'en') { %>
-            <h1 class="text-3xl md:text-5xl font-bold mb-4" style="line-height: 1.5;">
-                Where Innovation Meets Protection,<br class="hidden md:block"> Unic Patent Firm Is With You
+            <h1 class="text-4xl md:text-6xl font-bold mb-4" style="line-height: 1.35;">
+                Turn your ideas<br><span style="color:#3d8a25;">into business rights.</span>
             </h1>
-            <p class="text-lg my-8 max-w-3xl mx-auto">Beyond mere filing — a patent attorney with 20 years of experience<br>carefully consults and supports you from idea to commercialization</p>
-            <div class="mt-8 text-lg font-semibold space-y-4">
-                <a href="https://www.ipbot1.com" target="_blank" class="flex items-center justify-center bg-green-600 p-4 rounded-lg shadow-lg text-white hover:bg-green-700 transition">
-                    <i class="fas fa-robot mr-3"></i>
-                    <span>Real-time IP Management</span>
-                </a>
+            <p class="text-lg my-8 max-w-3xl mx-auto">Unic Patent Firm in Cheongna, Incheon. Patent attorney Junhyeok Lee, with 20 years of experience, advises you <b>personally from start to finish</b>,<br class="hidden md:block"> from patent, trademark and design applications to linking you with government support programs.</p>
+            <div class="hidden md:block mt-8 text-lg font-semibold space-y-4">
+                <div class="hidden md:grid grid-cols-2 gap-4">
+                    <a href="/contact" class="flex items-center justify-center bg-green-600 p-4 rounded-lg shadow-lg text-white hover:bg-green-700 transition">
+                        <i class="fas fa-comments mr-3"></i>
+                        <span>Free Consultation</span>
+                    </a>
+                    <a href="tel:032-288-7960" class="flex items-center justify-center bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-lg text-gray-800 hover:bg-white transition">
+                        <i class="fas fa-phone-alt mr-3 text-green-600"></i>
+                        <span>Call +82-32-288-7960</span>
+                    </a>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <a href="https://blog.naver.com/unicpat" target="_blank" rel="noopener" class="hidden md:flex items-center justify-center bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-lg text-gray-800 hover:bg-white transition">
+                        <i class="fas fa-blog mr-3 text-green-600"></i>
+                        <span>Unic Blog (Korean)</span>
+                    </a>
+                    <a href="https://www.ipbot1.com" target="_blank" class="flex items-center justify-center bg-white/80 backdrop-blur-sm p-4 rounded-lg shadow-lg text-gray-800 hover:bg-white transition">
+                        <i class="fas fa-search mr-3 text-green-600"></i>
+                        <span>Check My Patent Annuities</span>
+                    </a>
+                </div>
             </div>
             <% } else { %>
             <h1 class="text-4xl md:text-6xl font-bold mb-4" style="line-height: 1.35;">
@@ -123,19 +139,17 @@
 </section>
 
 
-<% if (lang !== 'en') { %>
 <!-- 신뢰 띠 -->
 <section style="background:#0F172A;">
     <div class="container mx-auto px-4 py-5">
         <ul class="flex flex-wrap justify-center text-white font-semibold" style="gap:.6rem 2rem;word-break:keep-all;">
-            <li><i class="fas fa-check mr-2" style="color:#54B435;"></i>20년 경력 변리사</li>
-            <li><i class="fas fa-check mr-2" style="color:#54B435;"></i>첫 상담 무료</li>
-            <li><i class="fas fa-check mr-2" style="color:#54B435;"></i>메일 24시간 내 답변</li>
-            <li><i class="fas fa-check mr-2" style="color:#54B435;"></i>인천 청라 방문 상담</li>
+            <li><i class="fas fa-check mr-2" style="color:#54B435;"></i><%= lang === 'en' ? '20 years as a patent attorney' : '20년 경력 변리사' %></li>
+            <li><i class="fas fa-check mr-2" style="color:#54B435;"></i><%= lang === 'en' ? 'First consultation free' : '첫 상담 무료' %></li>
+            <li><i class="fas fa-check mr-2" style="color:#54B435;"></i><%= lang === 'en' ? 'Email replies within 24 hours' : '메일 24시간 내 답변' %></li>
+            <li><i class="fas fa-check mr-2" style="color:#54B435;"></i><%= lang === 'en' ? 'In-person meetings in Cheongna, Incheon' : '인천 청라 방문 상담' %></li>
         </ul>
     </div>
 </section>
-<% } %>
 
 <!-- 왜 유니크 특허인가요? 섹션 -->
 <section id="about" class="py-16 bg-white">
@@ -143,30 +157,30 @@
         <% if (lang === 'en') { %>
         <h2 class="section-title text-3xl font-bold text-center">Why Choose Unic Patent?</h2>
         <p class="text-center text-[#2F3B40] text-lg max-w-2xl mx-auto mb-16">
-            Patent filing is not the end goal.<br>
-            What truly matters is how your patent contributes to your business and how you can protect it in the market.
+            Registration is not the end of a patent but <b>the start of protecting your business</b>.<br>
+            From review before filing to management after registration, this is how Unic works.
         </p>
-        <div class="space-y-20">
-            <div class="flex flex-col md:flex-row items-center gap-10 md:gap-16">
-                <div class="md:w-1/2"><img src="/images/en-image-idea-expert.png" alt="Expert in Idea Commercialization" class="rounded-lg shadow-xl w-full h-auto object-cover"></div>
-                <div class="md:w-1/2">
-                    <h3 class="text-3xl font-bold mb-4 text-[#0F172A]">Expert in Idea Commercialization</h3>
-                    <p class="text-[#2F3B40] text-lg leading-relaxed">We consult across the entire journey — from initial concept to patent registration, trademark registration, technology transfer, and commercialization. We do far more than just file.</p>
-                </div>
+        <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+            <div class="rounded-lg p-8" style="background:#fff;border:1px solid #e5e7eb;box-shadow:0 6px 18px rgba(15,23,42,.06);">
+                <div class="flex items-center justify-center rounded-full mb-5" style="width:56px;height:56px;background:#f0fdf4;"><i class="fas fa-user-tie" style="color:#54B435;font-size:1.5rem;"></i></div>
+                <h3 class="text-2xl font-bold mb-3 text-[#0F172A]">A Patent Attorney with You from Start to Finish</h3>
+                <p class="text-[#2F3B40] text-lg leading-relaxed">The lead patent attorney personally handles the consultation, prior art search, specification drafting and examination responses. You never have to explain everything again to a new person.</p>
             </div>
-            <div class="flex flex-col md:flex-row-reverse items-center gap-10 md:gap-16">
-                <div class="md:w-1/2"><img src="/images/en-image-top-professional.png" alt="World-Class Expertise" class="rounded-lg shadow-xl w-full h-auto object-cover"></div>
-                <div class="md:w-1/2">
-                    <h3 class="text-3xl font-bold mb-4 text-[#0F172A]">World-Class Expertise</h3>
-                    <p class="text-[#2F3B40] text-lg leading-relaxed">We have hands-on experience reviewing and filing patents and handling IP disputes for Samsung Electronics, KAIST, Sogang University, corporate R&amp;D labs, and SMEs.</p>
-                </div>
+            <div class="rounded-lg p-8" style="background:#fff;border:1px solid #e5e7eb;box-shadow:0 6px 18px rgba(15,23,42,.06);">
+                <div class="flex items-center justify-center rounded-full mb-5" style="width:56px;height:56px;background:#f0fdf4;"><i class="fas fa-file-signature" style="color:#54B435;font-size:1.5rem;"></i></div>
+                <h3 class="text-2xl font-bold mb-3 text-[#0F172A]">Specifications at the Level of Large Corporations and Research Institutes</h3>
+                <p class="text-[#2F3B40] text-lg leading-relaxed">Drawing on experience filing patents for Samsung Electronics, the Samsung Advanced Institute of Technology, Hyosung, KAIST, GIST and Sogang University, we write SME patents to the same standard.</p>
             </div>
-            <div class="flex flex-col md:flex-row items-center gap-10 md:gap-16">
-                <div class="md:w-1/2"><img src="/images/en-image-startup-experience.png" alt="Startup Founding Experience" class="rounded-lg shadow-xl w-full h-auto object-cover"></div>
-                <div class="md:w-1/2">
-                    <h3 class="text-3xl font-bold mb-4 text-[#0F172A]">Startup Founding Experience</h3>
-                    <p class="text-[#2F3B40] text-lg leading-relaxed">Our lead attorney founded a startup and has firsthand experience with government research projects and investment fundraising — we understand founders' challenges better than anyone.</p>
-                </div>
+            <div class="rounded-lg p-8" style="background:#fff;border:1px solid #e5e7eb;box-shadow:0 6px 18px rgba(15,23,42,.06);">
+                <div class="flex items-center justify-center rounded-full mb-5" style="width:56px;height:56px;background:#f0fdf4;"><i class="fas fa-rocket" style="color:#54B435;font-size:1.5rem;"></i></div>
+                <h3 class="text-2xl font-bold mb-3 text-[#0F172A]">A Patent Attorney Who Has Founded a Company</h3>
+                <p class="text-[#2F3B40] text-lg leading-relaxed">In 2019 our lead attorney founded an eco-friendly capsule coffee company and carried out a Ministry of Environment national R&amp;D project. We work out funding, schedules and support programs together, from your point of view.</p>
+            </div>
+            <div class="rounded-lg p-8" style="background:#fff;border:1px solid #e5e7eb;box-shadow:0 6px 18px rgba(15,23,42,.06);">
+                <div class="flex items-center justify-center rounded-full mb-5" style="width:56px;height:56px;background:#f0fdf4;"><i class="fas fa-bell" style="color:#54B435;font-size:1.5rem;"></i></div>
+                <h3 class="text-2xl font-bold mb-3 text-[#0F172A]">Care That Continues After Registration</h3>
+                <p class="text-[#2F3B40] text-lg leading-relaxed">We track your annuity fees with ipbot1.com, a service we built ourselves, and email you before each deadline, so your rights never lapse by mistake.</p>
+                <a href="https://www.ipbot1.com" target="_blank" class="inline-block mt-4 font-bold" style="color:#16a34a;">Check my patent annuities →</a>
             </div>
         </div>
         <% } else { %>
@@ -213,10 +227,10 @@
                 <% if (lang === 'en') { %>
                 <h3 class="text-2xl font-bold mb-6 text-[#0F172A]">About Our Lead Attorney</h3>
                 <p class="text-[#2F3B40] mb-4">
-                    I passed the patent attorney examination in 2004 and have 20 years of experience in patent filing, appeals, and litigation for large corporations, universities, and SMEs.
+                    Hello, I am Junhyeok Lee, lead patent attorney at Unic Patent Firm. For 20 years I have written patents for large corporations, research institutes and SMEs, and in 2019 I founded my own company and experienced government support programs and national R&amp;D projects firsthand.
                 </p>
                 <p class="text-[#2F3B40]">
-                    Having founded the startup WePaper in 2019, I offer practical consulting — business proposal writing, government research project participation, and more — to help you turn your ideas into reality. I am here to be your trusted partner.
+                    That is why I start by asking <b>"Will this patent actually help your business?"</b> I explain things in plain language, so even if this is your first patent, you can ask me anything.
                 </p>
                 <% } else { %>
                 <h3 class="text-2xl font-bold mb-6 text-[#0F172A]">대표변리사 소개</h3>
@@ -264,12 +278,14 @@
                         <div class="rounded-lg p-3" style="background:#F4F8F7;"><p class="font-bold" style="color:#007C78;"><%= lang === 'en' ? 'Applications' : '출원특허' %></p><p class="font-bold mt-1" style="color:#0F172A;"><%= lang === 'en' ? 'Granted · Pending' : '등록 · 거절 · 심사 중' %></p></div>
                         <div class="rounded-lg p-3" style="background:#F4F8F7;"><p class="font-bold" style="color:#007C78;"><%= lang === 'en' ? 'Download' : '다운로드' %></p><p class="font-bold mt-1" style="color:#0F172A;"><%= lang === 'en' ? 'List · Full-text PDF' : '목록 · 전문 PDF' %></p></div>
                     </div>
-                    <% if (lang !== 'en') { %>
                     <div class="flex items-center gap-3 mt-4 rounded-lg p-3" style="background:#ecfeff;border:1px solid #a5f3fc;">
                         <i class="fas fa-bell" style="color:#007C78;"></i>
+                        <% if (lang === 'en') { %>
+                        <p class="text-sm" style="color:#0F172A;"><b>If you are a Unic client</b>, we email you before each annuity deadline.</p>
+                        <% } else { %>
                         <p class="text-sm" style="color:#0F172A;"><b>유니크 고객이라면</b>, 연차료 마감 전에 이메일로 미리 알려 드립니다.</p>
+                        <% } %>
                     </div>
-                    <% } %>
                 </div>
             </div>
         </div>
@@ -282,44 +298,74 @@
         <% if (lang === 'en') { %>
         <h2 class="section-title text-3xl font-bold text-center">Our Services</h2>
         <p class="text-center text-[#2F3B40] mb-12">Unic Patent Firm provides a wide range of intellectual property services</p>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <a href="/patent" class="block h-full">
+        <div class="flex flex-wrap justify-center gap-6">
+            <a href="/patent" class="block" style="flex:0 1 270px;">
                 <div class="service-card p-6 h-full" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb;">
                     <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-lightbulb" style="font-size: 24px; color: #54B435;"></i></div>
-                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">Patent / Utility Model</h3>
+                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">Patent / Utility Model Applications</h3>
                     <ul class="text-[#2F3B40] space-y-2 mt-4">
-                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>Domestic patent/utility model filing &amp; registration</span></li>
-                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>International patent filing (PCT, individual countries)</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>Korean patent and utility model filing and registration</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>Overseas patent filing (PCT, individual countries)</span></li>
                     </ul>
                 </div>
             </a>
-            <a href="/trademark" class="block h-full">
+            <a href="/trademark" class="block" style="flex:0 1 270px;">
                 <div class="service-card p-6 h-full" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb;">
                     <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-trademark" style="font-size: 24px; color: #54B435;"></i></div>
-                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">Trademark &amp; Design</h3>
+                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">Trademark Filing / Registration</h3>
                     <ul class="text-[#2F3B40] space-y-2 mt-4">
-                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>Domestic &amp; international trademark filing &amp; registration</span></li>
-                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>Design right filing &amp; registration</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>Trademark filing and registration in Korea and abroad</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>From choosing classes to 10-year renewals</span></li>
                     </ul>
                 </div>
             </a>
-            <a href="/startup" class="block h-full">
+            <a href="/design" class="block" style="flex:0 1 270px;">
+                <div class="service-card p-6 h-full" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb;">
+                    <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-pencil-ruler" style="font-size: 24px; color: #54B435;"></i></div>
+                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">Design Filing / Registration</h3>
+                    <ul class="text-[#2F3B40] space-y-2 mt-4">
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>Design rights for product appearance and packaging</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>Filing utility models and designs together</span></li>
+                    </ul>
+                </div>
+            </a>
+            <a href="/startup" class="block" style="flex:0 1 270px;">
                 <div class="service-card p-6 h-full" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb;">
                     <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-rocket" style="font-size: 24px; color: #54B435;"></i></div>
-                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">Startup &amp; IP Services</h3>
+                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">Startup IP Services</h3>
                     <ul class="text-[#2F3B40] space-y-2 mt-4">
-                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>IP portfolio strategy development</span></li>
-                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>Government support program consulting</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>IP portfolio strategy</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>Consulting linked to government support programs</span></li>
                     </ul>
                 </div>
             </a>
-            <a href="/dispute-transfer" class="block h-full">
+            <a href="/price" class="block" style="flex:0 1 270px;">
+                <div class="service-card p-6 h-full" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb;">
+                    <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-won-sign" style="font-size: 24px; color: #54B435;"></i></div>
+                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">Fees</h3>
+                    <ul class="text-[#2F3B40] space-y-2 mt-4">
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>Costs at each stage for patents, trademarks and designs</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>Official fee reductions and support programs</span></li>
+                    </ul>
+                </div>
+            </a>
+            <a href="/incheon" class="block" style="flex:0 1 270px;">
+                <div class="service-card p-6 h-full" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb;">
+                    <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-map-marker-alt" style="font-size: 24px; color: #54B435;"></i></div>
+                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">Consultations in Incheon</h3>
+                    <ul class="text-[#2F3B40] space-y-2 mt-4">
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>Consultations for companies in Cheongna, Songdo, Namdong and across Incheon</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>In-person meetings at our Cheongna office by appointment</span></li>
+                    </ul>
+                </div>
+            </a>
+            <a href="/dispute-transfer" class="block" style="flex:0 1 270px;">
                 <div class="service-card p-6 h-full" style="background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s, box-shadow 0.3s; border: 1px solid #e5e7eb;">
                     <div class="service-icon" style="width: 60px; height: 60px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;"><i class="fas fa-gavel" style="font-size: 24px; color: #54B435;"></i></div>
-                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">IP Dispute &amp; Utilization</h3>
+                    <h3 class="text-xl font-bold text-center mb-3 text-[#0F172A]">IP Dispute Resolution</h3>
                     <ul class="text-[#2F3B40] space-y-2 mt-4">
-                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>Warning letter responses &amp; dispute handling</span></li>
-                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>Technology valuation &amp; transfer</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>Handling disputes, from warning letters to written responses</span></li>
+                        <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i><span>Technology valuation and technology transfer</span></li>
                     </ul>
                 </div>
             </a>
@@ -414,7 +460,7 @@
     <div class="container mx-auto">
         <% if (lang === 'en') { %>
         <h2 class="section-title text-3xl font-bold text-center">Unique Column</h2>
-        <p class="text-center text-[#2F3B40] mb-12">Useful information and insights on intellectual property rights</p>
+        <p class="text-center text-[#2F3B40] mb-12">Useful information on intellectual property</p>
         <% } else { %>
         <h2 class="section-title text-3xl font-bold text-center">유니크 칼럼</h2>
         <p class="text-center text-[#2F3B40] mb-12">지식재산권에 관한 유용한 정보를 제공합니다</p>
@@ -450,20 +496,22 @@
             <% }); %>
         </div>
 
-        <% if (lang !== 'en') { %>
         <div class="mt-12 text-center">
-            <a href="/column" class="btn-outline">칼럼 더 보기</a>
+            <a href="/column" class="btn-outline"><%= lang === 'en' ? 'More Columns' : '칼럼 더 보기' %></a>
         </div>
-        <% } %>
     </div>
 </section>
 
-<!-- 유니크 뉴스레터 섹션 (한국어만 표시) -->
-<% if (lang !== 'en') { %>
+<!-- 유니크 뉴스레터 섹션 (영어 화면은 제목을 번역해 표시, 뉴스레터 본문은 한국어) -->
 <section id="newsletter" class="py-16" style="background-color: #EDFBE2;">
     <div class="container mx-auto">
+        <% if (lang === 'en') { %>
+        <h2 class="section-title text-3xl font-bold text-center">Unique Newsletter</h2>
+        <p class="text-center text-[#2F3B40] mb-12">IP news that helps your business, on patents, trademarks, government support programs and more (in Korean).</p>
+        <% } else { %>
         <h2 class="section-title text-3xl font-bold text-center">유니크 뉴스레터</h2>
         <p class="text-center text-[#2F3B40] mb-12">사업에 도움이 되는 특허, 상표, 정부지원사업 등 지식재산 뉴스를 담아 전해드립니다.</p>
+        <% } %>
 
         <div class="max-w-3xl mx-auto">
             <div class="space-y-4">
@@ -471,7 +519,7 @@
                     <a href="<%= item.link %>" target="_blank" rel="noopener noreferrer" class="block bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
                         <div class="flex justify-between items-center gap-4">
                             <h3 class="text-xl font-bold text-[#0F172A] flex-1"><%= item.title %></h3>
-                            <span class="text-gray-500 text-sm flex-shrink-0 whitespace-nowrap">발행일: <%= item.date %></span>
+                            <span class="text-gray-500 text-sm flex-shrink-0 whitespace-nowrap"><%= lang === 'en' ? 'Published' : '발행일' %>: <%= item.date %></span>
                         </div>
                     </a>
                 <% }); %>
@@ -479,42 +527,60 @@
         </div>
 
         <div class="mt-12 text-center">
-            <p class="text-[#2F3B40] mb-4">더 많은 소식과 지난호를 확인해보세요.</p>
-            <a href="/newsletter" class="btn-primary">뉴스레터 전체보기</a>
+            <p class="text-[#2F3B40] mb-4"><%= lang === 'en' ? 'See more news and past issues.' : '더 많은 소식과 지난호를 확인해보세요.' %></p>
+            <a href="/newsletter" class="btn-primary"><%= lang === 'en' ? 'All Newsletters' : '뉴스레터 전체보기' %></a>
         </div>
     </div>
 </section>
-<% } %>
 
-<!-- 정부지원사업 안내 섹션 (한국어만 표시) -->
-<% if (lang !== 'en') { %>
+<!-- 정부지원사업 안내 섹션 (영어 화면은 사업명을 번역해 표시) -->
 <section id="gov-support" class="py-16 bg-white">
     <div class="container mx-auto">
+        <% if (lang === 'en') { %>
+        <h2 class="section-title text-3xl font-bold text-center">Government Support Programs</h2>
+        <p class="text-center text-[#2F3B40] mb-12">See the latest Korean government support programs for patents and intellectual property.</p>
+        <% } else { %>
         <h2 class="section-title text-3xl font-bold text-center">정부지원사업 안내</h2>
         <p class="text-center text-[#2F3B40] mb-12">특허 및 지식재산권 관련 최신 정부지원사업 정보를 확인하세요.</p>
+        <% } %>
 
         <div class="max-w-3xl mx-auto">
             <div class="space-y-4">
                 <% govProjects.forEach(project => { %>
                     <a href="<%= project.url %>" target="_blank" rel="noopener noreferrer" class="block bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 border-[#54B435]">
                         <h3 class="text-xl font-bold text-[#0F172A] mb-2"><%= project.title %></h3>
-                        <p class="text-gray-600">신청기간: <%= project.period %></p>
+                        <p class="text-gray-600"><%= lang === 'en' ? 'Application period' : '신청기간' %>: <%= project.period %></p>
                     </a>
                 <% }); %>
             </div>
         </div>
 
         <div class="mt-12 text-center">
-            <a href="/gov-support" class="btn-outline">지원사업 정보 더 보기</a>
+            <a href="/gov-support" class="btn-outline"><%= lang === 'en' ? 'More Support Programs' : '지원사업 정보 더 보기' %></a>
         </div>
     </div>
 </section>
-<% } %>
 
-<!-- 인천 특허사무소 자주 묻는 질문 (한국어만 표시) -->
-<% if (lang !== 'en') { %>
+<!-- 인천 특허사무소 자주 묻는 질문 -->
 <%
-    const homeFaqs = [
+    const homeFaqs = lang === 'en' ? [
+        { q: 'Where can I get a patent filing consultation in Incheon?',
+          a: 'Unic Patent Firm is a patent firm in Cheongna, Incheon (Room 279, Building 103, Cheongna Sun & Builder Terrace, 26 Cheongna Canal-ro 288beon-gil). Patent attorney Junhyeok Lee, with 20 years of experience, personally advises one-on-one on patent, utility model, trademark and design applications.' },
+        { q: 'Can I get a consultation if I am in Songdo, Namdong-gu, Bupyeong or elsewhere in Incheon, not Cheongna?',
+          a: 'Yes. Consultations by phone (+82-32-288-7960) and email (ljunhyek@naver.com) are available from anywhere in Incheon. If you would like to meet in person, please book an appointment and visit our Cheongna office.' },
+        { q: 'Is there a fee for a consultation?',
+          a: 'Your first consultation is free. You can contact us by phone, email or the consultation form on this website, and a patent attorney personally replies to email inquiries within 24 hours.' },
+        { q: 'How much does a patent application cost?',
+          a: 'Attorney fees (excluding VAT) are KRW 1.4–1.8 million for filing (including the request for examination), KRW 300,000–500,000 for an office action response or amendment, and KRW 1–1.3 million for registration. Official KIPO fees are separate: KRW 100,000–150,000 for filing, KRW 150,000–250,000 for the request for examination and KRW 100,000–300,000 for registration. Costs vary with the technology and its complexity, so we give you an exact amount after a consultation.' },
+        { q: 'Can you also handle trademark and design registration?',
+          a: 'Yes. Along with patent and utility model applications in fields such as machinery, electrical and electronics, IT and biotech, we help with trademark registration and design protection, all in one place.' },
+        { q: 'Can I file in connection with a government support program?',
+          a: 'We offer services linked to Incheon Techno Park and various government support programs. Our lead patent attorney has founded a company and taken part in government support programs, and will plan your filings around your business schedule. You can see programs open for application now on our Government Support Programs page.' },
+        { q: 'What are your consultation hours and how do I get there?',
+          a: 'Consultations are on weekdays from 09:00 to 18:00, and evening and weekend consultations are available by appointment. Please book before visiting in person. You can use the underground parking in the building, and we register your parking during in-person consultations. By bus (702, 2-1, etc.), get off at the Cheongna Central Eillin Garden stop; the office is a 3–5 minute walk away.' },
+        { q: 'Can I check the annuity payment status of patents I have already registered?',
+          a: 'On ipbot1.com, built by Unic Patent Firm, you can look up whether annuities for your registered patents have been paid and when they are due, using your business registration number or applicant code, with no sign-up. If you are a Unic client, we email you before each annuity deadline.' }
+    ] : [
         { q: '인천에서 특허출원 상담은 어디서 받을 수 있나요?',
           a: '유니크 특허사무소는 인천 청라(청라커낼로 288번길 26, 청라썬앤빌더테라스 103동 279호)에 있는 특허사무소입니다. 20년 경력의 이준혁 변리사가 특허·실용신안·상표·디자인 출원을 직접 1:1로 상담합니다.' },
         { q: '송도, 남동구, 부평 등 청라가 아닌 인천 지역에서도 상담받을 수 있나요?',
@@ -546,8 +612,13 @@
 </style>
 <section id="faq" class="py-16" style="background-color: #f9fafb;">
     <div class="container mx-auto">
+        <% if (lang === 'en') { %>
+        <h2 class="section-title text-3xl font-bold text-center">FAQ: Patent Attorney in Incheon</h2>
+        <p class="text-center text-[#2F3B40] mb-12">Questions often asked by people preparing patent and trademark applications in Incheon.</p>
+        <% } else { %>
         <h2 class="section-title text-3xl font-bold text-center">인천 특허사무소 자주 묻는 질문</h2>
         <p class="text-center text-[#2F3B40] mb-12">인천에서 특허·상표 출원을 준비하시는 분들이 자주 물어보시는 내용입니다.</p>
+        <% } %>
         <div class="max-w-3xl mx-auto space-y-3">
             <% homeFaqs.forEach((f, i) => { %>
             <details class="home-faq bg-white rounded-lg shadow-sm" <%= i === 0 ? 'open' : '' %>>
@@ -563,10 +634,9 @@
             </details>
             <% }) %>
         </div>
-        <p class="text-center mt-8"><a href="/incheon" class="font-bold" style="color:#16a34a;">인천 지역 상담 안내 자세히 보기 →</a></p>
+        <p class="text-center mt-8"><a href="/incheon" class="font-bold" style="color:#16a34a;"><%= lang === 'en' ? 'More about consultations in Incheon (Korean) →' : '인천 지역 상담 안내 자세히 보기 →' %></a></p>
     </div>
 </section>
-<% } %>
 
 <!-- 상담 신청 및 문의 섹션 -->
 <section id="contact" class="py-16" style="background-color: #EDFBE2;">

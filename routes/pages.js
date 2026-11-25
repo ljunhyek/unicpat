@@ -6,6 +6,7 @@ const { sortByDateDesc, currentByDeadline } = require('../lib/sort');
 const { UUID_RE, TEST_TOKEN, archiveHtml, sendSignupNotice } = require('../lib/newsletter-mailer');
 const { COLUMN_LIST_FIELDS, COLUMN_POST_FIELDS, renderBodyHtml, bodyLeadText, decodeDataUri, withColumnLinks, parseFaq, CATEGORY_NAMES, CATEGORY_NAMES_EN } = require('../lib/columns');
 const { dataImages } = require('../lib/newsletter-import');
+const { EN_PAGES, hasEnPage, enPath } = require('../lib/i18n');
 
 const supabase = createAnonClient();
 
@@ -66,13 +67,19 @@ router.get('/', async (req, res) => {
         let posts = colRes.data || [];
         if (lang === 'en') posts = await translatePostTitles(posts);
         posts = withColumnLinks(posts);
+        // 뉴스레터·정부지원사업 목록: 영어 화면은 제목만 번역 (본문 페이지는 한국어)
+        let homeNewsletters = viewableNewsletters(newsletters).slice(0, 4);
+        let homeProjects = currentByDeadline(projRes.data || []).slice(0, 4);
+        if (lang === 'en') [homeNewsletters, homeProjects] = await Promise.all([translatePostTitles(homeNewsletters), translatePostTitles(homeProjects)]);
 
         res.render('index', {
             title: '유니크 특허사무소',
+            titleEn: 'Patent & Trademark Attorney in Incheon, Korea',
+            descriptionEn: 'Unic Patent Firm in Cheongna, Incheon, Korea. A patent attorney with 20 years of experience personally advises on patent, trademark and design applications, government support programs and commercializing ideas.',
             description: '인천 청라 유니크 특허사무소. 20년 경력의 변리사가 특허·상표·디자인 출원부터 정부지원사업, 아이디어 사업화까지 직접 상담합니다.',
             posts,
-            newsletters: viewableNewsletters(newsletters).slice(0, 4),
-            govProjects: currentByDeadline(projRes.data || []).slice(0, 4)
+            newsletters: homeNewsletters,
+            govProjects: homeProjects
         });
     } catch (err) {
         console.error('Homepage error:', err);
@@ -88,6 +95,8 @@ router.get('/', async (req, res) => {
 router.get('/about', (req, res) => {
     res.render('about', {
         title: '유니크 소개',
+        titleEn: 'About Unique',
+        descriptionEn: 'Differentiated services built on 20 years of expertise and real-world startup experience. Meet the team at Unic Patent Firm and see what sets us apart.',
         description: '20년 경력의 전문성과 실전 창업 경험이 만든 차별화된 서비스. 유니크 특허사무소만의 강점과 구성원들을 소개합니다.'
     });
 });
@@ -115,6 +124,8 @@ router.get('/column', async (req, res) => {
         const posts = await loadColumnPosts(res.locals.lang);
         res.render('column', {
             title: '유니크 칼럼',
+            titleEn: 'Unique Column',
+            descriptionEn: 'Practical, expert articles on intellectual property in Korea: patents, trademarks and designs, AI patents, overseas filing and more.',
             description: '지식재산권에 관한 전문적이고 실용적인 정보를 제공합니다. 특허, 상표, 디자인부터 AI 특허, 해외 출원까지 다양한 주제를 다룹니다.',
             posts,
             categories: COLUMN_CATEGORIES
@@ -166,6 +177,11 @@ router.get('/column/:no(\\d+)', async (req, res, next) => {
     if (error) ({ data: post, error } = await find('*'));
     if (error) console.error('Column post error:', error.message);
     if (!post) return next();
+    // 영어 글이 없으면 영어 주소(/en/column/글번호)는 한국어 주소로 보내고, 한국어 화면에 영어 짝을 표시하지 않음
+    if (!(post.body_html_en || post.summary_en)) {
+        if (res.locals.lang === 'en') return res.redirect(302, `/column/${req.params.no}`);
+        res.locals.langUrls = { ...res.locals.langUrls, en: null };
+    }
 
     // 같은 분류의 글을 먼저, 모자라면 다른 분류의 최신 글로 4개까지 채움 (홈페이지 안에서 다음 글로 이어 읽도록)
     const [{ data: sameCategory }, { data: latest }] = await Promise.all([
@@ -308,6 +324,7 @@ router.get('/contact', (req, res) => {
     res.render('contact', {
         title: '상담 신청 | 인천 청라',
         titleEn: 'Contact Us',
+        descriptionEn: 'Contact Unic Patent Firm in Cheongna, Incheon, Korea. Call +82-32-288-7960, email us or use the consultation form, and a patent attorney will reply personally. Your first consultation is free, and in-person meetings at our office are available by appointment.',
         description: '인천 청라 유니크 특허사무소 상담 신청. 전화 032-288-7960, 메일, 상담 신청 폼으로 문의하시면 변리사가 직접 답변드립니다. 첫 상담은 무료이며, 예약 후 청라 사무실에서 방문 상담도 가능합니다.'
     });
 });
@@ -326,6 +343,7 @@ router.get('/location', (req, res) => {
     res.render('location', {
         title: '찾아오시는 길 | 인천 청라',
         titleEn: 'Location',
+        descriptionEn: 'Directions to Unic Patent Firm: Room 279, 2F, Building 103, Cheongna Sun & Builder Terrace, Cheongna, Incheon, Korea. Underground parking is available, and the office is a 3–5 minute walk from the nearest bus stop. Please book before visiting.',
         description: '인천 청라 유니크 특허사무소 찾아오시는 길. 청라썬앤빌더테라스 103동 2층 279호, 건물 지하주차장 이용 가능, 청라센트럴에일린의뜰 정류장에서 도보 3~5분. 방문 상담은 예약 후 이용해 주세요.'
     });
 });
@@ -344,6 +362,7 @@ router.get('/patent', (req, res) => {
     res.render('patent', {
         title: '인천 특허출원·실용신안 | 비용 안내',
         titleEn: 'Patent & Utility Model Applications',
+        descriptionEn: 'Patent and utility model applications in Korea with Unic Patent Firm, Incheon. A patent attorney with 20 years of experience advises you personally and tells you the costs from filing to registration up front.',
         description: '인천 청라 유니크 특허사무소의 특허·실용신안 출원 안내. 20년 경력 변리사가 직접 상담하고, 출원부터 등록까지 비용을 미리 안내합니다. 인천 지역 중소기업·스타트업 정부지원사업 연계.'
     });
 });
@@ -352,6 +371,7 @@ router.get('/trademark', (req, res) => {
     res.render('trademark', {
         title: '인천 상표등록 | 상표출원 절차와 비용',
         titleEn: 'Trademark Registration',
+        descriptionEn: 'Trademark registration in Korea with Unic Patent Firm, Incheon. Protect your brand name and logo: the filing process, costs per class and official fee reductions, handled personally by a patent attorney.',
         description: '인천 청라 유니크 특허사무소의 상표등록 안내. 브랜드 이름과 로고를 지키는 상표출원 절차와 비용(1상품류 기준), 관납료 감면까지 변리사가 직접 챙겨 드립니다.'
     });
 });
@@ -360,6 +380,7 @@ router.get('/design', (req, res) => {
     res.render('design', {
         title: '인천 디자인등록 | 디자인 출원',
         titleEn: 'Design Registration',
+        descriptionEn: 'Design registration in Korea with Unic Patent Firm, Incheon. Protect the look of your products and packaging and stop copycats: the design filing process and costs explained.',
         description: '인천 청라 유니크 특허사무소의 디자인등록 안내. 제품 외형과 패키지 디자인을 보호하고 모방 제품을 막는 디자인 출원 절차와 비용을 안내합니다.'
     });
 });
@@ -368,6 +389,7 @@ router.get('/startup', (req, res) => {
     res.render('startup', {
         title: '인천 스타트업 특허 | 정부지원사업 연계',
         titleEn: 'Startup IP Services',
+        descriptionEn: 'A patent attorney who has founded a startup helps startups and aspiring founders with patent strategy, IP portfolios and links to Korean government support programs. Unic Patent Firm, Incheon.',
         description: '직접 창업해 본 변리사가 인천 지역 스타트업과 예비창업자의 특허 전략, IP 포트폴리오, 정부지원사업 연계를 도와드립니다. 인천 청라 유니크 특허사무소.'
     });
 });
@@ -375,6 +397,8 @@ router.get('/startup', (req, res) => {
 router.get('/dispute-transfer', (req, res) => {
     res.render('dispute-transfer', {
         title: 'IP 분쟁 대응',
+        titleEn: 'IP Dispute Resolution',
+        descriptionEn: 'From responding to warning letters to patent infringement litigation, we set out a clear strategy for complex IP disputes.',
         description: '경고장 대응부터 특허 침해 소송까지, 복잡한 IP 분쟁에 대한 명쾌한 전략을 제시합니다.'
     });
 });
@@ -487,7 +511,10 @@ const SITEMAP_PAGES = [
 router.get('/sitemap.xml', async (req, res) => {
     const [{ data, error }, colRes, nlRes] = await Promise.all([
         supabase.rpc('newsletter_archive_list'),
-        supabase.from('columns').select('url, published_on').eq('summary_ready', true),
+        // updated_at(글을 고친 시각)이 있으면 <lastmod>로 써서 구글이 바뀐 글을 다시 수집하게 함
+        // 칸이 아직 없으면(supabase/column_updated_at.sql 실행 전) 처음 쓴 날짜만 사용
+        supabase.from('columns').select('url, published_on, updated_at, title_en').eq('summary_ready', true)
+            .then(r => r.error ? supabase.from('columns').select('url, published_on, title_en').eq('summary_ready', true) : r),
         // 홈페이지 안에 본문을 저장한 뉴스레터 (HTML 업로드, 스티비에서 옮겨 온 회차)
         supabase.from('newsletters').select('title, link, date').like('link', '/newsletter/%')
     ]);
@@ -499,7 +526,16 @@ router.get('/sitemap.xml', async (req, res) => {
     const url = (loc, extra) => `  <url><loc>${res.locals.siteUrl}${loc}</loc>${extra}</url>`;
     const urls = [
         ...SITEMAP_PAGES.map(([loc, freq, priority]) => url(loc, `<changefreq>${freq}</changefreq><priority>${priority}</priority>`)),
-        ...columns.map(c => url(c.href, `${c.published_on ? `<lastmod>${c.published_on}</lastmod>` : ''}<priority>0.7</priority>`)),
+        // 영어 페이지 (/en/...) — 영어 검색에 따로 색인되도록
+        ...SITEMAP_PAGES.filter(([loc]) => EN_PAGES.has(loc))
+            .map(([loc, freq]) => url(enPath(loc), `<changefreq>${freq}</changefreq><priority>0.5</priority>`)),
+        ...columns.map(c => {
+            const edited = c.updated_at ? kstDate(c.updated_at).replace(/\./g, '-') : '';
+            const lastmod = [c.published_on, edited].filter(Boolean).sort().pop();
+            const mod = lastmod ? `<lastmod>${lastmod}</lastmod>` : '';
+            return url(c.href, `${mod}<priority>0.7</priority>`)
+                + (c.enInternal ? '\n' + url(enPath(c.href), `${mod}<priority>0.5</priority>`) : '');
+        }),
         ...(data || []).map(c => url(`/newsletter/${c.id}`, `<lastmod>${kstDate(c.sent_on).replace(/\./g, '-')}</lastmod><priority>0.6</priority>`)),
         ...savedNewsletters.map(n => url(n.link, `${/^\d{4}\.\d{2}\.\d{2}$/.test(n.date || '') ? `<lastmod>${n.date.replace(/\./g, '-')}</lastmod>` : ''}<priority>0.6</priority>`))
     ];
@@ -510,10 +546,14 @@ ${urls.join('\n')}
 });
 
 // 언어 전환
+// 예전 언어 전환 주소(/set-lang?lang=en) — 이제 언어는 주소(/en/...)로 나뉘므로, 보던 페이지의 해당 언어 주소로 보냄
 router.get('/set-lang', (req, res) => {
-    const lang = req.query.lang === 'en' ? 'en' : 'ko';
-    res.cookie('lang', lang, { maxAge: 365 * 24 * 60 * 60 * 1000 });
-    res.redirect(req.headers.referer || '/');
+    let path = '/';
+    try { path = new URL(req.headers.referer).pathname; } catch (e) { /* 이전 페이지 정보 없음 */ }
+    path = path.replace(/^\/en(?=\/|$)/, '').replace(/(.)\/$/, '$1') || '/';
+    res.clearCookie('lang');
+    if (req.query.lang !== 'en') return res.redirect(path);
+    res.redirect(hasEnPage(path) ? enPath(path) : '/en');
 });
 
 module.exports = router;

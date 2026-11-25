@@ -2,7 +2,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // 현재 페이지 URL을 기반으로 메뉴에 'active' 클래스를 추가
     const setActiveNav = () => {
-        const currentPage = window.location.pathname;
+        // 영어 주소(/en/about)는 /en을 떼고 판단
+        const currentPage = window.location.pathname.replace(/^\/en(?=\/|$)/, '') || '/';
 
         document.querySelectorAll('#main-nav .nav-link').forEach(link => {
             link.classList.remove('active');
@@ -132,6 +133,16 @@ document.addEventListener("DOMContentLoaded", function() {
                         <a href="https://www.ipbot1.com" class="block py-3" target="_blank">실시간 특허관리</a>
                     </nav>
                 `;
+            }
+
+            // 영어 화면: 영어 페이지가 있는 메뉴는 /en 주소로 (lib/i18n.js의 EN_PAGES와 같은 목록)
+            if (lang === 'en') {
+                const enPages = ['/', '/about', '/contact', '/location', '/patent', '/trademark', '/design', '/startup',
+                    '/dispute-transfer', '/column', '/column/strategy', '/column/patent', '/column/trademark'];
+                mobileMenu.querySelectorAll('a[href^="/"]').forEach(a => {
+                    const p = a.getAttribute('href');
+                    if (enPages.includes(p)) a.setAttribute('href', p === '/' ? '/en' : '/en' + p);
+                });
             }
 
             document.body.appendChild(mobileMenu);
