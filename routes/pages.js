@@ -47,11 +47,18 @@ function viewableNewsletters(list) {
 }
 
 // 메일 HTML을 그대로 표시 (조각 HTML이면 문서 머리말을 붙임)
+// 스티비에서 옮겨 온 HTML에 들어 있는 noindex 표시는 지우고, 대표 주소(canonical)를 넣어 검색엔진에 색인되게 함
 function sendNewsletterHtml(res, subject, html) {
-    const body = archiveHtml(html);
-    if (/<html[\s>]/i.test(body)) return res.type('html').send(body);
+    const canonical = `<link rel="canonical" href="${res.locals.canonicalUrl}">`;
+    let body = archiveHtml(html)
+        .replace(/<meta[^>]+name=["']?(robots|googlebot)["']?[^>]*>/gi, '')
+        .replace(/<link[^>]+rel=["']?canonical["']?[^>]*>/gi, '');
+    if (/<html[\s>]/i.test(body)) {
+        body = /<\/head>/i.test(body) ? body.replace(/<\/head>/i, `${canonical}</head>`) : body.replace(/<html[^>]*>/i, m => `${m}<head>${canonical}</head>`);
+        return res.type('html').send(body);
+    }
     const title = subject.replace(/&/g, '&amp;').replace(/</g, '&lt;');
-    res.type('html').send(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title} | 유니크 뉴스레터</title>${body}`);
+    res.type('html').send(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title} | 유니크 뉴스레터</title>${canonical}${body}`);
 }
 
 // 홈페이지
