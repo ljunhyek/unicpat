@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             // 영어 화면: 영어 페이지가 있는 메뉴는 /en 주소로 (lib/i18n.js의 EN_PAGES와 같은 목록)
             if (lang === 'en') {
-                const enPages = ['/', '/about', '/contact', '/location', '/patent', '/trademark', '/design', '/startup',
+                const enPages = ['/', '/about', '/contact', '/location', '/price', '/patent', '/trademark', '/design', '/startup',
                     '/dispute-transfer', '/column', '/column/strategy', '/column/patent', '/column/trademark'];
                 mobileMenu.querySelectorAll('a[href^="/"]').forEach(a => {
                     const p = a.getAttribute('href');

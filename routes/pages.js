@@ -334,6 +334,7 @@ router.get('/price', (req, res) => {
     res.render('price', {
         title: '비용 안내 | 인천 특허·상표·디자인 출원 비용',
         titleEn: 'Fees',
+        descriptionEn: 'Patent, utility model, trademark and design filing fees in Korea at Unic Patent Firm, Incheon: attorney fees and official KIPO fees from filing to registration, plus how to cut costs with fee reductions and government support programs.',
         description: '인천 청라 유니크 특허사무소의 특허·실용신안, 상표, 디자인 출원 비용 안내. 출원부터 등록까지 대리인 수수료와 특허청 관납료, 관납료 감면과 정부지원사업으로 비용을 줄이는 방법까지 한곳에 정리했습니다.'
     });
 });

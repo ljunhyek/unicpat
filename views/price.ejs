@@ -1,6 +1,17 @@
 <%- include('partials/header') %>
 <%
-    const priceFaqs = [
+    // 한국어/영어 문장 고르기 (영어 화면: /en/price)
+    const t = (ko, en) => lang === 'en' ? en : ko;
+    const priceFaqs = lang === 'en' ? [
+        { q: 'Do the fees include VAT?',
+          a: 'No. The attorney fees shown exclude VAT. Official KIPO fees are not subject to VAT.' },
+        { q: 'Who is eligible for official KIPO fee reductions?',
+          a: 'Individuals, SMEs and startups can receive reductions on official KIPO fees (up to 70%). Eligibility and rates depend on the type of applicant, so we check them during your consultation and take care of the reduction application for you.' },
+        { q: 'What does it cost to file a trademark in several classes?',
+          a: 'The trademark costs shown are per class. Each additional class adds official fees and attorney fees, so we help you choose only the classes your business really needs.' },
+        { q: 'Can government support programs reduce the cost?',
+          a: 'If you are selected for a support program such as IP Narae or IP Didimdol, part of the filing costs and attorney fees can be covered. Application windows are fixed, so it is best to plan your filing schedule in advance.' }
+    ] : [
         { q: '비용에 부가세가 포함되어 있나요?',
           a: '아니요. 안내한 대리인 수수료는 부가세(VAT) 별도 금액입니다. 특허청 관납료에는 부가세가 붙지 않습니다.' },
         { q: '특허청 관납료 감면은 누가 받을 수 있나요?',
@@ -39,13 +50,13 @@
 
 <section class="page-header text-center">
     <div class="container mx-auto px-4">
-        <p class="font-bold mb-3" style="color:#3d8a25;">특허 · 상표 · 디자인</p>
-        <h1 class="text-4xl md:text-5xl font-bold" style="color:#0F172A;">비용 안내</h1>
-        <p class="text-lg mt-4 max-w-2xl mx-auto" style="color:#2F3B40;">출원부터 등록까지 드는 비용을 한곳에 모았습니다. 정확한 금액은 무료 상담에서 기술 내용과 일정을 듣고 진행 전에 항목별로 안내드립니다.</p>
+        <p class="font-bold mb-3" style="color:#3d8a25;"><%= t('특허 · 상표 · 디자인', 'Patents · Trademarks · Designs') %></p>
+        <h1 class="text-4xl md:text-5xl font-bold" style="color:#0F172A;"><%= t('비용 안내', 'Fees') %></h1>
+        <p class="text-lg mt-4 max-w-2xl mx-auto" style="color:#2F3B40;"><%= t('출원부터 등록까지 드는 비용을 한곳에 모았습니다. 정확한 금액은 무료 상담에서 기술 내용과 일정을 듣고 진행 전에 항목별로 안내드립니다.', 'All the costs from filing to registration in one place. After hearing about your technology and schedule in a free consultation, we give you an itemized quote before any work begins.') %></p>
         <div class="mt-6 flex flex-wrap justify-center gap-2 text-sm font-bold">
-            <span class="px-3 py-1 rounded-full" style="background:#fff;color:#16a34a;border:1px solid #bbf7d0;">대리인 수수료 VAT 별도</span>
-            <span class="px-3 py-1 rounded-full" style="background:#fff;color:#16a34a;border:1px solid #bbf7d0;">관납료 감면 신청 지원</span>
-            <span class="px-3 py-1 rounded-full" style="background:#fff;color:#16a34a;border:1px solid #bbf7d0;">상담 무료</span>
+            <span class="px-3 py-1 rounded-full" style="background:#fff;color:#16a34a;border:1px solid #bbf7d0;"><%= t('대리인 수수료 VAT 별도', 'Attorney fees exclude VAT') %></span>
+            <span class="px-3 py-1 rounded-full" style="background:#fff;color:#16a34a;border:1px solid #bbf7d0;"><%= t('관납료 감면 신청 지원', 'Help with official fee reductions') %></span>
+            <span class="px-3 py-1 rounded-full" style="background:#fff;color:#16a34a;border:1px solid #bbf7d0;"><%= t('상담 무료', 'Free consultation') %></span>
         </div>
     </div>
 </section>
@@ -54,25 +65,29 @@
 <section class="py-16 bg-white">
     <div class="container mx-auto px-4 max-w-4xl">
         <div class="pr-card">
-            <h3><i class="fas fa-lightbulb mr-2"></i>특허 · 실용신안 출원</h3>
+            <h3><i class="fas fa-lightbulb mr-2"></i><%= t('특허 · 실용신안 출원', 'Patent · Utility Model Applications') %></h3>
             <div class="overflow-x-auto">
             <table class="pr-table">
-                <thead><tr><th>구분</th><th>대리인 수수료 (VAT 별도)</th><th>특허청 관납료</th></tr></thead>
+                <thead><tr><th><%= t('구분', 'Stage') %></th><th><%= t('대리인 수수료 (VAT 별도)', 'Attorney fee (excl. VAT)') %></th><th><%= t('특허청 관납료', 'Official KIPO fee') %></th></tr></thead>
                 <tbody>
-                    <tr><td>출원</td><td class="fee">140만 ~ 180만원</td><td class="gov">10만 ~ 15만원</td></tr>
-                    <tr><td>심사청구</td><td class="fee">출원 수수료에 포함</td><td class="gov">15만 ~ 25만원</td></tr>
-                    <tr><td>의견서 · 보정서 <span class="text-sm" style="color:#6b7280;">(거절이유가 나온 경우)</span></td><td class="fee">30만 ~ 50만원</td><td class="gov">4천원</td></tr>
-                    <tr><td>등록</td><td class="fee">100만 ~ 130만원</td><td class="gov">10만 ~ 30만원</td></tr>
+                    <tr><td><%= t('출원', 'Filing') %></td><td class="fee"><%= t('140만 ~ 180만원', 'KRW 1.4M – 1.8M') %></td><td class="gov"><%= t('10만 ~ 15만원', 'KRW 100,000 – 150,000') %></td></tr>
+                    <tr><td><%= t('심사청구', 'Request for examination') %></td><td class="fee"><%= t('출원 수수료에 포함', 'Included in the filing fee') %></td><td class="gov"><%= t('15만 ~ 25만원', 'KRW 150,000 – 250,000') %></td></tr>
+                    <tr><td><%= t('의견서 · 보정서', 'Response · Amendment') %> <span class="text-sm" style="color:#6b7280;"><%= t('(거절이유가 나온 경우)', '(if an office action is issued)') %></span></td><td class="fee"><%= t('30만 ~ 50만원', 'KRW 300,000 – 500,000') %></td><td class="gov"><%= t('4천원', 'KRW 4,000') %></td></tr>
+                    <tr><td><%= t('등록', 'Registration') %></td><td class="fee"><%= t('100만 ~ 130만원', 'KRW 1.0M – 1.3M') %></td><td class="gov"><%= t('10만 ~ 30만원', 'KRW 100,000 – 300,000') %></td></tr>
                 </tbody>
             </table>
             </div>
             <div class="pr-note">
-                <p class="font-bold mb-1" style="color:#0F172A;">예시: 의견서 없이 바로 등록되는 경우</p>
-                <p>대리인 수수료 220만 ~ 280만원 + 특허청 관납료 35만 ~ 70만원 (관납료 감면 전, VAT 별도)</p>
+                <p class="font-bold mb-1" style="color:#0F172A;"><%= t('예시: 의견서 없이 바로 등록되는 경우', 'Example: registered without an office action') %></p>
+                <p><%= t('대리인 수수료 220만 ~ 280만원 + 특허청 관납료 35만 ~ 70만원 (관납료 감면 전, VAT 별도)', 'Attorney fees KRW 2.2M – 2.8M + official KIPO fees KRW 350,000 – 700,000 (before fee reductions, excl. VAT)') %></p>
+                <% if (lang === 'en') { %>
+                <p class="mt-2">Why the amounts are given as ranges: they depend on the complexity of the technology, the length of the specification and <b>the number of claims and drawings</b>. More claims also mean higher examination and registration fees.</p>
+                <% } else { %>
                 <p class="mt-2">금액이 범위로 정해지는 이유: 기술 난이도, 명세서 분량, <b>청구항과 도면 수</b>에 따라 달라집니다. 청구항이 늘면 심사청구료와 등록료도 함께 늘어납니다.</p>
+                <% } %>
             </div>
         </div>
-        <p class="text-center mt-4"><a href="/patent" class="font-bold" style="color:#16a34a;">특허·실용신안 출원 절차 보기 →</a></p>
+        <p class="text-center mt-4"><a href="/patent" class="font-bold" style="color:#16a34a;"><%= t('특허·실용신안 출원 절차 보기 →', 'See the patent and utility model filing process →') %></a></p>
     </div>
 </section>
 
@@ -82,39 +97,39 @@
         <div class="grid md:grid-cols-2 gap-8">
             <div>
                 <div class="pr-card">
-                    <h3><i class="fas fa-tag mr-2"></i>상표 등록 <span class="text-base font-normal">(1상품류 기준)</span></h3>
+                    <h3><i class="fas fa-tag mr-2"></i><%= t('상표 등록', 'Trademark Registration') %> <span class="text-base font-normal"><%= t('(1상품류 기준)', '(per class)') %></span></h3>
                     <table class="pr-table">
-                        <thead><tr><th>구분</th><th>대리인 수수료</th><th>특허청</th></tr></thead>
+                        <thead><tr><th><%= t('구분', 'Stage') %></th><th><%= t('대리인 수수료', 'Attorney fee') %></th><th><%= t('특허청', 'KIPO') %></th></tr></thead>
                         <tbody>
-                            <tr><td>출원</td><td class="fee">20만원</td><td class="gov">56,000원</td></tr>
-                            <tr><td>중간사건 대응</td><td class="fee">없음</td><td class="gov">-</td></tr>
-                            <tr><td>등록</td><td class="fee">20만원</td><td class="gov">220,120원<br><span class="text-xs">(10년 등록료)</span></td></tr>
+                            <tr><td><%= t('출원', 'Filing') %></td><td class="fee"><%= t('20만원', 'KRW 200,000') %></td><td class="gov"><%= t('56,000원', 'KRW 56,000') %></td></tr>
+                            <tr><td><%= t('중간사건 대응', 'Office action response') %></td><td class="fee"><%= t('없음', 'None') %></td><td class="gov">-</td></tr>
+                            <tr><td><%= t('등록', 'Registration') %></td><td class="fee"><%= t('20만원', 'KRW 200,000') %></td><td class="gov"><%= t('220,120원', 'KRW 220,120') %><br><span class="text-xs"><%= t('(10년 등록료)', '(10-year registration fee)') %></span></td></tr>
                         </tbody>
                     </table>
                     <div class="pr-note">
-                        <p class="font-bold mb-1" style="color:#0F172A;">예시: 1상품류 출원부터 등록까지</p>
-                        <p>대리인 수수료 40만원 + 특허청 276,120원 (관납료 감면 전, VAT 별도). 상품류가 늘면 그만큼 추가됩니다.</p>
+                        <p class="font-bold mb-1" style="color:#0F172A;"><%= t('예시: 1상품류 출원부터 등록까지', 'Example: one class, from filing to registration') %></p>
+                        <p><%= t('대리인 수수료 40만원 + 특허청 276,120원 (관납료 감면 전, VAT 별도). 상품류가 늘면 그만큼 추가됩니다.', 'Attorney fees KRW 400,000 + KIPO fees KRW 276,120 (before fee reductions, excl. VAT). Each additional class adds the same again.') %></p>
                     </div>
                 </div>
-                <p class="text-center mt-4"><a href="/trademark" class="font-bold" style="color:#16a34a;">상표 등록 안내 · 내 업종은 몇 류? →</a></p>
+                <p class="text-center mt-4"><a href="/trademark" class="font-bold" style="color:#16a34a;"><%= t('상표 등록 안내 · 내 업종은 몇 류? →', 'Trademark registration · Which class is my business in? →') %></a></p>
             </div>
             <div>
                 <div class="pr-card">
-                    <h3><i class="fas fa-pencil-ruler mr-2"></i>디자인 등록</h3>
+                    <h3><i class="fas fa-pencil-ruler mr-2"></i><%= t('디자인 등록', 'Design Registration') %></h3>
                     <table class="pr-table">
-                        <thead><tr><th>구분</th><th>대리인 수수료</th><th>특허청</th></tr></thead>
+                        <thead><tr><th><%= t('구분', 'Stage') %></th><th><%= t('대리인 수수료', 'Attorney fee') %></th><th><%= t('특허청', 'KIPO') %></th></tr></thead>
                         <tbody>
-                            <tr><td>출원</td><td class="fee">30만원</td><td class="gov">25,200원</td></tr>
-                            <tr><td>중간사건 대응</td><td class="fee">없음</td><td class="gov">-</td></tr>
-                            <tr><td>등록</td><td class="fee">30만원</td><td class="gov">상담 시 안내</td></tr>
+                            <tr><td><%= t('출원', 'Filing') %></td><td class="fee"><%= t('30만원', 'KRW 300,000') %></td><td class="gov"><%= t('25,200원', 'KRW 25,200') %></td></tr>
+                            <tr><td><%= t('중간사건 대응', 'Office action response') %></td><td class="fee"><%= t('없음', 'None') %></td><td class="gov">-</td></tr>
+                            <tr><td><%= t('등록', 'Registration') %></td><td class="fee"><%= t('30만원', 'KRW 300,000') %></td><td class="gov"><%= t('상담 시 안내', 'Quoted at consultation') %></td></tr>
                         </tbody>
                     </table>
                     <div class="pr-note">
-                        <p class="font-bold mb-1" style="color:#0F172A;">예시: 디자인 1건 출원부터 등록까지</p>
-                        <p>대리인 수수료 60만원 + 특허청 출원료 25,200원과 등록료 (관납료 감면 전, VAT 별도)</p>
+                        <p class="font-bold mb-1" style="color:#0F172A;"><%= t('예시: 디자인 1건 출원부터 등록까지', 'Example: one design, from filing to registration') %></p>
+                        <p><%= t('대리인 수수료 60만원 + 특허청 출원료 25,200원과 등록료 (관납료 감면 전, VAT 별도)', 'Attorney fees KRW 600,000 + KIPO filing fee KRW 25,200 and registration fee (before fee reductions, excl. VAT)') %></p>
                     </div>
                 </div>
-                <p class="text-center mt-4"><a href="/design" class="font-bold" style="color:#16a34a;">디자인 등록 안내 →</a></p>
+                <p class="text-center mt-4"><a href="/design" class="font-bold" style="color:#16a34a;"><%= t('디자인 등록 안내 →', 'Design registration →') %></a></p>
             </div>
         </div>
     </div>
@@ -123,33 +138,33 @@
 <!-- 비용 줄이는 방법 -->
 <section class="py-16 bg-white">
     <div class="container mx-auto px-4">
-        <div class="text-center"><h2 class="section-title text-3xl">비용을 줄이는 방법</h2></div>
+        <div class="text-center"><h2 class="section-title text-3xl"><%= t('비용을 줄이는 방법', 'Ways to Reduce Costs') %></h2></div>
         <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-8">
             <div class="p-7 rounded-lg" style="border:1px solid #e5e7eb;">
                 <i class="fas fa-percent text-2xl mb-3" style="color:#54B435;"></i>
-                <h3 class="text-xl font-bold mb-2" style="color:#0F172A;">관납료 감면</h3>
-                <p style="color:#2F3B40;">개인·중소기업·스타트업은 특허청 관납료를 최대 70%까지 감면받을 수 있습니다. 감면 신청까지 챙겨 드립니다.</p>
+                <h3 class="text-xl font-bold mb-2" style="color:#0F172A;"><%= t('관납료 감면', 'Official Fee Reductions') %></h3>
+                <p style="color:#2F3B40;"><%= t('개인·중소기업·스타트업은 특허청 관납료를 최대 70%까지 감면받을 수 있습니다. 감면 신청까지 챙겨 드립니다.', 'Individuals, SMEs and startups can get up to 70% off official KIPO fees. We take care of the reduction application for you.') %></p>
             </div>
             <div class="p-7 rounded-lg" style="border:1px solid #e5e7eb;">
                 <i class="fas fa-hand-holding-usd text-2xl mb-3" style="color:#54B435;"></i>
-                <h3 class="text-xl font-bold mb-2" style="color:#0F172A;">정부지원사업</h3>
-                <p style="color:#2F3B40;">IP나래, IP디딤돌, 인천지식재산센터 사업 등으로 출원 비용과 수수료 일부를 지원받을 수 있습니다.</p>
-                <a href="/gov-support" class="inline-block mt-3 font-bold" style="color:#16a34a;">지금 신청 가능한 사업 →</a>
+                <h3 class="text-xl font-bold mb-2" style="color:#0F172A;"><%= t('정부지원사업', 'Government Support Programs') %></h3>
+                <p style="color:#2F3B40;"><%= t('IP나래, IP디딤돌, 인천지식재산센터 사업 등으로 출원 비용과 수수료 일부를 지원받을 수 있습니다.', 'Programs such as IP Narae, IP Didimdol and those of the Incheon Regional IP Center can cover part of your filing costs and fees.') %></p>
+                <a href="/gov-support" class="inline-block mt-3 font-bold" style="color:#16a34a;"><%= t('지금 신청 가능한 사업 →', 'Programs open now (Korean) →') %></a>
             </div>
             <div class="p-7 rounded-lg" style="border:1px solid #e5e7eb;">
                 <i class="fas fa-route text-2xl mb-3" style="color:#54B435;"></i>
-                <h3 class="text-xl font-bold mb-2" style="color:#0F172A;">맞는 권리 고르기</h3>
-                <p style="color:#2F3B40;">작은 구조 개선은 실용신안, 모양이 핵심이면 디자인처럼 꼭 필요한 권리만 골라 출원하도록 함께 정합니다.</p>
+                <h3 class="text-xl font-bold mb-2" style="color:#0F172A;"><%= t('맞는 권리 고르기', 'Choosing the Right Protection') %></h3>
+                <p style="color:#2F3B40;"><%= t('작은 구조 개선은 실용신안, 모양이 핵심이면 디자인처럼 꼭 필요한 권리만 골라 출원하도록 함께 정합니다.', 'A utility model for a small structural improvement, a design when the shape is what matters: we decide together so you file only for the rights you really need.') %></p>
             </div>
         </div>
-        <p class="text-center mt-8" style="color:#2F3B40;">해외 출원(PCT·개별국) 비용은 국가와 번역 분량에 따라 달라 상담 후 안내드립니다.</p>
+        <p class="text-center mt-8" style="color:#2F3B40;"><%= t('해외 출원(PCT·개별국) 비용은 국가와 번역 분량에 따라 달라 상담 후 안내드립니다.', 'Costs for overseas filing (PCT or individual countries) vary with the countries and the amount of translation, so we quote them after a consultation.') %></p>
     </div>
 </section>
 
 <!-- FAQ -->
 <section class="py-16" style="background:#f9fafb;">
     <div class="container mx-auto px-4">
-        <div class="text-center"><h2 class="section-title text-3xl">비용 자주 묻는 질문</h2></div>
+        <div class="text-center"><h2 class="section-title text-3xl"><%= t('비용 자주 묻는 질문', 'Fee FAQ') %></h2></div>
         <div class="max-w-3xl mx-auto space-y-3 mt-8">
             <% priceFaqs.forEach((f, i) => { %>
             <details class="pr-faq bg-white rounded-lg shadow-sm" <%= i === 0 ? 'open' : '' %>>
@@ -169,11 +184,11 @@
 <!-- CTA -->
 <section class="py-16" style="background: linear-gradient(90deg, #54B435 0%, #16a34a 100%);">
     <div class="container mx-auto px-4 text-center text-white">
-        <h2 class="text-3xl font-bold mb-3">내 경우엔 얼마일까요?</h2>
-        <p class="text-lg mb-8 opacity-90">아이디어나 브랜드를 알려 주시면 진행 전에 항목별 견적을 무료로 안내드립니다.</p>
+        <h2 class="text-3xl font-bold mb-3"><%= t('내 경우엔 얼마일까요?', 'How Much Will Yours Cost?') %></h2>
+        <p class="text-lg mb-8 opacity-90"><%= t('아이디어나 브랜드를 알려 주시면 진행 전에 항목별 견적을 무료로 안내드립니다.', 'Tell us about your idea or brand, and we will send you a free itemized quote before any work begins.') %></p>
         <div class="flex flex-wrap justify-center gap-3">
-            <a href="/contact" class="font-bold px-8 py-3 rounded" style="background:#fff;color:#16a34a;">무료 견적 상담 신청</a>
-            <a href="tel:032-288-7960" class="font-bold px-8 py-3 rounded" style="border:2px solid #fff;color:#fff;"><i class="fas fa-phone mr-2"></i>032-288-7960</a>
+            <a href="/contact" class="font-bold px-8 py-3 rounded" style="background:#fff;color:#16a34a;"><%= t('무료 견적 상담 신청', 'Request a Free Quote') %></a>
+            <a href="tel:032-288-7960" class="font-bold px-8 py-3 rounded" style="border:2px solid #fff;color:#fff;"><i class="fas fa-phone mr-2"></i><%= t('032-288-7960', '+82-32-288-7960') %></a>
         </div>
     </div>
 </section>
